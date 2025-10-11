@@ -1,0 +1,96 @@
+# =====================================================
+# 🔧 BUILD SYSTEMS Y COMPILADOS
+# =====================================================
+target/
+**/target/
+!**/.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+out/  # compilaciones locales de IntelliJ
+
+# Archivos de error de JVM
+hs_err_pid*
+replay_pid*
+
+# =====================================================
+# 🧠 IntelliJ IDEA (mantener solo configuración compartible)
+# =====================================================
+# ✅ Se suben: misc.xml, modules.xml, vcs.xml
+#    → Permiten que todos abran el proyecto con SDK, Maven y módulos listos.
+# 🚫 Se ignoran: archivos personales, caches, estados y temporales.
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/dictionaries/
+.idea/shelf/
+.idea/httpRequests/
+.idea/caches/
+.idea/assetWizardSettings.xml
+.idea/dataSources/
+.idea/sonarlint/
+.idea/gradle.xml
+.idea/uiDesigner.xml
+.idea/compiler.xml
+.idea/encodings.xml
+.idea/jarRepositories.xml
+*.iml
+*.iws
+*.ipr
+
+# =====================================================
+# 🧰 Otros IDEs (Eclipse / VSCode / NetBeans)
+# =====================================================
+.classpath
+.project
+.settings/
+.springBeans
+.sts4-cache
+.apt_generated/
+.vscode/
+nbproject/private/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+# =====================================================
+# 🗂️ SISTEMA OPERATIVO
+# =====================================================
+.DS_Store
+Thumbs.db
+
+# =====================================================
+# 🔒 VARIABLES, LOGS Y DATOS LOCALES
+# =====================================================
+# Entornos y secretos
+.env
+*.env
+**/*.key
+**/*.pem
+*.jks
+*.p12
+
+# Logs
+logs/
+**/*.log
+
+# Bases de datos locales (SQLite)
+data/
+**/data/
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+
+# Archivos de configuración sensibles
+*.secret
+*.bak
+*.tmp
+
+# =====================================================
+# 🧪 GENERADOS / DOCS
+# =====================================================
+# Swagger / OpenAPI
+openapi*.json
+openapi*.yaml
+**/swagger-ui/
+**/docs/

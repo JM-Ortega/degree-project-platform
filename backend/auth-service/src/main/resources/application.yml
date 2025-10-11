@@ -1,0 +1,57 @@
+# ======================================================
+# ? Configuración general del microservicio
+# ======================================================
+spring:
+  application:
+    name: auth-service   # ? Cambiar por el nombre del micro
+
+  # ======================================================
+  # ?? Configuración de base de datos (SQLite local)
+  # ======================================================
+  datasource:
+    url: jdbc:sqlite:./data/auth.db
+    driver-class-name: org.sqlite.JDBC
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.SQLiteDialect
+
+  # ======================================================
+  # ? Configuración de mensajería (RabbitMQ)
+  # ======================================================
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+# ======================================================
+# ? Configuración del servidor embebido (Tomcat)
+# ======================================================
+server:
+  port: 8081
+
+# ======================================================
+# ? Configuración de Swagger / OpenAPI
+# ======================================================
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
+
+# ======================================================
+# ? Logs y formato básico
+# ======================================================
+logging:
+  level:
+    root: INFO
+    org.springframework.web: INFO
+    org.hibernate.SQL: DEBUG
+  file:
+    name: logs/${spring.application.name}.log

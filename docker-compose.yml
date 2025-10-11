@@ -1,0 +1,14 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"     # puerto para que los microservicios se conecten
+      - "15672:15672"   # consola web (http://localhost:15672)
+    environment:
+      RABBITMQ_DEFAULT_USER: appuser
+      RABBITMQ_DEFAULT_PASS: apppass
+    volumes:
+      - rabbit_data:/var/lib/rabbitmq
+volumes:
+  rabbit_data:
