@@ -1,18 +1,134 @@
+# ======================================================
+# Configuración general del microservicio (API Gateway)
+# ======================================================
 spring:
   application:
-    name: gateway
+    name: gateway-service
 
+  # ======================================================
+  # Spring Cloud Gateway Server (WebFlux)
+  # NOTA: desde Spring Cloud 2025+, el prefijo cambió a:
+  # spring.cloud.gateway.server.webflux.*
+  # ======================================================
   cloud:
     gateway:
-      routes:
-        - id: auth
-          uri: http://localhost:8081
-          predicates:
-            - Path=/auth/**
-        - id: proyectos
-          uri: http://localhost:8082
-          predicates:
-            - Path=/proyectos/**
+      server:
+        webflux:
+          # --------------------------------------------------
+          # Rutas (proxy inverso hacia cada micro)
+          # --------------------------------------------------
+          routes:
+            - id: auth-service
+              uri: http://localhost:8081
+              predicates:
+                - Path=/api/auth/**
+              filters:
+                - StripPrefix=2
 
+            - id: academic-project-service
+              uri: http://localhost:8082
+              predicates:
+                - Path=/api/academic/**
+              filters:
+                - StripPrefix=2
+                # Límite de tamaño para uploads (p. ej. PDFs)
+                - name: RequestSize
+                  args:
+                    maxSize: 50MB
+                # Si los PDFs son sensibles (evita cache del navegador/proxy)
+                - AddResponseHeader=Cache-Control, no-store
+
+            - id: coordinator-service
+              uri: http://localhost:8083
+              predicates:
+                - Path=/api/coordinator/**
+              filters:
+                - StripPrefix=2
+
+            - id: department-head-service
+              uri: http://localhost:8084
+              predicates:
+                - Path=/api/department/**
+              filters:
+                - StripPrefix=2
+
+            - id: notification-service
+              uri: http://localhost:8085
+              predicates:
+                - Path=/api/notification/**
+              filters:
+                - StripPrefix=2
+
+          # --------------------------------------------------
+          # Filtros globales (headers de seguridad básicos)
+          # --------------------------------------------------
+          default-filters:
+            # Seguridad del lado del navegador (no sniff de tipos)
+            - name: AddResponseHeader
+              args: { name: X-Content-Type-Options, value: nosniff }
+            # Política de referer conservadora
+            - name: AddResponseHeader
+              args: { name: Referrer-Policy, value: no-referrer }
+
+          # --------------------------------------------------
+          # CORS global (para Postman / frontend)
+          # --------------------------------------------------
+          globalcors:
+            add-to-simple-url-handler-mapping: true
+            cors-configurations:
+              '[/**]':
+                allowed-origins: "*"
+                allowed-methods: "*"
+                allowed-headers: "*"
+                allow-credentials: false
+                exposed-headers:
+                  - Content-Disposition
+                  - Content-Length
+                  - Content-Type
+                  - ETag
+                  - Last-Modified
+                max-age: 3600
+
+          # --------------------------------------------------
+          # Cliente HTTP (timeouts del Gateway -> micros)
+          # --------------------------------------------------
+          httpclient:
+            connect-timeout: 3000
+            response-timeout: 5s
+
+# ======================================================
+# Servidor embebido (Netty)
+# ======================================================
 server:
   port: 8080
+
+# ======================================================
+# Actuator (monitoreo y diagnóstico con CORS)
+# - 'enabled' fue reemplazado: usar 'access: read-only' o 'unrestricted'
+# ======================================================
+management:
+  endpoint:
+    gateway:
+      access: read-only   # <--- reemplaza al antiguo "enabled: true"
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway
+      cors:
+        allowed-origins: "*"
+        allowed-methods: "*"
+        allowed-headers: "*"
+        allow-credentials: false
+
+# ======================================================
+# Logs (niveles y archivo)
+# ======================================================
+logging:
+  level:
+    root: INFO
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.web: INFO
+  file:
+    name: logs/${spring.application.name}.log

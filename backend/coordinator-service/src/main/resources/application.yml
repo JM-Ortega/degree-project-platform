@@ -3,13 +3,13 @@
 # ======================================================
 spring:
   application:
-    name: auth-service   # Cambiar por el nombre del micro
+    name: coordinator-service   # Cambiar por el nombre del micro
 
   # ======================================================
   #  Configuracion de base de datos (SQLite local)
   # ======================================================
   datasource:
-    url: jdbc:sqlite:./data/auth.db
+    url: jdbc:sqlite:./data/coordinator.db
     driver-class-name: org.sqlite.JDBC
   jpa:
     hibernate:
@@ -69,7 +69,7 @@ messaging:
 # Configuracion del servidor embebido (Tomcat)
 # ======================================================
 server:
-  port: 8081
+  port: 8083
 
 # ======================================================
 # Actuator
@@ -78,8 +78,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info   # /actuator/health vía gateway: /api/auth/actuator/health
-
+        include: health,info   # /actuator/health vía gateway: /api/coordinator/actuator/health
 
 # ======================================================
 # Configuracion de Swagger / OpenAPI

@@ -4,34 +4,34 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <!-- POM raíz: agrupa módulos y centraliza versiones -->
   <groupId>co.edu.unicauca</groupId>
   <artifactId>degree-project-platform</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
-  <!-- Heredamos Spring Boot para alinear versiones en los micros -->
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.5.6</version> <!-- mismo Boot que usas en gateway/micros -->
-    <relativePath/> <!-- buscar en repos centrales -->
+      <version>3.5.6</version>
+      <relativePath/>
   </parent>
 
   <properties>
-    <!-- Java unificado para todos los módulos -->
     <java.version>21</java.version>
-
-    <!-- BOM de Spring Cloud para Gateway (Leyton) -->
     <spring-cloud.version>2025.0.0</spring-cloud.version>
 
-    <!-- Encoding común -->
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+      <mapstruct.version>1.6.2</mapstruct.version>
+      <sqlite.version>3.46.1.3</sqlite.version>
+      <springdoc.version>2.6.0</springdoc.version>
+      <lombok.version>1.18.34</lombok.version>
+      <hibernate.orm.version>6.6.29.Final</hibernate.orm.version>
+
+      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
-  <!-- Gestiona versiones de dependencias “cloud” en un solo lugar -->
   <dependencyManagement>
     <dependencies>
+        <!-- BOM Spring Cloud -->
       <dependency>
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-dependencies</artifactId>
@@ -39,21 +39,76 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
+
+        <!-- Libs comunes (con versión) -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>${springdoc.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>${mapstruct.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct-processor</artifactId>
+            <version>${mapstruct.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>${sqlite.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+        </dependency>
+
+        <!-- Dialectos Hibernate (SQLiteDialect) -->
+        <dependency>
+            <groupId>org.hibernate.orm</groupId>
+            <artifactId>hibernate-community-dialects</artifactId>
+            <version>${hibernate.orm.version}</version>
+        </dependency>
+
+        <!-- Artefacto interno -->
+        <dependency>
+            <groupId>co.edu.unicauca</groupId>
+            <artifactId>shared-contracts</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
   </dependencyManagement>
 
-  <!-- Lista de módulos del proyecto -->
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.13.0</version>
+                    <configuration>
+                        <release>${java.version}</release>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
   <modules>
-    <!-- Front de escritorio (JavaFX) -->
     <module>frontend</module>
-
-    <!-- Shared con DTOs/eventos (contratos comunes) -->
     <module>shared/shared-contracts</module>
-
-    <!-- Gateway (Spring Cloud Gateway) -->
     <module>backend/gateway</module>
-
-    <!-- Microservicios backend -->
-
+      <module>backend/auth-service</module>
+      <module>backend/academic-project-service</module>
+      <module>backend/coordinator-service</module>
+      <module>backend/department-head-service</module>
+      <module>backend/notification-service</module>
   </modules>
 </project>

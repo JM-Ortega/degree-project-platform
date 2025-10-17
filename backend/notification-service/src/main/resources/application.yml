@@ -3,13 +3,13 @@
 # ======================================================
 spring:
   application:
-    name: auth-service   # Cambiar por el nombre del micro
+    name: notification-service   # Cambiar por el nombre del micro
 
   # ======================================================
   #  Configuracion de base de datos (SQLite local)
   # ======================================================
   datasource:
-    url: jdbc:sqlite:./data/auth.db
+    url: jdbc:sqlite:./data/notification.db
     driver-class-name: org.sqlite.JDBC
   jpa:
     hibernate:
@@ -69,7 +69,7 @@ messaging:
 # Configuracion del servidor embebido (Tomcat)
 # ======================================================
 server:
-  port: 8081
+  port: 8085
 
 # ======================================================
 # Actuator
@@ -78,8 +78,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info   # /actuator/health vía gateway: /api/auth/actuator/health
-
+        include: health,info   # /actuator/health vía gateway: /api/notification/actuator/health
 
 # ======================================================
 # Configuracion de Swagger / OpenAPI

@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <!-- Hereda del POM raíz (que ya hereda de Spring Boot y define Spring Cloud) -->
+    <!-- Hereda del POM raíz de la plataforma -->
   <parent>
     <groupId>co.edu.unicauca</groupId>
     <artifactId>degree-project-platform</artifactId>
@@ -14,26 +14,30 @@
 
   <groupId>co.edu.unicauca</groupId>
   <artifactId>gateway</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+    <version>${project.parent.version}</version>
   <name>gateway</name>
-  <description>API Gateway (Spring Cloud Gateway)</description>
-
-  <!-- Propiedades y BOMs se heredan del padre: java.version, spring-cloud.version, etc. -->
+    <description>API Gateway (enrutador reactivo con Spring Cloud Gateway)</description>
 
   <dependencies>
-    <!-- Actuator: /actuator/health, /actuator/info -->
+      <!-- ====================================================== -->
+      <!-- Gateway reactivo oficial (basado en Spring WebFlux) -->
+      <!-- ====================================================== -->
+      <dependency>
+          <groupId>org.springframework.cloud</groupId>
+          <artifactId>spring-cloud-starter-gateway-server-webflux</artifactId>
+      </dependency>
+
+      <!-- ====================================================== -->
+      <!-- Actuator: /actuator/health, /info, /gateway/routes -->
+      <!-- ====================================================== -->
     <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-actuator</artifactId>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-actuator</artifactId>
     </dependency>
 
-    <!-- Spring Cloud Gateway (reactivo) -->
-    <dependency>
-      <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-starter-gateway</artifactId>
-    </dependency>
-
-    <!-- Tests -->
+      <!-- ====================================================== -->
+      <!-- Dependencias de pruebas unitarias y reactivas -->
+      <!-- ====================================================== -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
@@ -48,7 +52,9 @@
 
   <build>
     <plugins>
-      <!-- Reempaquetado y arranque de Spring Boot -->
+        <!-- ====================================================== -->
+        <!-- Empaquetado y arranque con Spring Boot -->
+        <!-- ====================================================== -->
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
