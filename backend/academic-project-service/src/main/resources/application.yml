@@ -5,6 +5,14 @@ spring:
   application:
     name: academic-project-service   # Cambiar por el nombre del micro
 
+# ======================================================
+# Subidas multipart (límite del micro)
+# ======================================================
+  servlet:
+    multipart:
+      max-file-size: 60MB        # tamaño máx. por archivo
+      max-request-size: 60MB     # tamaño máx. del request completo (incluye metadatos multipart)
+
   # ======================================================
   #  Configuracion de base de datos (SQLite local)
   # ======================================================
