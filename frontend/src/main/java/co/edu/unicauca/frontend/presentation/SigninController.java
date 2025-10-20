@@ -1,10 +1,5 @@
 package co.edu.unicauca.frontend.presentation;
 
-import co.unicauca.workflow.degree_project.domain.services.AuthResult;
-import co.unicauca.workflow.degree_project.domain.services.ISignInService;
-import co.unicauca.workflow.degree_project.domain.services.IUserService;
-import co.unicauca.workflow.degree_project.infra.security.Sesion;
-import co.unicauca.workflow.degree_project.main;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.PasswordField;
@@ -14,7 +9,7 @@ import java.io.IOException;
 import java.util.Optional;
 
 public class SigninController {
-
+/*
     @FXML
     private TextField txtCorreo;
     @FXML
@@ -135,4 +130,6 @@ public class SigninController {
         a.setContentText(content);
         a.showAndWait();
     }
+
+ */
 }

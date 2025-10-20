@@ -1,10 +1,5 @@
-package co.unicauca.workflow.degree_project.presentation;
+package co.edu.unicauca.frontend.presentation;
 
-import co.unicauca.workflow.degree_project.domain.models.*;
-import co.unicauca.workflow.degree_project.domain.services.AuthResult;
-import co.unicauca.workflow.degree_project.domain.services.IProyectoService;
-import co.unicauca.workflow.degree_project.infra.security.Sesion;
-import co.unicauca.workflow.degree_project.main;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -25,7 +20,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.ResourceBundle;
-
+/*
 public class FormatoADocenteController implements Initializable {
 
     // Header / acciones
@@ -570,3 +565,4 @@ public class FormatoADocenteController implements Initializable {
         }
     }
 }
+ */

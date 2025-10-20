@@ -1,13 +1,13 @@
-package co.unicauca.workflow.degree_project.presentation;
+package co.edu.unicauca.frontend.presentation;
 
-import co.unicauca.workflow.degree_project.domain.services.AuthResult;
-import co.unicauca.workflow.degree_project.domain.services.IUserService;
-import co.unicauca.workflow.degree_project.infra.security.Sesion;
-import co.unicauca.workflow.degree_project.main;
-import co.unicauca.workflow.degree_project.presentation.Co_Proyecto_Controller.RowVM;
+import co.edu.unicauca.frontend.FrontendApp;
+import co.edu.unicauca.frontend.entity.CoordinadorInfo;
+import co.edu.unicauca.frontend.service.CoordinadorClient;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -28,12 +28,14 @@ public class CoordinadorController implements Initializable{
     private Button btnSalir;
     
     @FXML
-    private Label nombreCoor;
+    private Label lblNombreCompleto;
 
     @FXML
-    private Label programaCoor;
-    
-    private IUserService userService;
+    private Label lblPrograma;
+
+    private final CoordinadorClient client = new CoordinadorClient();
+    private final ObjectMapper mapper = new ObjectMapper();
+
     private Button selectedButton = null; // botón actualmente seleccionado
     
     @Override
@@ -54,17 +56,15 @@ public class CoordinadorController implements Initializable{
     }
  
     void cargarDatos() {
-        AuthResult auth = Sesion.getInstancia().getUsuarioActual();
-        if (auth != null) {
-            nombreCoor.setText(auth.nombre());
-            programaCoor.setText("Coordinador programa "+auth.programa());
-        } else {
-            System.err.println("No hay sesión activa; redirigiendo a login.");
-            try {
-                main.navigate("signin", "Login");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        try {
+            String json = client.getCoordinadorInfo(1L); // coordinador ID = 1 seteado
+            CoordinadorInfo info = mapper.readValue(json, CoordinadorInfo.class);
+
+            lblNombreCompleto.setText(info.getNombreCompleto());
+            lblPrograma.setText(info.getPrograma());
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
     
@@ -84,7 +84,7 @@ public class CoordinadorController implements Initializable{
     public void loadUI(String fxml) {
         try {
             String path = fxml+".fxml";
-            FXMLLoader loader = main.newInjectedLoader(path);
+            FXMLLoader loader = FrontendApp.newLoader(path);
             Parent root = loader.load();
 
             Object controller = loader.getController();
@@ -101,7 +101,8 @@ public class CoordinadorController implements Initializable{
             e.printStackTrace();
         }
     }
-     
+
+    /*
     public void loadUI(String fxml, Object data) {
         try {
             String path = fxml+".fxml";
@@ -129,7 +130,8 @@ public class CoordinadorController implements Initializable{
             e.printStackTrace();
         }
     }
-    
+    */
+    /*
     @FXML
     private void switchToSignin(ActionEvent event) {
         try {
@@ -142,4 +144,5 @@ public class CoordinadorController implements Initializable{
             e.printStackTrace();
         }
     }
+     */
 }

@@ -46,11 +46,11 @@
     </dependency>
 
     <!-- DTOs compartidos con el backend -->
-    <dependency>
-      <groupId>co.edu.unicauca</groupId>
-      <artifactId>shared-contracts</artifactId>
-      <version>1.0-SNAPSHOT</version>
-    </dependency>
+<!--    <dependency>-->
+<!--      <groupId>co.edu.unicauca</groupId>-->
+<!--      <artifactId>shared-contracts</artifactId>-->
+<!--      <version>1.0-SNAPSHOT</version>-->
+<!--    </dependency>-->
 
     <!-- Logging (binding SLF4J). Mantén logback si ya lo usas. -->
     <dependency>

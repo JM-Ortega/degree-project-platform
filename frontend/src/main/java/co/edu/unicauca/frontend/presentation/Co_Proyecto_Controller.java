@@ -1,9 +1,6 @@
-package co.unicauca.workflow.degree_project.presentation;
+package co.edu.unicauca.frontend.presentation;
 
-import co.unicauca.workflow.degree_project.domain.models.Archivo;
-import co.unicauca.workflow.degree_project.domain.models.Proyecto;
-import co.unicauca.workflow.degree_project.domain.services.IProyectoService;
-import co.unicauca.workflow.degree_project.main;
+import co.edu.unicauca.frontend.FrontendApp;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -46,21 +43,20 @@ public class Co_Proyecto_Controller implements Initializable{
     @FXML
     private TableColumn<RowVM, RowVM> colDescargar;
 
-    private CoordinadorController parent;  
-    private IProyectoService proyectoService; // referencia al controlador padre para loadUI
-    
+    private CoordinadorController parent;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         configurarTabla();
-        cargarTabla();
+        //cargarTabla();
     }
-    
+
     private Stage estadisticasStage;
     @FXML
     private void onVerEstadisticas(ActionEvent event) {
-        if (estadisticasStage == null) { 
+        if (estadisticasStage == null) {
             try {
-                FXMLLoader loaderEstadisticas = main.newInjectedLoader(
+                FXMLLoader loaderEstadisticas = FrontendApp.newLoader(
                         "/co/unicauca/workflow/degree_project/view/EstadisticasCoordinador.fxml"
                 );
                 Parent estadisticasView = loaderEstadisticas.load();
@@ -72,7 +68,6 @@ public class Co_Proyecto_Controller implements Initializable{
                 Stage mainStage = (Stage) tabla.getScene().getWindow();
                 estadisticasStage.initOwner(mainStage);
 
-                // 🔑 importante: limpiar la referencia cuando se cierra
                 estadisticasStage.setOnHidden(event1 -> estadisticasStage = null);
 
                 estadisticasStage.show();
@@ -84,11 +79,6 @@ public class Co_Proyecto_Controller implements Initializable{
         }
     }
 
-    
-    public void setService(IProyectoService proyectoService) {
-        this.proyectoService = proyectoService;
-    }
-    
     private void configurarTabla() {
         colNombreProyecto.setCellValueFactory(d -> d.getValue().nombreProyectoProperty());
         colNombreProfesor.setCellValueFactory(d -> d.getValue().nombreDocenteProperty());
@@ -111,7 +101,7 @@ public class Co_Proyecto_Controller implements Initializable{
 
         colEstado.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue()));
         configurarColumnaEstado();
-        configurarColumnaDescargar();
+        //configurarColumnaDescargar();
         tabla.getColumns().forEach(col -> col.setReorderable(false));
         colNombreProyecto.setSortable(false);
         colNombreProfesor.setSortable(false);
@@ -122,12 +112,13 @@ public class Co_Proyecto_Controller implements Initializable{
         colDescargar.setSortable(false);
     }
 
+    /*
     private void cargarTabla() {
         if (proyectoService == null) {
             System.err.println("Error: proyectoService no fue inicializado.");
             return;
         }
-        
+
         try {
             List<Archivo> archivos = proyectoService.listarTodosArchivos();
 
@@ -139,7 +130,7 @@ public class Co_Proyecto_Controller implements Initializable{
                 String nombreDocente = proyectoService.obtenerNombreDocente(p.getDocenteId());
                 String correoDocente = proyectoService.obtenerCorreoDocente(p.getDocenteId());
                 String correoEstudiante = proyectoService.obtenerCorreoEstudiante(p.getEstudianteId());
-                
+
                 rows.add(new RowVM(
                     a.getId(),
                     p.getId(),
@@ -173,7 +164,8 @@ public class Co_Proyecto_Controller implements Initializable{
             // opcional: mostrar error en un label
         }
     }
-    
+     */
+
     public static class RowVM {
         private final long archivoId;
         private final long proyectoId;
@@ -186,7 +178,7 @@ public class Co_Proyecto_Controller implements Initializable{
         private final StringProperty correoProfesor = new SimpleStringProperty();
         private final StringProperty correoEstudiante = new SimpleStringProperty();
 
-        public RowVM(long archivoId, long proyectoId, String nombreProyecto, String nombreDocente, String tipoA, String tipoP, 
+        public RowVM(long archivoId, long proyectoId, String nombreProyecto, String nombreDocente, String tipoA, String tipoP,
                 String fecha, String estado, String correoProfesor, String correoEstudiante) {
             this.archivoId = archivoId;
             this.proyectoId = proyectoId;
@@ -212,21 +204,22 @@ public class Co_Proyecto_Controller implements Initializable{
         public StringProperty correoEstudiante() { return correoEstudiante; }
     }
 
+
     public void setParentController(CoordinadorController parent) {
         this.parent = parent;
     }
- 
+
     private void configurarColumnaEstado() {
         colEstado.setCellFactory(column -> new TableCell<RowVM, RowVM>() {
             private final Button estadoBtn = new Button();
 
             {
                 estadoBtn.setOnAction(e -> {
-                    RowVM row = getItem(); 
+                    RowVM row = getItem();
                     if (row == null) return;
 
                     String estadoActual = row.estadoProperty().get();
-
+/*
                     if ("PENDIENTE".equalsIgnoreCase(estadoActual)) {
                         if (parent != null) {
                             parent.loadUI(
@@ -240,6 +233,8 @@ public class Co_Proyecto_Controller implements Initializable{
                                 null,
                                 "Este proyecto ya fue evaluado. No se puede volver a evaluar.");
                     }
+
+ */
                 });
             }
 
@@ -278,7 +273,8 @@ public class Co_Proyecto_Controller implements Initializable{
             }
         });
     }
-    
+
+    /*
     private void configurarColumnaDescargar() {
         colDescargar.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue()));
         colDescargar.setCellFactory(col -> new TableCell<>() {
@@ -309,7 +305,9 @@ public class Co_Proyecto_Controller implements Initializable{
             }
         });
     }
-    
+
+     */
+    /*
     private void descargarObservaciones(RowVM row) {
         try {
             proyectoService.enforceAutoCancelIfNeeded(row.archivoId());
@@ -353,4 +351,5 @@ public class Co_Proyecto_Controller implements Initializable{
         a.setContentText(content);
         a.showAndWait();
     }
+     */
 }

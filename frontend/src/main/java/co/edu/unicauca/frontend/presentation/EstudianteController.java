@@ -1,9 +1,5 @@
-package co.unicauca.workflow.degree_project.presentation;
+package co.edu.unicauca.frontend.presentation;
 
-import co.unicauca.workflow.degree_project.domain.services.AuthResult;
-import co.unicauca.workflow.degree_project.domain.services.IUserService;
-import co.unicauca.workflow.degree_project.infra.security.Sesion;
-import co.unicauca.workflow.degree_project.main;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -17,11 +13,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 
-/**
- * FXML Controller class
- *
- * @author Maryuri
- */
+/*
 public class EstudianteController implements Initializable {
 
     @FXML private Button btnPrincipal;
@@ -109,5 +101,5 @@ public class EstudianteController implements Initializable {
     public void setUserService(IUserService userService) {
         this.userService = userService;
     }
-
 }
+ */

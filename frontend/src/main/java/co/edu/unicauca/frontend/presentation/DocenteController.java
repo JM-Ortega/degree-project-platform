@@ -1,9 +1,5 @@
-package co.unicauca.workflow.degree_project.presentation;
+package co.edu.unicauca.frontend.presentation;
 
-import co.unicauca.workflow.degree_project.domain.services.AuthResult;
-import co.unicauca.workflow.degree_project.domain.services.IUserService;
-import co.unicauca.workflow.degree_project.infra.security.Sesion;
-import co.unicauca.workflow.degree_project.main;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -20,8 +16,8 @@ import java.util.ResourceBundle;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+/*
 public class DocenteController implements Initializable {
-
     @FXML private Button btnPrincipal;
     @FXML private Button btnFormatoA;
     @FXML private Button btnSalir;
@@ -131,3 +127,4 @@ public class DocenteController implements Initializable {
         this.userService = userService;
     }
 }
+ */

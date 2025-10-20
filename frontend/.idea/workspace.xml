@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="3f3863a8-25bf-4719-9caf-9a18d5cb7e55" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/../backend/coordinator-service/src/main/java/co/edu/unicauca/coordinatorservice/infra/CoordinadorInfoDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/jarRepositories.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/entity/CoordinadorInfo.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/service/CoordinadorClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/coordinator-service/src/main/java/co/edu/unicauca/coordinatorservice/controller/CoordinadorController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/coordinator-service/src/main/java/co/edu/unicauca/coordinatorservice/controller/CoordinadorController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/FrontendApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/FrontendApp.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/presentation/Co_Observaciones_Controller.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/presentation/Co_Observaciones_Controller.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/presentation/Co_Proyecto_Controller.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/presentation/Co_Proyecto_Controller.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/presentation/CoordinadorController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/presentation/CoordinadorController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/presentation/DocenteController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/presentation/DocenteController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/presentation/EstadisticasCoordinadorController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/presentation/EstadisticasCoordinadorController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/presentation/EstadisticasDocenteController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/presentation/EstadisticasDocenteController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/presentation/EstudianteController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/presentation/EstudianteController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/presentation/FormatoADocenteController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/presentation/FormatoADocenteController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/presentation/FormatoAEstudianteController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/presentation/FormatoAEstudianteController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/presentation/RegisterController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/presentation/RegisterController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/presentation/SigninController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/presentation/SigninController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/co/edu/unicauca/frontend/view/Coordinador.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/co/edu/unicauca/frontend/view/Coordinador.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/co/edu/unicauca/frontend/view/Coordinador_Observaciones.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/co/edu/unicauca/frontend/view/Coordinador_Observaciones.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/co/edu/unicauca/frontend/view/Coordinador_Proyectos.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/co/edu/unicauca/frontend/view/Coordinador_Proyectos.fxml" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="mavenHomeTypeForPersistence" value="WRAPPER" />
+      </MavenGeneralSettings>
+    </option>
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 6
+}]]></component>
+  <component name="ProjectId" id="34JIrXUgD4G0LVCIc1xndjy5H9v" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.FrontendApp.executor": "Run",
+    "Maven.frontend [compile].executor": "Run",
+    "git-widget-placeholder": "feature/coordinador",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.2"
+  }
+}]]></component>
+  <component name="RunManager">
+    <configuration name="FrontendApp" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="ALTERNATIVE_JRE_PATH" value="openjdk-21" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+      <option name="MAIN_CLASS_NAME" value="co.edu.unicauca.frontend.FrontendApp" />
+      <module name="frontend" />
+      <option name="PROGRAM_PARAMETERS" value="--module-path &quot;C:\Java FX\javafx-sdk-21.0.8\lib&quot; --add-modules javafx.controls,javafx.fxml" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="co.edu.unicauca.frontend.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Application.FrontendApp" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.26830.84" />
+        <option value="bundled-js-predefined-d6986cc7102b-3aa1da707db6-JavaScript-IU-252.26830.84" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="3f3863a8-25bf-4719-9caf-9a18d5cb7e55" name="Changes" comment="" />
+      <created>1760925446841</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1760925446841</updated>
+      <workItem from="1760925448029" duration="8327000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

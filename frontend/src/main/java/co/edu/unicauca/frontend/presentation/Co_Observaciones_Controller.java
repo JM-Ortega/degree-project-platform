@@ -1,10 +1,5 @@
-package co.unicauca.workflow.degree_project.presentation;
+package co.edu.unicauca.frontend.presentation;
 
-import co.unicauca.workflow.degree_project.domain.models.Archivo;
-import co.unicauca.workflow.degree_project.domain.models.EstadoArchivo;
-import co.unicauca.workflow.degree_project.domain.models.TipoArchivo;
-import co.unicauca.workflow.degree_project.domain.services.IProyectoService;
-import co.unicauca.workflow.degree_project.presentation.Co_Proyecto_Controller.RowVM;
 import java.io.File;
 import java.net.URL;
 import java.nio.file.Files;
@@ -47,15 +42,15 @@ public class Co_Observaciones_Controller implements Initializable{
     @FXML
     private Button btnEnviar;
 
-    private IProyectoService proyectoService;
     private CoordinadorController parent;
+    /*
     private Archivo archivoSeleccionado; // Guardamos el archivo subido
     private RowVM rowActual;             // Guardamos el row que nos pasa el padre
-    
+    */
     public void setParentController(CoordinadorController parent) {
         this.parent = parent;
     }
-    
+    /*
     public void setService(IProyectoService proyectoService) {
         this.proyectoService = proyectoService;
     }
@@ -68,14 +63,17 @@ public class Co_Observaciones_Controller implements Initializable{
         lblTipoArchivo.setText(row.tipoAProperty().get());
         lblArchivo.setText("");
     }
-
+*/
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // Acción al hacer clic en el Label volver
         volver.setOnMouseClicked(e -> {
+            /*
             if (parent != null) {
                 parent.loadUI("/co/unicauca/workflow/degree_project/view/Coordinador_Proyectos");
             }
+
+             */
         });
         
         // Agregar opciones
@@ -122,18 +120,22 @@ public class Co_Observaciones_Controller implements Initializable{
         });
         
         btnEnviar.setDisable(true);
-
+/*
         // Listener: habilitar si hay selección y archivo cargado
         cbxValoracion.valueProperty().addListener((obs, oldVal, newVal) -> {
             validarEnviar();
         });
+
+ */
     }
-    
+    /*
     private void validarEnviar() {
         boolean habilitar = cbxValoracion.getValue() != null && archivoSeleccionado != null;
         btnEnviar.setDisable(!habilitar);
     }
 
+     */
+/*
     @FXML
     private void seleccionarArchivo(ActionEvent event) {
         try {
@@ -158,6 +160,8 @@ public class Co_Observaciones_Controller implements Initializable{
             System.err.println("Error al seleccionar archivo: " + ex.getMessage());
         }
     }
+
+ */
     
     private void alerta(Alert.AlertType type, String title, String header, String content) {
         Alert a = new Alert(type);
@@ -166,7 +170,8 @@ public class Co_Observaciones_Controller implements Initializable{
         a.setContentText(content);
         a.showAndWait();
     }
-    
+
+    /*
     @FXML
     private void enviar(ActionEvent event) {
         if (archivoSeleccionado == null || cbxValoracion.getValue() == null) {
@@ -201,4 +206,5 @@ public class Co_Observaciones_Controller implements Initializable{
                "El estado registrado para el archivo no fue ni observado ni aprobado.");
         }    
     }
+     */
 }

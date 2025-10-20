@@ -1,16 +1,12 @@
-package co.unicauca.workflow.degree_project.presentation;
+package co.edu.unicauca.frontend.presentation;
 
-import co.unicauca.workflow.degree_project.domain.models.Programa;
-import co.unicauca.workflow.degree_project.domain.models.Rol;
-import co.unicauca.workflow.degree_project.domain.services.IRegistrationService;
-import co.unicauca.workflow.degree_project.main;
 import java.io.IOException;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
 
 public class RegisterController {
-
+/*
     private IRegistrationService registrationService;
 
     public void setServices(IRegistrationService registrationService) {
@@ -120,7 +116,7 @@ public class RegisterController {
         try {
             main.navigate("signin", "Login");
         } catch (IOException e) {
-            /* mostrar alerta */ }
+            // mostrar alerta  }
     }
 
     // ===== Helpers =====
@@ -158,4 +154,5 @@ public class RegisterController {
         clearError(errGeneral);
     }
 
+ */
 }

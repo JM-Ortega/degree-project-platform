@@ -1,9 +1,5 @@
-package co.unicauca.workflow.degree_project.presentation;
+package co.edu.unicauca.frontend.presentation;
 
-import co.unicauca.workflow.degree_project.domain.services.AuthResult;
-import co.unicauca.workflow.degree_project.domain.services.IProyectoService;
-import co.unicauca.workflow.degree_project.domain.services.Observer;
-import co.unicauca.workflow.degree_project.infra.security.Sesion;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;
@@ -11,6 +7,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.chart.XYChart;
 import javafx.scene.chart.BarChart;
 
+/*
 public class EstadisticasDocenteController implements Initializable, Observer{
     
     @FXML private BarChart<String, Number> BarChartEstadisticas;
@@ -54,3 +51,4 @@ public class EstadisticasDocenteController implements Initializable, Observer{
         cargarEstadisticas();
     }
 }
+ */

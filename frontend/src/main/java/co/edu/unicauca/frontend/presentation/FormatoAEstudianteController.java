@@ -1,10 +1,5 @@
-package co.unicauca.workflow.degree_project.presentation;
+package co.edu.unicauca.frontend.presentation;
 
-import co.unicauca.workflow.degree_project.domain.models.Proyecto;
-import co.unicauca.workflow.degree_project.domain.services.AuthResult;
-import co.unicauca.workflow.degree_project.domain.services.IProyectoService;
-import co.unicauca.workflow.degree_project.infra.security.Sesion;
-import co.unicauca.workflow.degree_project.main;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -29,8 +24,8 @@ import javafx.stage.FileChooser;
 import javafx.util.Duration;
 import javafx.scene.image.Image;
 
-public class FormatoAEstudianteController implements Initializable {  
-
+/*
+public class FormatoAEstudianteController implements Initializable {
     @FXML private Label nombreEstudiante; 
     @FXML private TableView<Proyecto> tabla;
     @FXML private TableColumn<Proyecto, String> colTipo;
@@ -196,3 +191,4 @@ public class FormatoAEstudianteController implements Initializable {
         return (is == null) ? null : new Image(is);
     }
 }
+ */
