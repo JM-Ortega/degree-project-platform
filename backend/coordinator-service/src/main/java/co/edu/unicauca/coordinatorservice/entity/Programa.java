@@ -1,8 +1,19 @@
 package co.edu.unicauca.coordinatorservice.entity;
 
 public enum Programa {
-    INGENIERIA_DE_SISTEMAS,
-    INGENIERIA_ELECTRONICA_Y_TELECOMUNICACIONES,
-    AUTOMATICA_INDUSTRIAL,
-    TECNOLOGIA_EN_TELEMATICA
+    Ingenieria_de_Sistemas("Ingeniería de Sistemas"),
+    Ingenieria_Electronica_y_Telecomunicaciones("Ingeniería Electrónica y Telecomunicaciones"),
+    Automatica_Industrial("Automática Industrial"),
+    Tecnologia_en_Telematica("Tecnología en Telemática");
+
+    private final String displayName;
+
+    Programa(String displayName) {
+        this.displayName = displayName;
+    }
+
+    @Override
+    public String toString() {
+        return displayName;
+    }
 }

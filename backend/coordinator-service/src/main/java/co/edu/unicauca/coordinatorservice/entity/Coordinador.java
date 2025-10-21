@@ -15,6 +15,7 @@ public class Coordinador implements Serializable {
     private String nombres;
     private String apellidos;
     private String correo;
+    @Enumerated(EnumType.STRING)
     private Programa programa;
 
     public Coordinador(Long id, Integer codigo, String nombres, String apellidos, String correo, Programa programa) {

@@ -82,10 +82,10 @@
         </dependency>
 
         <!-- Contratos compartidos (DTOs/Eventos) -->
-        <dependency>
-            <groupId>co.edu.unicauca</groupId>
-            <artifactId>shared-contracts</artifactId>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>co.edu.unicauca</groupId>-->
+<!--            <artifactId>shared-contracts</artifactId>-->
+<!--        </dependency>-->
 
         <!-- Pruebas unitarias -->
         <dependency>
@@ -107,7 +107,11 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <!--Añadida -->
+                <version>3.13.0</version>
                 <configuration>
+                    <!--Añadida -->
+                    <release>21</release>
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.mapstruct</groupId>

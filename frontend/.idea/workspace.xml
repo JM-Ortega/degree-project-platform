@@ -4,34 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3f3863a8-25bf-4719-9caf-9a18d5cb7e55" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/../backend/coordinator-service/src/main/java/co/edu/unicauca/coordinatorservice/infra/CoordinadorInfoDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/jarRepositories.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/entity/CoordinadorInfo.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/service/CoordinadorClient.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/coordinator-service/src/main/java/co/edu/unicauca/coordinatorservice/controller/CoordinadorController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/coordinator-service/src/main/java/co/edu/unicauca/coordinatorservice/controller/CoordinadorController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/FrontendApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/FrontendApp.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/presentation/Co_Observaciones_Controller.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/presentation/Co_Observaciones_Controller.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/presentation/Co_Proyecto_Controller.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/presentation/Co_Proyecto_Controller.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/presentation/CoordinadorController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/presentation/CoordinadorController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/presentation/DocenteController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/presentation/DocenteController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/presentation/EstadisticasCoordinadorController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/presentation/EstadisticasCoordinadorController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/presentation/EstadisticasDocenteController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/presentation/EstadisticasDocenteController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/presentation/EstudianteController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/presentation/EstudianteController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/presentation/FormatoADocenteController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/presentation/FormatoADocenteController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/presentation/FormatoAEstudianteController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/presentation/FormatoAEstudianteController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/presentation/RegisterController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/presentation/RegisterController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/presentation/SigninController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/co/edu/unicauca/frontend/presentation/SigninController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/co/edu/unicauca/frontend/view/Coordinador.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/co/edu/unicauca/frontend/view/Coordinador.fxml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/co/edu/unicauca/frontend/view/Coordinador_Observaciones.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/co/edu/unicauca/frontend/view/Coordinador_Observaciones.fxml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/co/edu/unicauca/frontend/view/Coordinador_Proyectos.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/co/edu/unicauca/frontend/view/Coordinador_Proyectos.fxml" afterDir="false" />
-    </list>
+    <list default="true" id="3f3863a8-25bf-4719-9caf-9a18d5cb7e55" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -54,9 +27,9 @@
       </MavenGeneralSettings>
     </option>
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 6
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 6
+}</component>
   <component name="ProjectId" id="34JIrXUgD4G0LVCIc1xndjy5H9v" />
   <component name="ProjectLevelVcsManager">
     <ConfirmationsSetting value="2" id="Add" />
@@ -69,11 +42,19 @@
   "keyToString": {
     "Application.FrontendApp.executor": "Run",
     "Maven.frontend [compile].executor": "Run",
+    "RunOnceActivity.git.unshallow": "true",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
     "git-widget-placeholder": "feature/coordinador",
+    "junie.onboarding.icon.badge.shown": "true",
+    "kotlin-language-version-configured": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "project.structure.last.edited": "Project",
     "project.structure.proportion": "0.0",
-    "project.structure.side.proportion": "0.2"
+    "project.structure.side.proportion": "0.2",
+    "to.speed.mode.migration.done": "true",
+    "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
   <component name="RunManager">
@@ -115,6 +96,7 @@
       <option name="presentableId" value="Default" />
       <updated>1760925446841</updated>
       <workItem from="1760925448029" duration="8327000" />
+      <workItem from="1761011055593" duration="383000" />
     </task>
     <servers />
   </component>
