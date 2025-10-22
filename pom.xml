@@ -102,8 +102,8 @@
         </pluginManagement>
     </build>
   <modules>
+      <module>shared/shared-contracts</module>
     <module>frontend</module>
-    <module>shared/shared-contracts</module>
     <module>backend/gateway</module>
       <module>backend/auth-service</module>
       <module>backend/academic-project-service</module>
