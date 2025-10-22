@@ -1,4 +1,4 @@
-package co.edu.unicauca.frontend.entity;
+package co.edu.unicauca.frontend.entities;
 
 public class CoordinadorInfo {
     private String nombreCompleto;

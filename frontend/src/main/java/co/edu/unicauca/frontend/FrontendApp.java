@@ -1,15 +1,18 @@
 package co.edu.unicauca.frontend;
 
-import com.sun.tools.javac.Main;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-import java.net.URL;
+import java.io.IOException;
 import java.util.Objects;
 
 public class FrontendApp extends Application {
+    private static Stage primaryStage;
+    private static Scene scene;
+
     @Override
     public void start(Stage stage) throws Exception {
         // Cargar el FXML desde /resources/co/edu/unicauca/frontend/view/
@@ -24,10 +27,10 @@ public class FrontendApp extends Application {
         stage.show();
     }
 
-    public static FXMLLoader newLoader(String path) {
-        URL url = Objects.requireNonNull(Main.class.getResource(path),
-                () -> "FXML no encontrado: " + path);
-        return new FXMLLoader(url);
+    public static FXMLLoader newLoader(String resourcePath) {
+        return new FXMLLoader(Objects.requireNonNull(
+                FrontendApp.class.getResource(resourcePath)
+        ));
     }
 
     public static void main(String[] args) {

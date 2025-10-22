@@ -1,4 +1,4 @@
-package co.edu.unicauca.frontend.service;
+package co.edu.unicauca.frontend.services;
 
 import java.net.URI;
 import java.net.http.HttpClient;

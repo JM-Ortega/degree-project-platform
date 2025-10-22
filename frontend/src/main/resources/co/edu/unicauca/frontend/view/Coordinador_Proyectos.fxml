@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="607.0" prefWidth="920.0" styleClass="fondo" stylesheets="@../styles/Coordinador.css" xmlns="http://javafx.com/javafx/21.0.3" xmlns:fx="http://javafx.com/fxml/1" fx:controller="co.edu.unicauca.frontend.presentation.Co_Proyecto_Controller">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="607.0" prefWidth="920.0" styleClass="fondo" stylesheets="@../styles/Coordinador.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="co.edu.unicauca.frontend.presentation.Co_Proyecto_Controller">
    <children>
       <ScrollPane layoutX="4.0" layoutY="36.0" prefHeight="564.0" prefWidth="913.0">
          <content>
@@ -23,6 +20,6 @@
             </TableView>
          </content>
       </ScrollPane>
-      <Button fx:id="btnEstadisticas" layoutX="808.0" layoutY="2.0" mnemonicParsing="false" onAction="#onVerEstadisticas" text="Ver estadisticas" textFill="WHITE" />
+      <Button fx:id="btnEstadisticas" layoutX="808.0" layoutY="2.0" mnemonicParsing="false" text="Ver estadisticas" textFill="WHITE" />
    </children>
 </AnchorPane>

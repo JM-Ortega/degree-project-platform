@@ -1,21 +1,21 @@
 package co.edu.unicauca.frontend.presentation;
 
 import co.edu.unicauca.frontend.FrontendApp;
-import co.edu.unicauca.frontend.entity.CoordinadorInfo;
-import co.edu.unicauca.frontend.service.CoordinadorClient;
-import java.io.IOException;
-import java.net.URL;
-import java.util.ResourceBundle;
-
+import co.edu.unicauca.frontend.entities.CoordinadorInfo;
+import co.edu.unicauca.frontend.services.CoordinadorClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.Stage;
+import java.io.IOException;
+import java.net.URL;
+import java.util.ResourceBundle;
 
 public class CoordinadorController implements Initializable{
     @FXML
@@ -40,21 +40,23 @@ public class CoordinadorController implements Initializable{
     
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        btnSalir.setOnAction(this::onSalir);
+
         btnProyectos.setOnMouseEntered(e -> btnProyectos.getStyleClass().add("hoverable"));
         btnProyectos.setOnMouseExited(e -> btnProyectos.getStyleClass().remove("hoverable"));
         
         btnSalir.setOnMouseEntered(e -> btnSalir.getStyleClass().add("hoverable"));
         btnSalir.setOnMouseExited(e -> btnSalir.getStyleClass().remove("hoverable"));
 
-        
         // Configurar eventos para cada botón
         btnProyectos.setOnAction(e -> {
-            loadUI("/co/unicauca/workflow/degree_project/view/Coordinador_Proyectos");
+            loadUI("Coordinador_Proyectos");
             selectButton(btnProyectos);
         });
+
         cargarDatos();
     }
- 
+
     void cargarDatos() {
         try {
             String json = client.getCoordinadorInfo(1L); // coordinador ID = 1 seteado
@@ -79,28 +81,51 @@ public class CoordinadorController implements Initializable{
         }
         selectedButton = button;
     }
-    
-    
+
     public void loadUI(String fxml) {
         try {
-            String path = fxml+".fxml";
-            FXMLLoader loader = FrontendApp.newLoader(path);
+            FXMLLoader loader = FrontendApp.newLoader("/co/edu/unicauca/frontend/view/" + fxml + ".fxml");
             Parent root = loader.load();
 
             Object controller = loader.getController();
 
             if (controller instanceof Co_Proyecto_Controller cpc) {
                 cpc.setParentController(this);
-            } else if (controller instanceof Co_Observaciones_Controller coc) {
-                coc.setParentController(this);
             }
+//            else if (controller instanceof Co_Observaciones_Controller coc) {
+//                coc.setParentController(this);
+//            }
 
             contentArea.getChildren().setAll(root);
+            AnchorPane.setTopAnchor(root, 0.0);
+            AnchorPane.setRightAnchor(root, 0.0);
+            AnchorPane.setBottomAnchor(root, 0.0);
+            AnchorPane.setLeftAnchor(root, 0.0);
 
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
+    @FXML
+    public void onSalir(javafx.event.ActionEvent event) {
+        try {
+            FXMLLoader loader = FrontendApp.newLoader("/co/edu/unicauca/frontend/view/signin.fxml");
+            Parent root = loader.load();
+
+            // Obtener la ventana actual (Stage)
+            Stage stage = (Stage) btnSalir.getScene().getWindow();
+
+            // Cambiar la escena por la del inicio de sesión
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     /*
     public void loadUI(String fxml, Object data) {
@@ -131,18 +156,4 @@ public class CoordinadorController implements Initializable{
         }
     }
     */
-    /*
-    @FXML
-    private void switchToSignin(ActionEvent event) {
-        try {
-            selectButton(btnSalir);
-            // Usa tu clase main para navegar
-            main.navigate("signin", "SignIn");
-
-        } catch (IOException e) {
-            System.err.println("No se pudo abrir la vista de Signin");
-            e.printStackTrace();
-        }
-    }
-     */
 }

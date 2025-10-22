@@ -1,31 +1,28 @@
 package co.edu.unicauca.frontend.presentation;
 
-import co.edu.unicauca.frontend.FrontendApp;
+import co.edu.unicauca.frontend.entities.Archivo;
+import co.edu.unicauca.frontend.entities.Proyecto;
+import co.edu.unicauca.frontend.entities.RowVM;
+import co.edu.unicauca.frontend.services.FormatoAClient;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.ResourceBundle;
 
-public class Co_Proyecto_Controller implements Initializable{
+public class Co_Proyecto_Controller implements Initializable {
     @FXML
     private TableView<RowVM> tabla;
     @FXML
@@ -48,35 +45,19 @@ public class Co_Proyecto_Controller implements Initializable{
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         configurarTabla();
-        //cargarTabla();
+        cargarTabla();
     }
 
-    private Stage estadisticasStage;
-    @FXML
-    private void onVerEstadisticas(ActionEvent event) {
-        if (estadisticasStage == null) {
-            try {
-                FXMLLoader loaderEstadisticas = FrontendApp.newLoader(
-                        "/co/unicauca/workflow/degree_project/view/EstadisticasCoordinador.fxml"
-                );
-                Parent estadisticasView = loaderEstadisticas.load();
+    public void setParentController(CoordinadorController parent) {
+    this.parent = parent;
+}
 
-                estadisticasStage = new Stage();
-                estadisticasStage.setTitle("Estadísticas - Coordinador");
-                estadisticasStage.setScene(new Scene(estadisticasView));
-
-                Stage mainStage = (Stage) tabla.getScene().getWindow();
-                estadisticasStage.initOwner(mainStage);
-
-                estadisticasStage.setOnHidden(event1 -> estadisticasStage = null);
-
-                estadisticasStage.show();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            estadisticasStage.toFront();
-        }
+    private void alerta(Alert.AlertType type, String title, String header, String content) {
+        Alert a = new Alert(type);
+        a.setTitle(title);
+        a.setHeaderText(header);
+        a.setContentText(content);
+        a.showAndWait();
     }
 
     private void configurarTabla() {
@@ -101,7 +82,7 @@ public class Co_Proyecto_Controller implements Initializable{
 
         colEstado.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue()));
         configurarColumnaEstado();
-        //configurarColumnaDescargar();
+        configurarColumnaDescargar();
         tabla.getColumns().forEach(col -> col.setReorderable(false));
         colNombreProyecto.setSortable(false);
         colNombreProfesor.setSortable(false);
@@ -112,101 +93,49 @@ public class Co_Proyecto_Controller implements Initializable{
         colDescargar.setSortable(false);
     }
 
-    /*
     private void cargarTabla() {
-        if (proyectoService == null) {
-            System.err.println("Error: proyectoService no fue inicializado.");
-            return;
-        }
+        FormatoAClient formatoAClient = new FormatoAClient();
 
         try {
-            List<Archivo> archivos = proyectoService.listarTodosArchivos();
+            List<Archivo> archivos = formatoAClient.listarTodosArchivos();
 
             ObservableList<RowVM> rows = FXCollections.observableArrayList();
 
             for (Archivo a : archivos) {
-                Proyecto p = proyectoService.buscarProyectoPorId(a.getProyectoId());
-
-                String nombreDocente = proyectoService.obtenerNombreDocente(p.getDocenteId());
-                String correoDocente = proyectoService.obtenerCorreoDocente(p.getDocenteId());
-                String correoEstudiante = proyectoService.obtenerCorreoEstudiante(p.getEstudianteId());
-
+                // Aquí ya no consultas otros servicios, porque el microservicio coordinador
+                // debería devolverte la información ya combinada (docente, estudiante, etc.)
                 rows.add(new RowVM(
-                    a.getId(),
-                    p.getId(),
-                    p.getTitulo(),
-                    nombreDocente,
-                    a.getTipo().name(),
-                    p.getTipo().name(),
-                    a.getFechaSubida(),
-                    a.getEstado().name(),
-                    correoDocente,
-                    correoEstudiante
+                        a.getId(),
+                        a.getProyectoId(),
+                        a.getTituloProyecto(),
+                        a.getDirector(),
+                        a.getTipoArchivo(),
+                        a.getTipoTrabajoGrado(),
+                        a.getFechaSubida(),
+                        a.getEstado().name(),
+                        a.getCorreoDirector(),
+                        a.getCorreoEstudiante()
                 ));
             }
 
+            // Ordenar pendientes primero
             rows.sort((r1, r2) -> {
-                // "Pendiente" primero, el resto después
                 if (r1.estadoProperty().get().equalsIgnoreCase("Pendiente") &&
-                    !r2.estadoProperty().get().equalsIgnoreCase("Pendiente")) {
+                        !r2.estadoProperty().get().equalsIgnoreCase("Pendiente")) {
                     return -1;
                 } else if (!r1.estadoProperty().get().equalsIgnoreCase("Pendiente") &&
-                           r2.estadoProperty().get().equalsIgnoreCase("Pendiente")) {
+                        r2.estadoProperty().get().equalsIgnoreCase("Pendiente")) {
                     return 1;
                 }
-                return 0; // mismo estado → mantener orden
+                return 0;
             });
+
             tabla.setItems(rows);
             tabla.refresh();
 
         } catch (Exception ex) {
             ex.printStackTrace();
-            // opcional: mostrar error en un label
         }
-    }
-     */
-
-    public static class RowVM {
-        private final long archivoId;
-        private final long proyectoId;
-        private final StringProperty nombreProyecto = new SimpleStringProperty();
-        private final StringProperty nombreDocente = new SimpleStringProperty();
-        private final StringProperty tipoA = new SimpleStringProperty();
-        private final StringProperty tipoP = new SimpleStringProperty();
-        private final StringProperty fecha = new SimpleStringProperty();
-        private final StringProperty estado = new SimpleStringProperty();
-        private final StringProperty correoProfesor = new SimpleStringProperty();
-        private final StringProperty correoEstudiante = new SimpleStringProperty();
-
-        public RowVM(long archivoId, long proyectoId, String nombreProyecto, String nombreDocente, String tipoA, String tipoP,
-                String fecha, String estado, String correoProfesor, String correoEstudiante) {
-            this.archivoId = archivoId;
-            this.proyectoId = proyectoId;
-            this.nombreProyecto.set(nombreProyecto);
-            this.nombreDocente.set(nombreDocente);
-            this.tipoA.set(tipoA);
-            this.tipoP.set(tipoP);
-            this.fecha.set(fecha);
-            this.estado.set(estado);
-            this.correoProfesor.set(correoProfesor);
-            this.correoEstudiante.set(correoEstudiante);
-        }
-
-        public long archivoId() {return archivoId;}
-        public long proyectoId() {return proyectoId;}
-        public StringProperty nombreProyectoProperty() { return nombreProyecto; }
-        public StringProperty nombreDocenteProperty() { return nombreDocente; }
-        public StringProperty tipoAProperty() { return tipoA; }
-        public StringProperty tipoPProperty() { return tipoP; }
-        public StringProperty fechaProperty() { return fecha; }
-        public StringProperty estadoProperty() { return estado; }
-        public StringProperty correoProfesor() { return correoProfesor; }
-        public StringProperty correoEstudiante() { return correoEstudiante; }
-    }
-
-
-    public void setParentController(CoordinadorController parent) {
-        this.parent = parent;
     }
 
     private void configurarColumnaEstado() {
@@ -219,22 +148,22 @@ public class Co_Proyecto_Controller implements Initializable{
                     if (row == null) return;
 
                     String estadoActual = row.estadoProperty().get();
-/*
+
                     if ("PENDIENTE".equalsIgnoreCase(estadoActual)) {
+                        /*
                         if (parent != null) {
                             parent.loadUI(
-                                "/co/unicauca/workflow/degree_project/view/Coordinador_Observaciones",
-                                row //pasamos el RowVM
+                                    "/co/unicauca/workflow/degree_project/view/Coordinador_Observaciones",
+                                    row //pasamos el RowVM
                             );
                         }
+                        */
                     } else {
                         alerta(Alert.AlertType.WARNING,
                                 "Acción no permitida",
                                 null,
                                 "Este proyecto ya fue evaluado. No se puede volver a evaluar.");
                     }
-
- */
                 });
             }
 
@@ -274,7 +203,6 @@ public class Co_Proyecto_Controller implements Initializable{
         });
     }
 
-    /*
     private void configurarColumnaDescargar() {
         colDescargar.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue()));
         colDescargar.setCellFactory(col -> new TableCell<>() {
@@ -285,17 +213,17 @@ public class Co_Proyecto_Controller implements Initializable{
                 btnDescargar.setStyle("-fx-background-color: transparent; -fx-cursor: hand;");
 
                 imgView = new ImageView(
-                    new Image(getClass().getResourceAsStream(
-                        "/co/unicauca/workflow/degree_project/images/descargar.png"))
+                        new Image(getClass().getResourceAsStream(
+                                "/co/unicauca/workflow/degree_project/images/descargar.png"))
                 );
                 imgView.setFitWidth(20);
                 imgView.setFitHeight(20);
                 btnDescargar.setGraphic(imgView);
 
-                btnDescargar.setOnAction(event -> {
-                    RowVM r = getItem();
-                    if (r != null) descargarObservaciones(r);
-                });
+//                btnDescargar.setOnAction(event -> {
+//                    RowVM r = getItem();
+//                    if (r != null) descargarObservaciones(r);
+//                });
             }
 
             @Override
@@ -306,50 +234,40 @@ public class Co_Proyecto_Controller implements Initializable{
         });
     }
 
-     */
-    /*
-    private void descargarObservaciones(RowVM row) {
-        try {
-            proyectoService.enforceAutoCancelIfNeeded(row.archivoId());
-            var arch = proyectoService.obtenerFormatoA(row.archivoId());
-            if (arch == null) {
-                alerta(Alert.AlertType.WARNING,
-                       "Formato A no encontrado",
-                       null,
-                       "No hay Formato A disponible con observaciones para este proyecto.");
-                return;
-            }
+//    private void descargarObservaciones(RowVM row) {
+//        try {
+//            proyectoService.enforceAutoCancelIfNeeded(row.archivoId());
+//            var arch = proyectoService.obtenerFormatoA(row.archivoId());
+//            if (arch == null) {
+//                alerta(Alert.AlertType.WARNING,
+//                        "Formato A no encontrado",
+//                        null,
+//                        "No hay Formato A disponible con observaciones para este proyecto.");
+//                return;
+//            }
+//
+//            FileChooser fc = new FileChooser();
+//            fc.setTitle("Guardar Formato A con observaciones");
+//            fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF", "*.pdf"));
+//            fc.setInitialFileName(arch.getNombreArchivo());
+//
+//            File dest = fc.showSaveDialog(tabla.getScene().getWindow());
+//            if (dest == null) return;
+//
+//            Files.write(dest.toPath(), arch.getBlob());
+//
+//            alerta(Alert.AlertType.INFORMATION,
+//                    "Archivo descargado",
+//                    null,
+//                    "El archivo se guardó exitosamente en:\n" + dest.getAbsolutePath());
+//
+//            cargarTabla();
+//        } catch (Exception ex) {
+//            alerta(Alert.AlertType.ERROR,
+//                    "Error al descargar",
+//                    null,
+//                    ex.getMessage() != null ? ex.getMessage() : "Error desconocido al guardar el archivo.");
+//        }
+//    }
 
-            FileChooser fc = new FileChooser();
-            fc.setTitle("Guardar Formato A con observaciones");
-            fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF", "*.pdf"));
-            fc.setInitialFileName(arch.getNombreArchivo());
-
-            File dest = fc.showSaveDialog(tabla.getScene().getWindow());
-            if (dest == null) return;
-
-            Files.write(dest.toPath(), arch.getBlob());
-
-            alerta(Alert.AlertType.INFORMATION,
-                   "Archivo descargado",
-                   null,
-                   "El archivo se guardó exitosamente en:\n" + dest.getAbsolutePath());
-
-            cargarTabla();
-        } catch (Exception ex) {
-            alerta(Alert.AlertType.ERROR,
-                   "Error al descargar",
-                   null,
-                   ex.getMessage() != null ? ex.getMessage() : "Error desconocido al guardar el archivo.");
-        }
-    }
-
-    private void alerta(Alert.AlertType type, String title, String header, String content) {
-        Alert a = new Alert(type);
-        a.setTitle(title);
-        a.setHeaderText(header);
-        a.setContentText(content);
-        a.showAndWait();
-    }
-     */
 }
