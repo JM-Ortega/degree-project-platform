@@ -4,6 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <!-- Hereda gestión de versiones/plugins (Boot 3.5.x, Java 21, MapStruct/Lombok processors) -->
     <parent>
         <groupId>co.edu.unicauca</groupId>
         <artifactId>degree-project-platform</artifactId>
@@ -16,19 +17,24 @@
     <description>Microservicio de gestión de proyectos académicos</description>
 
     <dependencies>
-        <!-- Web + JSON -->
+        <!-- Web MVC + Jackson -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+        <!-- Java Time (JSR-310) para Jackson -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+        </dependency>
 
-        <!-- Validación -->
+        <!-- Validación (Jakarta Bean Validation) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
-        <!-- Persistencia -->
+        <!-- Persistencia JPA + SQLite (dialecto comunitario) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -42,58 +48,59 @@
             <artifactId>hibernate-community-dialects</artifactId>
         </dependency>
 
-        <!-- OpenAPI / Swagger UI -->
+        <!-- OpenAPI + Swagger UI -->
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
         </dependency>
 
-        <!-- Mensajería (RabbitMQ) -->
+        <!-- Mensajería (RabbitMQ/AMQP) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-amqp</artifactId>
         </dependency>
 
-        <!-- MapStruct (API) -->
+        <!-- MapStruct (API; el processor está configurado en el padre) -->
         <dependency>
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
         </dependency>
 
-        <!-- Lombok (solo en compilación) -->
+        <!-- Lombok sólo en compilación (processor ya en el padre) -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
         </dependency>
 
-        <!-- Contratos compartidos -->
+        <!-- Contratos compartidos (DTOs/eventos) -->
         <dependency>
             <groupId>co.edu.unicauca</groupId>
             <artifactId>shared-contracts</artifactId>
         </dependency>
 
-        <!-- Test -->
+        <!-- Actuator (salud/metrics) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!-- Test (JUnit, MockMvc, etc.) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-
-        <!-- Actuator -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
     </dependencies>
 
     <build>
         <plugins>
-            <!-- Solo declarar Boot; el compiler (Java 21 + processors) viene del padre -->
+            <!-- Repackage/exec Boot (versión gestionada por el padre) -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
+            <!-- Compiler ya heredado (Java 21 + MapStruct/Lombok processors y args por defecto) -->
         </plugins>
     </build>
 </project>

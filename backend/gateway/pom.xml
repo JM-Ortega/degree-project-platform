@@ -12,50 +12,34 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
-    <groupId>co.edu.unicauca</groupId>
     <artifactId>gateway</artifactId>
-    <version>${project.parent.version}</version>
     <name>gateway</name>
     <description>API Gateway (enrutador reactivo con Spring Cloud Gateway)</description>
 
     <dependencies>
-        <!-- ====================================================== -->
-        <!-- Gateway reactivo oficial (basado en Spring WebFlux) -->
-        <!-- ====================================================== -->
+        <!-- Gateway reactivo (incluye WebFlux) -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-gateway</artifactId>
         </dependency>
 
-
-        <!-- ====================================================== -->
-        <!-- Actuator: /actuator/health, /info, /gateway/routes -->
-        <!-- ====================================================== -->
+        <!-- Actuator: /actuator/health, /info, /gateway/** -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
-        <!-- ====================================================== -->
-        <!-- Dependencias de pruebas unitarias y reactivas -->
-        <!-- ====================================================== -->
+        <!-- Tests (incluye reactor-test transitivo) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.projectreactor</groupId>
-            <artifactId>reactor-test</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
 
     <build>
         <plugins>
-            <!-- ====================================================== -->
-            <!-- Empaquetado y arranque con Spring Boot -->
-            <!-- ====================================================== -->
+            <!-- Empaquetado/arranque Boot -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>

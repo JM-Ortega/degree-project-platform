@@ -4,6 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <!-- Hereda manejo de versiones/config desde el padre del monorepo -->
     <parent>
         <groupId>co.edu.unicauca</groupId>
         <artifactId>degree-project-platform</artifactId>
@@ -11,38 +12,32 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
+    <!-- Jar puro de contratos/DTOs (sin runtime) -->
     <artifactId>shared-contracts</artifactId>
     <packaging>jar</packaging>
     <name>shared-contracts</name>
     <description>Shared DTOs and event contracts for microservices</description>
 
     <dependencies>
-        <!-- Anotaciones Jackson para DTOs -->
+        <!-- Sólo anotaciones Jackson (no databind aquí) -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
         </dependency>
 
-        <!-- API de validación (sin implementación) -->
+        <!-- API de validación sin implementación (la aporta cada consumidor) -->
         <dependency>
             <groupId>jakarta.validation</groupId>
             <artifactId>jakarta.validation-api</artifactId>
             <scope>provided</scope>
         </dependency>
 
-        <!-- Soporte Java Time -->
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jsr310</artifactId>
-            <scope>provided</scope>
-        </dependency>
+        <!-- Nada de MapStruct/Lombok aquí: contratos = POJOs/records -->
     </dependencies>
 
     <build>
         <plugins>
-            <!-- NO maven-compiler-plugin aquí; lo gestiona el padre -->
-
-            <!-- Nombre JPMS opcional -->
+            <!-- Nombre JPMS estable para uso modular -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -56,7 +51,7 @@
                 </configuration>
             </plugin>
 
-            <!-- Adjuntar fuentes -->
+            <!-- Publica fuentes (útil para IDEs/consumidores) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
@@ -72,7 +67,7 @@
                 </executions>
             </plugin>
 
-            <!-- Adjuntar javadoc (sin fallar por warnings) -->
+            <!-- Publica javadoc (sin fallar por warnings) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>

@@ -4,6 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <!-- Hereda Boot 3.5.x, Java 21, compiler y processors -->
     <parent>
         <groupId>co.edu.unicauca</groupId>
         <artifactId>degree-project-platform</artifactId>
@@ -16,19 +17,24 @@
     <description>Microservicio de autenticación y gestión de usuarios</description>
 
     <dependencies>
-        <!-- Web + JSON -->
+        <!-- Web MVC + Jackson -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+        <!-- Java Time en JSON -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+        </dependency>
 
-        <!-- Validación -->
+        <!-- Validación DTOs -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
-        <!-- Persistencia -->
+        <!-- JPA + SQLite (dialecto comunitario) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -48,19 +54,25 @@
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
         </dependency>
 
+        <!-- Hash/verify con Argon2 (versión gestionada por el padre) -->
+        <dependency>
+            <groupId>de.mkammerer</groupId>
+            <artifactId>argon2-jvm</artifactId>
+        </dependency>
+
         <!-- Mensajería (RabbitMQ) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-amqp</artifactId>
         </dependency>
 
-        <!-- MapStruct (API) -->
+        <!-- MapStruct API (processor viene del padre) -->
         <dependency>
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
         </dependency>
 
-        <!-- Lombok solo para compilar -->
+        <!-- Lombok sólo compilación -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -73,27 +85,28 @@
             <artifactId>shared-contracts</artifactId>
         </dependency>
 
-        <!-- Test -->
+        <!-- Observabilidad básica -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!-- Tests -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-
-        <!-- Actuator -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
     </dependencies>
 
     <build>
         <plugins>
-            <!-- Solo Boot; el compiler y annotation processors vienen del padre -->
+            <!-- Empaquetado Boot -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
+            <!-- Compiler y processors heredan del padre -->
         </plugins>
     </build>
 </project>
