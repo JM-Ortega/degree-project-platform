@@ -3,6 +3,8 @@ package co.edu.unicauca.frontend.entities;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
+import java.time.LocalDate;
+
 public class RowVM {
     private final long archivoId;
     private final long proyectoId;
@@ -16,14 +18,14 @@ public class RowVM {
     private final StringProperty correoEstudiante = new SimpleStringProperty();
 
     public RowVM(long archivoId, long proyectoId, String nombreProyecto, String nombreDocente, String tipoA, String tipoP,
-                 String fecha, String estado, String correoProfesor, String correoEstudiante) {
+                 LocalDate fecha, String estado, String correoProfesor, String correoEstudiante) {
         this.archivoId = archivoId;
         this.proyectoId = proyectoId;
         this.nombreProyecto.set(nombreProyecto);
         this.nombreDocente.set(nombreDocente);
         this.tipoA.set(tipoA);
         this.tipoP.set(tipoP);
-        this.fecha.set(fecha);
+        this.fecha.set(String.valueOf(fecha));
         this.estado.set(estado);
         this.correoProfesor.set(correoProfesor);
         this.correoEstudiante.set(correoEstudiante);

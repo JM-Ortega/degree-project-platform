@@ -1,12 +1,14 @@
 package co.edu.unicauca.frontend.services;
 
 import co.edu.unicauca.frontend.entities.Archivo;
-import co.edu.unicauca.frontend.entities.Proyecto;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.List;
+import java.util.Scanner;
 
 public class FormatoAClient {
     private static final String BASE_URL = "http://localhost:8082/api/formatoA"; // cambia el puerto según tu microservicio

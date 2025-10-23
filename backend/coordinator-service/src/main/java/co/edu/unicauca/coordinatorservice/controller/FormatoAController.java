@@ -19,10 +19,6 @@ public class FormatoAController {
         this.eventService = eventService;
     }
 
-    public FormatoAController(FormatoARepository formatoARepository) {
-        this.formatoARepository = formatoARepository;
-    }
-
     @PutMapping("/{id}/approve")
     public String approveFormatoA(@PathVariable Long id) {
         FormatoA formato = formatoARepository.findById(id)

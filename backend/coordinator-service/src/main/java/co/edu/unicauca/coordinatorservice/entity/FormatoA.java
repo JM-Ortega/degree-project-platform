@@ -13,6 +13,7 @@ public class FormatoA {
     private Long id;
 
     private Long proyectoId;
+    @ElementCollection
     private List<String> estudiantes;
     private String director;
     private String coodirector;

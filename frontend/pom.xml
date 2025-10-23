@@ -74,13 +74,6 @@
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
-
-        <dependency>
-            <groupId>co.edu.unicauca</groupId>
-            <artifactId>shared-contracts</artifactId>
-        </dependency>
-
-
     </dependencies>
 
     <build>

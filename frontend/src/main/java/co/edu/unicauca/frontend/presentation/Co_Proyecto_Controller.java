@@ -1,7 +1,6 @@
 package co.edu.unicauca.frontend.presentation;
 
 import co.edu.unicauca.frontend.entities.Archivo;
-import co.edu.unicauca.frontend.entities.Proyecto;
 import co.edu.unicauca.frontend.entities.RowVM;
 import co.edu.unicauca.frontend.services.FormatoAClient;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -102,8 +101,6 @@ public class Co_Proyecto_Controller implements Initializable {
             ObservableList<RowVM> rows = FXCollections.observableArrayList();
 
             for (Archivo a : archivos) {
-                // Aquí ya no consultas otros servicios, porque el microservicio coordinador
-                // debería devolverte la información ya combinada (docente, estudiante, etc.)
                 rows.add(new RowVM(
                         a.getId(),
                         a.getProyectoId(),
