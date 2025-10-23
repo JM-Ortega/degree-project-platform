@@ -5,9 +5,9 @@ spring:
   application:
     name: coordinator-service   # Cambiar por el nombre del micro
 
-# ======================================================
-# Subidas multipart (límite del micro)
-# ======================================================
+  # ======================================================
+  # Subidas multipart (límite del micro)
+  # ======================================================
   servlet:
     multipart:
       max-file-size: 60MB        # tamaño máx. por archivo
