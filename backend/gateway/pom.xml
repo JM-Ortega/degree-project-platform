@@ -1,64 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
     <!-- Hereda del POM raíz de la plataforma -->
-  <parent>
-    <groupId>co.edu.unicauca</groupId>
-    <artifactId>degree-project-platform</artifactId>
-    <version>1.0-SNAPSHOT</version>
-    <relativePath>../../pom.xml</relativePath>
-  </parent>
+    <parent>
+        <groupId>co.edu.unicauca</groupId>
+        <artifactId>degree-project-platform</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
 
-  <groupId>co.edu.unicauca</groupId>
-  <artifactId>gateway</artifactId>
-    <version>${project.parent.version}</version>
-  <name>gateway</name>
+    <artifactId>gateway</artifactId>
+    <name>gateway</name>
     <description>API Gateway (enrutador reactivo con Spring Cloud Gateway)</description>
 
-  <dependencies>
-      <!-- ====================================================== -->
-      <!-- Gateway reactivo oficial (basado en Spring WebFlux) -->
-      <!-- ====================================================== -->
-      <dependency>
-          <groupId>org.springframework.cloud</groupId>
-          <artifactId>spring-cloud-starter-gateway-server-webflux</artifactId>
-      </dependency>
+    <dependencies>
+        <!-- Gateway reactivo (incluye WebFlux) -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-gateway</artifactId>
+        </dependency>
 
-      <!-- ====================================================== -->
-      <!-- Actuator: /actuator/health, /info, /gateway/routes -->
-      <!-- ====================================================== -->
-    <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-actuator</artifactId>
-    </dependency>
+        <!-- Actuator: /actuator/health, /info, /gateway/** -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
 
-      <!-- ====================================================== -->
-      <!-- Dependencias de pruebas unitarias y reactivas -->
-      <!-- ====================================================== -->
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>io.projectreactor</groupId>
-      <artifactId>reactor-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
+        <!-- Tests (incluye reactor-test transitivo) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
-  <build>
-    <plugins>
-        <!-- ====================================================== -->
-        <!-- Empaquetado y arranque con Spring Boot -->
-        <!-- ====================================================== -->
-      <plugin>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-maven-plugin</artifactId>
-      </plugin>
-    </plugins>
-  </build>
+    <build>
+        <plugins>
+            <!-- Empaquetado/arranque Boot -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 </project>
