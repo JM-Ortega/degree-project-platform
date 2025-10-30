@@ -50,9 +50,13 @@ public class IntegrationService {
         formato.setNroVersion(formatoDTO.getNroVersion());
         formato.setNombre(formatoDTO.getNombre());
         formato.setFechaSubida(formatoDTO.getFechaSubida());
-        formato.setBlob(formatoDTO.getBlob());
         formato.setEstado(formatoDTO.getEstado());
         formato.setTipoTrabajoGrado(proyecto.getTipoTrabajoGrado());
+
+        // Aquí se maneja el archivo en Base64 (no como blob directo)
+        if (formatoDTO.getArchivoBase64() != null) {
+            formato.setArchivoBase64(formatoDTO.getArchivoBase64());
+        }
 
         formatoARepository.save(formato);
         System.out.println("FormatoA fusionado y guardado correctamente: " + formato.getNombre());

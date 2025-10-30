@@ -1,10 +1,14 @@
 package co.edu.unicauca.coordinatorservice.controller;
 
 import co.edu.unicauca.coordinatorservice.entity.FormatoA;
+import co.edu.unicauca.coordinatorservice.infra.FormatoADTO;
 import co.edu.unicauca.coordinatorservice.repository.FormatoARepository;
 import co.edu.unicauca.coordinatorservice.service.CoordinatorEventService;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Base64;
 import java.util.List;
 
 @RestController
@@ -33,13 +37,42 @@ public class FormatoAController {
     }
 
     @GetMapping("/listar")
-    public List<FormatoA> listarTodos() {
-        return formatoARepository.findAll();
+    public List<FormatoADTO> listarTodos() {
+        return formatoARepository.findAll()
+                .stream()
+                .map(f -> new FormatoADTO(
+                        f.getId(),
+                        f.getEstudiantes(),
+                        f.getDirector(),
+                        f.getCoodirector(),
+                        f.getNroVersion(),
+                        f.getNombre(),
+                        f.getFechaSubida(),
+                        f.getEstado().name(),
+                        f.getTipoTrabajoGrado()
+                ))
+                .toList();
     }
 
     @GetMapping("/{id}")
     public FormatoA obtenerPorId(@PathVariable Long id) {
         return formatoARepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("FormatoA no encontrado"));
+    }
+
+    @GetMapping("/{id}/download")
+    public ResponseEntity<byte[]> descargarArchivo(@PathVariable Long id) {
+        FormatoA formato = formatoARepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("FormatoA no encontrado"));
+
+        if (formato.getArchivoBase64() == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        byte[] archivoBytes = Base64.getDecoder().decode(formato.getArchivoBase64());
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + formato.getNombre())
+                .body(archivoBytes);
     }
 }

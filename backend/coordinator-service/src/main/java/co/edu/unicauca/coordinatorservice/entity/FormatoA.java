@@ -3,6 +3,7 @@ package co.edu.unicauca.coordinatorservice.entity;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -12,20 +13,41 @@ public class FormatoA {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "proyecto_id")
     private Long proyectoId;
-    @ElementCollection
+
+    @Convert(converter = StringListConverter.class)
+    @Column(name = "estudiantes", columnDefinition = "TEXT")
     private List<String> estudiantes;
+
     private String director;
+
+    @Column(name = "coodirector")
     private String coodirector;
+
+    @Column(name = "nro_version")
     private int nroVersion;
+
     private String nombre;
-    private LocalDate fechaSubida;
-    private byte[] blob;
+
+    @Column(name = "fecha_subida", columnDefinition = "TEXT")
+    private LocalDateTime fechaSubida;
+
+    @Enumerated(EnumType.STRING)
     private EstadoFormatoA estado;
+
+    @Column(name = "tipo_trabajo_grado")
     private String tipoTrabajoGrado;
 
+    /**
+     * Guardamos el archivo en Base64 como texto.
+     * Esto evita problemas de serialización y facilita enviar al front.
+     */
+    @Column(name = "archivo_base64", columnDefinition = "TEXT")
+    private String archivoBase64;
+
     public FormatoA(Long id, Long proyectoId, List<String> estudiantes, String director, String coodirector, int nroVersion,
-                    String nombre, LocalDate fechaSubida, byte[] blob, EstadoFormatoA estado, String tipoTrabajoGrado) {
+                    String nombre, LocalDateTime fechaSubida, String archivoBase64, EstadoFormatoA estado, String tipoTrabajoGrado) {
         this.id = id;
         this.proyectoId = proyectoId;
         this.estudiantes = estudiantes;
@@ -34,7 +56,7 @@ public class FormatoA {
         this.nroVersion = nroVersion;
         this.nombre = nombre;
         this.fechaSubida = fechaSubida;
-        this.blob = blob;
+        this.archivoBase64 = archivoBase64;
         this.estado = estado;
         this.tipoTrabajoGrado = tipoTrabajoGrado;
     }
@@ -43,12 +65,12 @@ public class FormatoA {
 
     }
 
-    public Long getId() {
-        return id;
+    public List<String> getEstudiantes() {
+        return estudiantes;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setEstudiantes(List<String> estudiantes) {
+        this.estudiantes = estudiantes;
     }
 
     public Long getProyectoId() {
@@ -59,12 +81,12 @@ public class FormatoA {
         this.proyectoId = proyectoId;
     }
 
-    public List<String> getEstudiantes() {
-        return estudiantes;
+    public Long getId() {
+        return id;
     }
 
-    public void setEstudiantes(List<String> estudiantes) {
-        this.estudiantes = estudiantes;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getDirector() {
@@ -99,20 +121,12 @@ public class FormatoA {
         this.nombre = nombre;
     }
 
-    public LocalDate getFechaSubida() {
+    public LocalDateTime getFechaSubida() {
         return fechaSubida;
     }
 
-    public void setFechaSubida(LocalDate fechaSubida) {
+    public void setFechaSubida(LocalDateTime fechaSubida) {
         this.fechaSubida = fechaSubida;
-    }
-
-    public byte[] getBlob() {
-        return blob;
-    }
-
-    public void setBlob(byte[] blob) {
-        this.blob = blob;
     }
 
     public EstadoFormatoA getEstado() {
@@ -129,5 +143,13 @@ public class FormatoA {
 
     public void setTipoTrabajoGrado(String tipoTrabajoGrado) {
         this.tipoTrabajoGrado = tipoTrabajoGrado;
+    }
+
+    public String getArchivoBase64() {
+        return archivoBase64;
+    }
+
+    public void setArchivoBase64(String archivoBase64) {
+        this.archivoBase64 = archivoBase64;
     }
 }
