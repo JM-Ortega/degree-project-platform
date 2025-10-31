@@ -5,11 +5,8 @@ import co.edu.unicauca.coordinatorservice.entity.FormatoA;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface FormatoARepository extends JpaRepository<FormatoA, Long> {
-    List<FormatoA> findByProyectoId(Long proyectoId);
-
-    List<FormatoA> findByEstado(EstadoFormatoA estado);
-
-    FormatoA findTopByProyectoIdOrderByNroVersionDesc(Long proyectoId);
+    Optional<FormatoA> findByProyectoId(Long proyectoId);
 }

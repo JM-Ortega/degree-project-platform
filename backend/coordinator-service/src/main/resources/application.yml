@@ -13,19 +13,41 @@ spring:
       max-file-size: 60MB        # tamaño máx. por archivo
       max-request-size: 60MB     # tamaño máx. del request completo (incluye metadatos multipart)
 
+#  # ======================================================
+#  #  Configuracion de base de datos (SQLite local)
+#  # ======================================================
+#  datasource:
+#    url: jdbc:sqlite:./data/coordinator.db
+#    driver-class-name: org.sqlite.JDBC
+#  jpa:
+#    hibernate:
+#      ddl-auto: update
+#    show-sql: true
+#    properties:
+#      hibernate:
+#        dialect: org.hibernate.community.dialect.SQLiteDialect
+
   # ======================================================
-  #  Configuracion de base de datos (SQLite local)
+  #  Configuracion de base de datos (H2 local)
   # ======================================================
   datasource:
-    url: jdbc:sqlite:./data/coordinator.db
-    driver-class-name: org.sqlite.JDBC
+    url: jdbc:h2:file:./data/coordinatordb;AUTO_SERVER=TRUE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
     properties:
       hibernate:
-        dialect: org.hibernate.community.dialect.SQLiteDialect
+        dialect: org.hibernate.dialect.H2Dialect
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
 
   # ======================================================
   # Configuracion de mensajeria (RabbitMQ)

@@ -2,13 +2,13 @@ package co.edu.unicauca.coordinatorservice.entity;
 
 import jakarta.persistence.*;
 
+import java.io.Serializable;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
 @Table(name = "formato_a")
-public class FormatoA {
+public class FormatoA implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -16,69 +16,68 @@ public class FormatoA {
     @Column(name = "proyecto_id")
     private Long proyectoId;
 
-    @Convert(converter = StringListConverter.class)
-    @Column(name = "estudiantes", columnDefinition = "TEXT")
-    private List<String> estudiantes;
-
-    private String director;
-
-    @Column(name = "coodirector")
-    private String coodirector;
-
     @Column(name = "nro_version")
     private int nroVersion;
 
     private String nombre;
 
-    @Column(name = "fecha_subida", columnDefinition = "TEXT")
-    private LocalDateTime fechaSubida;
+    @Column(name = "fecha_subida")
+    private LocalDate fechaSubida;
+
+    @Lob
+    @Column(name = "blob")
+    private byte[] blob;
 
     @Enumerated(EnumType.STRING)
-    private EstadoFormatoA estado;
+    @Column(name = "estado_formato_a")
+    private EstadoFormatoA estadoFormatoA;
 
-    @Column(name = "tipo_trabajo_grado")
-    private String tipoTrabajoGrado;
+    // Lista de correos de los estudiantes en formato JSON o TEXT
+    @Convert(converter = StringListConverter.class)
+    @Column(name = "estudiantes_email", columnDefinition = "TEXT")
+    private List<String> estudiantesEmail;
 
-    /**
-     * Guardamos el archivo en Base64 como texto.
-     * Esto evita problemas de serialización y facilita enviar al front.
-     */
-    @Column(name = "archivo_base64", columnDefinition = "TEXT")
-    private String archivoBase64;
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "nombres", column = @Column(name = "director_nombres")),
+            @AttributeOverride(name = "apellidos", column = @Column(name = "director_apellidos")),
+            @AttributeOverride(name = "email", column = @Column(name = "director_email"))
+    })
+    private DocenteEmbeddable director;
 
-    public FormatoA(Long id, Long proyectoId, List<String> estudiantes, String director, String coodirector, int nroVersion,
-                    String nombre, LocalDateTime fechaSubida, String archivoBase64, EstadoFormatoA estado, String tipoTrabajoGrado) {
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "nombres", column = @Column(name = "coodirector_nombres")),
+            @AttributeOverride(name = "apellidos", column = @Column(name = "coodirector_apellidos")),
+            @AttributeOverride(name = "email", column = @Column(name = "coodirector_email"))
+    })
+    private DocenteEmbeddable coodirector;
+
+    @Enumerated(EnumType.STRING)
+    private TipoProyecto tipoProyecto;
+
+    @Enumerated(EnumType.STRING)
+    private EstadoProyecto estadoProyecto;
+
+    public FormatoA(Long id, Long proyectoId, int nroVersion, String nombre, LocalDate fechaSubida, byte[] blob, EstadoFormatoA estadoFormatoA,
+                    List<String> estudiantesEmail, DocenteEmbeddable director, DocenteEmbeddable coodirector, TipoProyecto tipoProyecto,
+                    EstadoProyecto estadoProyecto) {
         this.id = id;
         this.proyectoId = proyectoId;
-        this.estudiantes = estudiantes;
-        this.director = director;
-        this.coodirector = coodirector;
         this.nroVersion = nroVersion;
         this.nombre = nombre;
         this.fechaSubida = fechaSubida;
-        this.archivoBase64 = archivoBase64;
-        this.estado = estado;
-        this.tipoTrabajoGrado = tipoTrabajoGrado;
+        this.blob = blob;
+        this.estadoFormatoA = estadoFormatoA;
+        this.estudiantesEmail = estudiantesEmail;
+        this.director = director;
+        this.coodirector = coodirector;
+        this.tipoProyecto = tipoProyecto;
+        this.estadoProyecto = estadoProyecto;
     }
 
     public FormatoA() {
 
-    }
-
-    public List<String> getEstudiantes() {
-        return estudiantes;
-    }
-
-    public void setEstudiantes(List<String> estudiantes) {
-        this.estudiantes = estudiantes;
-    }
-
-    public Long getProyectoId() {
-        return proyectoId;
-    }
-
-    public void setProyectoId(Long proyectoId) {
-        this.proyectoId = proyectoId;
     }
 
     public Long getId() {
@@ -89,20 +88,12 @@ public class FormatoA {
         this.id = id;
     }
 
-    public String getDirector() {
-        return director;
+    public Long getProyectoId() {
+        return proyectoId;
     }
 
-    public void setDirector(String director) {
-        this.director = director;
-    }
-
-    public String getCoodirector() {
-        return coodirector;
-    }
-
-    public void setCoodirector(String coodirector) {
-        this.coodirector = coodirector;
+    public void setProyectoId(Long proyectoId) {
+        this.proyectoId = proyectoId;
     }
 
     public int getNroVersion() {
@@ -121,35 +112,67 @@ public class FormatoA {
         this.nombre = nombre;
     }
 
-    public LocalDateTime getFechaSubida() {
+    public LocalDate getFechaSubida() {
         return fechaSubida;
     }
 
-    public void setFechaSubida(LocalDateTime fechaSubida) {
+    public void setFechaSubida(LocalDate fechaSubida) {
         this.fechaSubida = fechaSubida;
     }
 
-    public EstadoFormatoA getEstado() {
-        return estado;
+    public byte[] getBlob() {
+        return blob;
     }
 
-    public void setEstado(EstadoFormatoA estado) {
-        this.estado = estado;
+    public void setBlob(byte[] blob) {
+        this.blob = blob;
     }
 
-    public String getTipoTrabajoGrado() {
-        return tipoTrabajoGrado;
+    public EstadoFormatoA getEstadoFormatoA() {
+        return estadoFormatoA;
     }
 
-    public void setTipoTrabajoGrado(String tipoTrabajoGrado) {
-        this.tipoTrabajoGrado = tipoTrabajoGrado;
+    public void setEstadoFormatoA(EstadoFormatoA estadoFormatoA) {
+        this.estadoFormatoA = estadoFormatoA;
     }
 
-    public String getArchivoBase64() {
-        return archivoBase64;
+    public List<String> getEstudiantesEmail() {
+        return estudiantesEmail;
     }
 
-    public void setArchivoBase64(String archivoBase64) {
-        this.archivoBase64 = archivoBase64;
+    public void setEstudiantesEmail(List<String> estudiantesEmail) {
+        this.estudiantesEmail = estudiantesEmail;
+    }
+
+    public DocenteEmbeddable getDirector() {
+        return director;
+    }
+
+    public void setDirector(DocenteEmbeddable director) {
+        this.director = director;
+    }
+
+    public DocenteEmbeddable getCoodirector() {
+        return coodirector;
+    }
+
+    public void setCoodirector(DocenteEmbeddable coodirector) {
+        this.coodirector = coodirector;
+    }
+
+    public TipoProyecto getTipoProyecto() {
+        return tipoProyecto;
+    }
+
+    public void setTipoProyecto(TipoProyecto tipoProyecto) {
+        this.tipoProyecto = tipoProyecto;
+    }
+
+    public EstadoProyecto getEstadoProyecto() {
+        return estadoProyecto;
+    }
+
+    public void setEstadoProyecto(EstadoProyecto estadoProyecto) {
+        this.estadoProyecto = estadoProyecto;
     }
 }

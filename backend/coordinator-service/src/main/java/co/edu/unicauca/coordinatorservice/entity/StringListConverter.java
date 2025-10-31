@@ -1,35 +1,23 @@
 package co.edu.unicauca.coordinatorservice.entity;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
-import jakarta.persistence.Entity;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Converter
 public class StringListConverter implements AttributeConverter<List<String>, String> {
-    private static final ObjectMapper mapper = new ObjectMapper();
 
     @Override
     public String convertToDatabaseColumn(List<String> list) {
-        try {
-            return mapper.writeValueAsString(list);
-        } catch (Exception e) {
-            return "[]";
-        }
+        if (list == null || list.isEmpty()) return null;
+        return String.join(",", list);
     }
 
     @Override
-    public List<String> convertToEntityAttribute(String json) {
-        try {
-            return mapper.readValue(json, new TypeReference<List<String>>() {});
-        } catch (Exception e) {
-            return new ArrayList<>();
-        }
+    public List<String> convertToEntityAttribute(String joined) {
+        if (joined == null || joined.isEmpty()) return new ArrayList<>();
+        return Arrays.asList(joined.split(","));
     }
 }

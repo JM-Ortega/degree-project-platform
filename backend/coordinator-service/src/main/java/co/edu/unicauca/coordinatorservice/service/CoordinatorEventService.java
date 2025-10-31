@@ -26,9 +26,9 @@ public class CoordinatorEventService {
         Map<String, Object> message = new HashMap<>();
         message.put("formatoAId", formatoA.getId());
         message.put("proyectoId", formatoA.getProyectoId());
-        message.put("estado", formatoA.getEstado().name());
+        message.put("estado", formatoA.getEstadoFormatoA().name());
         message.put("fechaAprobacion", java.time.LocalDate.now());
-        message.put("tipoTrabajoGrado", formatoA.getTipoTrabajoGrado());
+        message.put("tipoTrabajoGrado", formatoA.getTipoProyecto());
 
         rabbitProducer.sendMessage(formatAApprovedRoutingKey, message);
         System.out.println("Evento publicado: FormatoA aprobado -> " + formatoA.getNombre());

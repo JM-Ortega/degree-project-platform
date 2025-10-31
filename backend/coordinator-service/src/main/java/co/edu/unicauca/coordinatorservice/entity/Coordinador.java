@@ -27,6 +27,11 @@ public class Coordinador implements Serializable {
         this.programa = programa;
     }
 
+    public Coordinador(String nombres, String apellidos) {
+        this.nombres = nombres;
+        this.apellidos = apellidos;
+    }
+
     public Coordinador() {
         this.id= null;
     }
