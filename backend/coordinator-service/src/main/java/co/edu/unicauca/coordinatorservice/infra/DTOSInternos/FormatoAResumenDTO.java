@@ -15,8 +15,9 @@ public class FormatoAResumenDTO {
     private Long id; // para luego usarlo en la descarga
     private String nombreProyecto;
     private String nombreDirector;
-    private TipoProyecto tipoProyecto;
+    private String tipoProyecto;
     private LocalDate fechaSubida;
     private EstadoFormatoA estadoFormatoA;
+    private int nroVersion ;
 }
 

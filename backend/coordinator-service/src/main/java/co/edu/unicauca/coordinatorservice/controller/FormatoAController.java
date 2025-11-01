@@ -46,35 +46,14 @@ public class FormatoAController {
                         f.getId(),
                         f.getNombreProyecto(),
                         f.getDirector().getNombres() + " " + f.getDirector().getApellidos(),
-                        f.getTipoProyecto(),
+                        f.getTipoProyecto().toString(),
                         f.getFechaSubida(),
-                        f.getEstadoFormatoA()
+                        f.getEstadoFormatoA(),
+                        f.getNroVersion()
                 ))
                 .toList();
         return ResponseEntity.ok(lista);
     }
-
-
-//    @GetMapping("/listar")
-//    public List<FormatoA> listarTodos() {
-//        return formatoARepository.findAll()
-//                .stream()
-//                .map(f -> new FormatoA(
-//                        f.getId(),
-//                        f.getProyectoId(),
-//                        f.getNroVersion(),
-//                        f.getNombreProyecto(),
-//                        f.getFechaSubida(),
-//                        f.getBlob(),
-//                        f.getEstadoFormatoA(),
-//                        f.getEstudiantesEmail(),
-//                        f.getDirector(),
-//                        f.getCoodirector(),
-//                        f.getTipoProyecto(),
-//                        f.getEstadoProyecto()
-//                ))
-//                .toList();
-//    }
 
     @GetMapping("/{id}")
     public FormatoA obtenerPorId(@PathVariable Long id) {
