@@ -31,6 +31,6 @@ public class CoordinatorEventService {
         message.put("tipoTrabajoGrado", formatoA.getTipoProyecto());
 
         rabbitProducer.sendMessage(formatAApprovedRoutingKey, message);
-        System.out.println("Evento publicado: FormatoA aprobado -> " + formatoA.getNombre());
+        System.out.println("Evento publicado: FormatoA aprobado -> " + formatoA.getNombreProyecto());
     }
 }

@@ -11,14 +11,14 @@ public class Coordinador implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Integer codigo;
+    private String codigo;
     private String nombres;
     private String apellidos;
     private String correo;
     @Enumerated(EnumType.STRING)
     private Programa programa;
 
-    public Coordinador(Long id, Integer codigo, String nombres, String apellidos, String correo, Programa programa) {
+    public Coordinador(Long id, String codigo, String nombres, String apellidos, String correo, Programa programa) {
         this.id = id;
         this.codigo = codigo;
         this.nombres = nombres;
@@ -44,11 +44,11 @@ public class Coordinador implements Serializable {
         this.id = id;
     }
 
-    public Integer getCodigo() {
+    public String getCodigo() {
         return codigo;
     }
 
-    public void setCodigo(Integer codigo) {
+    public void setCodigo(String codigo) {
         this.codigo = codigo;
     }
 
