@@ -43,6 +43,8 @@
 }
 
 .estado-rojo {
+    -fx-alignment: CENTER;
+    -fx-text-alignment: center;
     -fx-background-color: #EA2F2F;
     -fx-text-fill: white;
     -fx-background-radius: 20;
@@ -55,6 +57,8 @@
 }
 
 .estado-verde {
+    -fx-alignment: CENTER;
+    -fx-text-alignment: center;
     -fx-background-color: green;
     -fx-text-fill: white;
     -fx-background-radius: 20;
@@ -122,7 +126,8 @@
 
 .table-cell {
     -fx-border-color: transparent;
-    -fx-alignment: CENTER-LEFT;
+    -fx-alignment: CENTER;
+    -fx-text-alignment: center;
     -fx-padding: 0 0 0 10;
     -fx-font-family: "Roboto", sans-serif;
     -fx-font-size: 12px;
@@ -135,7 +140,8 @@
     -fx-font-family: "Roboto", sans-serif;
     -fx-font-size: 14px;
     -fx-font-weight: bold;
-    -fx-alignment: CENTER-LEFT;
+    -fx-alignment: CENTER;
+    -fx-text-alignment: center;
 }
 
 .table-row-cell:selected {

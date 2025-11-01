@@ -1,7 +1,8 @@
 package co.edu.unicauca.frontend.presentation;
 
 import co.edu.unicauca.frontend.FrontendApp;
-import co.edu.unicauca.frontend.entities.CoordinadorInfo;
+import co.edu.unicauca.frontend.entities.CoordinadorResumen;
+import co.edu.unicauca.frontend.entities.FormatoAResumen;
 import co.edu.unicauca.frontend.services.CoordinadorClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.fxml.FXML;
@@ -9,6 +10,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
@@ -59,8 +61,15 @@ public class CoordinadorController implements Initializable{
 
     void cargarDatos() {
         try {
-            String json = client.getCoordinadorInfo(1L); // coordinador ID = 1 seteado
-            CoordinadorInfo info = mapper.readValue(json, CoordinadorInfo.class);
+            String json = client.getCoordinadorInfo("laura.gomez@unicauca.edu.co"); // coordinador con correo seteado
+
+            // Si la respuesta contiene un "timestamp" o "error", probablemente es un error del backend
+            if (json.contains("\"timestamp\"") || json.contains("\"error\"")) {
+                System.err.println("Error del backend: " + json);
+                return; // o muestra una alerta al usuario
+            }
+
+            CoordinadorResumen info = mapper.readValue(json, CoordinadorResumen.class);
 
             lblNombreCompleto.setText(info.getNombreCompleto());
             lblPrograma.setText(info.getPrograma());
@@ -89,12 +98,9 @@ public class CoordinadorController implements Initializable{
 
             Object controller = loader.getController();
 
-            if (controller instanceof Co_Proyecto_Controller cpc) {
+            if (controller instanceof CoProyectoController cpc) {
                 cpc.setParentController(this);
             }
-//            else if (controller instanceof Co_Observaciones_Controller coc) {
-//                coc.setParentController(this);
-//            }
 
             contentArea.getChildren().setAll(root);
             AnchorPane.setTopAnchor(root, 0.0);
@@ -104,6 +110,25 @@ public class CoordinadorController implements Initializable{
 
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void loadUI(String fxmlPath, FormatoAResumen formatoSeleccionado) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            Parent root = loader.load();
+
+            // Si la vista cargada es Coordinador_Observaciones, pásale el formato
+            if (loader.getController() instanceof CoObservacionesController controller) {
+                controller.setFormatoSeleccionado(formatoSeleccionado);
+            }
+
+            // Cambiar el contenido principal
+            contentArea.getChildren().setAll(root);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            new Alert(Alert.AlertType.ERROR, "Error al cargar vista: " + e.getMessage()).show();
         }
     }
 
@@ -125,35 +150,4 @@ public class CoordinadorController implements Initializable{
             e.printStackTrace();
         }
     }
-
-
-    /*
-    public void loadUI(String fxml, Object data) {
-        try {
-            String path = fxml+".fxml";
-            FXMLLoader loader = main.newInjectedLoader(path);
-            Parent root = loader.load();
-
-            // obtener controlador hijo
-            Object controller = loader.getController();
-
-            // Si el hijo necesita referencia al padre
-            if (controller instanceof Co_Proyecto_Controller cpc) {
-                cpc.setParentController(this);
-            } else if (controller instanceof Co_Observaciones_Controller coc) {
-                coc.setParentController(this);
-
-                // 🔹 Si el data que recibimos es un RowVM, lo pasamos
-                if (data instanceof RowVM row) {
-                    coc.setRowVM(row);
-                }
-            }
-
-            contentArea.getChildren().setAll(root);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-    */
 }

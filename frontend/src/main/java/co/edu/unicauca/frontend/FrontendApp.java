@@ -11,7 +11,7 @@ public class FrontendApp extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         FXMLLoader fxmlLoader = new FXMLLoader(
-                FrontendApp.class.getResource("/co/edu/unicauca/frontend/view/LoginView.fxml")
+                FrontendApp.class.getResource("/co/edu/unicauca/frontend/view/Coordinador.fxml")
         );
 
 

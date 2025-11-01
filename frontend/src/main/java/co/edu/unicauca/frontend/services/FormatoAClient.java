@@ -1,58 +1,71 @@
 package co.edu.unicauca.frontend.services;
 
-import co.edu.unicauca.frontend.entities.Archivo;
+import co.edu.unicauca.frontend.entities.FormatoAResumen;
+import co.edu.unicauca.frontend.entities.FormatoAResumenDTO;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.io.IOException;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.List;
-import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class FormatoAClient {
-    private static final String BASE_URL = "http://localhost:8082/api/formatoA"; // cambia el puerto según tu microservicio
+    private static final String BASE_URL = "http://localhost:8083/api/formatoA";
+    private final ObjectMapper mapper;
+    private final HttpClient httpClient = HttpClient.newHttpClient();
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
-    /**
-     * Obtiene todos los archivos FormatoA desde el microservicio coordinador.
-     */
-    public List<Archivo> listarTodosArchivos() throws IOException {
-        String endpoint = BASE_URL + "/listar";
-        String jsonResponse = sendGetRequest(endpoint);
-        return objectMapper.readValue(jsonResponse, new TypeReference<List<Archivo>>() {});
+    public FormatoAClient() {
+        mapper = new ObjectMapper();
+        // Modulo que permite a Jackson leer LocalDate / LocalDateTime
+        mapper.registerModule(new JavaTimeModule());
     }
 
-    /**
-     * Busca un archivo FormatoA por su ID.
-     */
-    public Archivo buscarArchivoPorId(Long id) throws IOException {
-        String endpoint = BASE_URL + "/" + id;
-        String jsonResponse = sendGetRequest(endpoint);
-        return objectMapper.readValue(jsonResponse, Archivo.class);
+    public List<FormatoAResumen> obtenerFormatosAResumen() {
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(new URI(BASE_URL + "/listar"))
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            List<FormatoAResumenDTO> dtoList = mapper.readValue(
+                    response.body(),
+                    new TypeReference<List<FormatoAResumenDTO>>() {}
+            );
+
+            // Convertir los DTOs en objetos que usa TableView
+            return dtoList.stream()
+                    .map(dto -> new FormatoAResumen(
+                            dto.getId(),
+                            dto.getNombreProyecto(),
+                            dto.getNombreDirector(),
+                            dto.getTipoProyecto() != null ? dto.getTipoProyecto().toString() : "",
+                            dto.getFechaSubida(),
+                            dto.getEstadoFormatoA() != null ? dto.getEstadoFormatoA().toString() : "",
+                            dto.getNroVersion()
+                    ))
+                    .collect(Collectors.toList());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return List.of();
+        }
     }
 
-    /**
-     * Método auxiliar para hacer peticiones GET simples.
-     */
-    private String sendGetRequest(String endpoint) throws IOException {
-        URL url = new URL(endpoint);
+    public byte[] descargarFormatoA(Long id) throws Exception {
+        URL url = new URL(BASE_URL + "/" + id + "/descargar");
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
-        conn.connect();
 
-        int responseCode = conn.getResponseCode();
-        if (responseCode != 200) {
-            throw new IOException("Error en la solicitud GET. Código de respuesta: " + responseCode);
+        try (InputStream in = conn.getInputStream()) {
+            return in.readAllBytes();
         }
-
-        StringBuilder inline = new StringBuilder();
-        try (Scanner scanner = new Scanner(url.openStream())) {
-            while (scanner.hasNext()) {
-                inline.append(scanner.nextLine());
-            }
-        }
-        return inline.toString();
     }
 }

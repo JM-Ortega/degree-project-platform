@@ -8,8 +8,10 @@ import java.net.http.HttpResponse;
 public class CoordinadorClient {
     private final HttpClient client = HttpClient.newHttpClient();
 
-    public String getCoordinadorInfo(Long id) throws Exception {
-        String url = "http://localhost:8083/api/coordinadores/" + id + "/info";
+    private static final String BASE_URL = "http://localhost:8083/api/coordinadores";
+
+    public String getCoordinadorInfo(String correo) throws Exception {
+        String url = BASE_URL + "/" + correo + "/info";
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .GET()
