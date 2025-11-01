@@ -19,7 +19,8 @@ public class FormatoA implements Serializable {
     @Column(name = "nro_version")
     private int nroVersion;
 
-    private String nombre;
+    @Column(name = "nombre_proyecto")
+    private String nombreProyecto;
 
     @Column(name = "fecha_subida")
     private LocalDate fechaSubida;
@@ -59,13 +60,13 @@ public class FormatoA implements Serializable {
     @Enumerated(EnumType.STRING)
     private EstadoProyecto estadoProyecto;
 
-    public FormatoA(Long id, Long proyectoId, int nroVersion, String nombre, LocalDate fechaSubida, byte[] blob, EstadoFormatoA estadoFormatoA,
+    public FormatoA(Long id, Long proyectoId, int nroVersion, String nombreProyecto, LocalDate fechaSubida, byte[] blob, EstadoFormatoA estadoFormatoA,
                     List<String> estudiantesEmail, DocenteEmbeddable director, DocenteEmbeddable coodirector, TipoProyecto tipoProyecto,
                     EstadoProyecto estadoProyecto) {
         this.id = id;
         this.proyectoId = proyectoId;
         this.nroVersion = nroVersion;
-        this.nombre = nombre;
+        this.nombreProyecto = nombreProyecto;
         this.fechaSubida = fechaSubida;
         this.blob = blob;
         this.estadoFormatoA = estadoFormatoA;
@@ -104,12 +105,12 @@ public class FormatoA implements Serializable {
         this.nroVersion = nroVersion;
     }
 
-    public String getNombre() {
-        return nombre;
+    public String getNombreProyecto() {
+        return nombreProyecto;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setNombreProyecto(String nombreProyecto) {
+        this.nombreProyecto = nombreProyecto;
     }
 
     public LocalDate getFechaSubida() {

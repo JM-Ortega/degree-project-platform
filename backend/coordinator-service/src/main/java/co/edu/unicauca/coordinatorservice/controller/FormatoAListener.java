@@ -41,14 +41,13 @@ public class FormatoAListener {
         // Actualizar campos con la información nueva
         formato.setProyectoId(dto.getProyectoId());
         formato.setNroVersion(dto.getNroVersion());
-        formato.setNombre(dto.getNombre());
         formato.setFechaSubida(dto.getFechaSubida());
         formato.setBlob(dto.getBlob());
         formato.setEstadoFormatoA(EstadoFormatoA.valueOf(dto.getEstado().toString()));
 
         formatoARepository.save(formato);
 
-        System.out.println("[CoordinatorService] FormatoA guardado/actualizado correctamente: " + formato.getNombre());
+        System.out.println("[CoordinatorService] FormatoA guardado/actualizado correctamente: " + formato.getNombreProyecto()+ " Version: "+ formato.getNroVersion());
     }
 
     @Transactional
@@ -85,8 +84,10 @@ public class FormatoAListener {
 
         formato.setEstadoProyecto(EstadoProyecto.valueOf(dto.getEstado().toString()));
 
+        formato.setNombreProyecto(dto.getTitulo());
+
         formatoARepository.save(formato);
 
-        System.out.println("[CoordinatorService] FormatoA guardado/actualizado correctamente: " + formato.getNombre());
+        System.out.println("[CoordinatorService] FormatoA guardado/actualizado correctamente: " + formato.getNombreProyecto()+ " Version: "+ formato.getNroVersion());
     }
 }

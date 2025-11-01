@@ -2,6 +2,7 @@ package co.edu.unicauca.coordinatorservice.controller;
 
 import co.edu.unicauca.coordinatorservice.entity.EstadoFormatoA;
 import co.edu.unicauca.coordinatorservice.entity.FormatoA;
+import co.edu.unicauca.coordinatorservice.infra.DTOSInternos.FormatoAResumenDTO;
 import co.edu.unicauca.coordinatorservice.repository.FormatoARepository;
 import co.edu.unicauca.coordinatorservice.service.CoordinatorEventService;
 import org.springframework.core.io.ByteArrayResource;
@@ -39,25 +40,41 @@ public class FormatoAController {
     }
 
     @GetMapping("/listar")
-    public List<FormatoA> listarTodos() {
-        return formatoARepository.findAll()
-                .stream()
-                .map(f -> new FormatoA(
+    public ResponseEntity<List<FormatoAResumenDTO>> listarFormatosAResumen() {
+        List<FormatoAResumenDTO> lista = formatoARepository.findAll().stream()
+                .map(f -> new FormatoAResumenDTO(
                         f.getId(),
-                        f.getProyectoId(),
-                        f.getNroVersion(),
-                        f.getNombre(),
-                        f.getFechaSubida(),
-                        f.getBlob(),
-                        f.getEstadoFormatoA(),
-                        f.getEstudiantesEmail(),
-                        f.getDirector(),
-                        f.getCoodirector(),
+                        f.getNombreProyecto(),
+                        f.getDirector().getNombres() + " " + f.getDirector().getApellidos(),
                         f.getTipoProyecto(),
-                        f.getEstadoProyecto()
+                        f.getFechaSubida(),
+                        f.getEstadoFormatoA()
                 ))
                 .toList();
+        return ResponseEntity.ok(lista);
     }
+
+
+//    @GetMapping("/listar")
+//    public List<FormatoA> listarTodos() {
+//        return formatoARepository.findAll()
+//                .stream()
+//                .map(f -> new FormatoA(
+//                        f.getId(),
+//                        f.getProyectoId(),
+//                        f.getNroVersion(),
+//                        f.getNombreProyecto(),
+//                        f.getFechaSubida(),
+//                        f.getBlob(),
+//                        f.getEstadoFormatoA(),
+//                        f.getEstudiantesEmail(),
+//                        f.getDirector(),
+//                        f.getCoodirector(),
+//                        f.getTipoProyecto(),
+//                        f.getEstadoProyecto()
+//                ))
+//                .toList();
+//    }
 
     @GetMapping("/{id}")
     public FormatoA obtenerPorId(@PathVariable Long id) {
@@ -66,19 +83,13 @@ public class FormatoAController {
     }
 
     @GetMapping("/descargar/{id}")
-    public ResponseEntity<ByteArrayResource> descargarArchivo(@PathVariable Long id) {
-        var formatoA = formatoARepository.findById(id).orElse(null);
-        if (formatoA == null || formatoA.getBlob() == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        ByteArrayResource recurso = new ByteArrayResource(formatoA.getBlob());
+    public ResponseEntity<byte[]> descargarArchivo(@PathVariable Long id) {
+        FormatoA formatoA = formatoARepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Formato A no encontrado"));
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"formatoA_" + formatoA.getId() + ".pdf\"")
-                // Tipo de archivo genérico binario
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + formatoA.getNombreProyecto() + ".pdf\"")
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .contentLength(formatoA.getBlob().length)
-                .body(recurso);
+                .body(formatoA.getBlob());
     }
 }
