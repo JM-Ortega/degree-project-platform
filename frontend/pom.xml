@@ -75,10 +75,10 @@
         </dependency>
 
         <!-- Reutiliza DTOs -->
-        <dependency>
-            <groupId>co.edu.unicauca</groupId>
-            <artifactId>shared-contracts</artifactId>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>co.edu.unicauca</groupId>-->
+<!--            <artifactId>shared-contracts</artifactId>-->
+<!--        </dependency>-->
 
         <!-- Tests JUnit 5 -->
         <dependency>
@@ -92,6 +92,11 @@
             <artifactId>junit-jupiter-engine</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
