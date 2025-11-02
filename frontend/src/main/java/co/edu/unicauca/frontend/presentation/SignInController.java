@@ -149,7 +149,7 @@ public class SignInController {
                     "Panel del coordinador"
             );
             case JefeDeDepartamento -> ViewNavigator.goTo(
-                    "/co/edu/unicauca/frontend/view/dashboard/JefeDepartamentoDashboard.fxml",
+                    "/co/edu/unicauca/frontend/view/DepartmentHead.fxml",
                     "Panel del jefe de departamento"
             );
             default -> ViewNavigator.goTo(
