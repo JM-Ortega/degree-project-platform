@@ -63,7 +63,7 @@ messaging:
     projectUpdated: project.updated
     formatAApprovedByCoordinator: coordinator.formata.approved
     proposalApprovedByDeptHead: department.proposal.approved
-    notificationAny: notification.send.*
+    notificationAny: notification.send.#
 
 # ======================================================
 # Configuracion del servidor embebido (Tomcat)
