@@ -4,13 +4,14 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import java.util.Objects;
 
 public class FrontendApp extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
         FXMLLoader fxmlLoader = new FXMLLoader(
-                FrontendApp.class.getResource("/co/edu/unicauca/frontend/view/LoginView.fxml")
+                FrontendApp.class.getResource("/co/edu/unicauca/frontend/view/Coordinador.fxml")
         );
 
 
@@ -21,5 +22,11 @@ public class FrontendApp extends Application {
 
         stage.setScene(scene);
         stage.show();
+    }
+
+    public static FXMLLoader newLoader(String resourcePath) {
+        return new FXMLLoader(Objects.requireNonNull(
+                FrontendApp.class.getResource(resourcePath)
+        ));
     }
 }
