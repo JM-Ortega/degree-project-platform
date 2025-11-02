@@ -1,7 +1,7 @@
 package co.edu.unicauca.coordinatorservice.controller;
 
 import co.edu.unicauca.coordinatorservice.entity.DocenteEmbeddable;
-import co.edu.unicauca.coordinatorservice.entity.EstadoFormatoA;
+import co.edu.unicauca.coordinatorservice.infra.DTOS.EstadoFormatoA;
 import co.edu.unicauca.coordinatorservice.entity.EstadoProyecto;
 import co.edu.unicauca.coordinatorservice.entity.FormatoA;
 import co.edu.unicauca.coordinatorservice.infra.DTOS.EstudianteDTO;
@@ -28,10 +28,10 @@ public class FormatoAListener {
      * Estos mensajes llegan desde el microservicio de la fuente de la verdad
      * cuando se crea o actualiza un FormatoA o un Proyecto.
      */
-    @RabbitListener(queues = "${messaging.queues.coordinator}")
+    //@RabbitListener(queues = "${messaging.queues.project}")
     @Transactional
     public void handleFormatoAEvent(FormatoADTO dto) {
-        System.out.println("📩 [RabbitMQ] Mensaje recibido en CoordinatorService: " + dto.getNombre());
+        System.out.println("📩 [RabbitMQ] Mensaje recibido en CoordinatorService: " + dto.getNombreFormatoA());
 
         // Buscar si ya existe el FormatoA en la base de datos local
         Optional<FormatoA> existingFormato = formatoARepository.findByProyectoId(dto.getProyectoId());

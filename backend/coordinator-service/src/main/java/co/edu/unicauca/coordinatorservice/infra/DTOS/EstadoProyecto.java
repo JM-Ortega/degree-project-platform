@@ -1,7 +1,8 @@
 package co.edu.unicauca.coordinatorservice.infra.DTOS;
 
 public enum EstadoProyecto {
-    Aceptado,
-    Rechazado,
-    Pendiente
+    ACEPTADO,
+    RECHAZADO,
+    PENDIENTE,
+    FORMATO_A_ACEPTADO
 }

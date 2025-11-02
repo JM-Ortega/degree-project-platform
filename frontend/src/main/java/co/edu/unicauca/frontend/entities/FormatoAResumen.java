@@ -11,12 +11,13 @@ public class FormatoAResumen {
     private ObjectProperty<LocalDate> fechaSubida = new SimpleObjectProperty<>();
     private StringProperty estadoFormatoA = new SimpleStringProperty();
     private IntegerProperty nroVersion  = new SimpleIntegerProperty();
+    private StringProperty nombreFormatoA = new SimpleStringProperty();
 
     public FormatoAResumen() {}
 
     public FormatoAResumen(Long id, String nombreProyecto, String nombreDirector,
                            String tipoProyecto, LocalDate fechaSubida, String estadoFormatoA,
-                           int nroVersion ) {
+                           int nroVersion, String nombreFormatoA ) {
         this.id = new SimpleLongProperty(id);
         this.nombreProyecto = new SimpleStringProperty(nombreProyecto);
         this.nombreDirector = new SimpleStringProperty(nombreDirector);
@@ -24,6 +25,7 @@ public class FormatoAResumen {
         this.fechaSubida = new SimpleObjectProperty<>(fechaSubida);
         this.estadoFormatoA = new SimpleStringProperty(estadoFormatoA);
         this.nroVersion  = new SimpleIntegerProperty(nroVersion );
+        this.nombreFormatoA.set(nombreFormatoA);
     }
 
     // Getters para las columnas
@@ -44,5 +46,12 @@ public class FormatoAResumen {
     public StringProperty estadoFormatoAProperty() { return estadoFormatoA; }
     public IntegerProperty nroVersionProperty() { return nroVersion ; }
 
+    public String getNombreFormatoA() {
+        return nombreFormatoA.get();
+    }
+
+    public void setNombreFormatoA(String value) {
+        this.nombreFormatoA.set(value);
+    }
 }
 

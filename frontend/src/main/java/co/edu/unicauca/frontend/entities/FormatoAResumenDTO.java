@@ -16,5 +16,6 @@ public class FormatoAResumenDTO {
     private LocalDate fechaSubida;
     private String estadoFormatoA;
     private int nroVersion ;
+    private String nombreFormatoA;
 }
 

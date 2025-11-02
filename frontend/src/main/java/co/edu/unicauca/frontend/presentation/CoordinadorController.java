@@ -115,12 +115,13 @@ public class CoordinadorController implements Initializable{
 
     public void loadUI(String fxmlPath, FormatoAResumen formatoSeleccionado) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            FXMLLoader loader = FrontendApp.newLoader("/co/edu/unicauca/frontend/view/" + fxmlPath + ".fxml");
             Parent root = loader.load();
 
             // Si la vista cargada es Coordinador_Observaciones, pásale el formato
             if (loader.getController() instanceof CoObservacionesController controller) {
                 controller.setFormatoSeleccionado(formatoSeleccionado);
+                controller.setParentController(this);
             }
 
             // Cambiar el contenido principal

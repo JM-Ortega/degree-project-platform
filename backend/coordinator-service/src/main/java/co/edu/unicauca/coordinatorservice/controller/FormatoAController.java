@@ -1,42 +1,28 @@
 package co.edu.unicauca.coordinatorservice.controller;
 
-import co.edu.unicauca.coordinatorservice.entity.EstadoFormatoA;
 import co.edu.unicauca.coordinatorservice.entity.FormatoA;
 import co.edu.unicauca.coordinatorservice.infra.DTOSInternos.FormatoAResumenDTO;
 import co.edu.unicauca.coordinatorservice.repository.FormatoARepository;
-import co.edu.unicauca.coordinatorservice.service.CoordinatorEventService;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import co.edu.unicauca.coordinatorservice.service.FormatoAService;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/formatoA")
 public class FormatoAController {
     private final FormatoARepository formatoARepository;
-    private final CoordinatorEventService eventService;
+    private final FormatoAService formatoAService;
 
     public FormatoAController(FormatoARepository formatoARepository,
-                              CoordinatorEventService eventService) {
+                              FormatoAService formatoAService){
         this.formatoARepository = formatoARepository;
-        this.eventService = eventService;
-    }
-
-    @PutMapping("/{id}/approve")
-    public String approveFormatoA(@PathVariable Long id) {
-        FormatoA formato = formatoARepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("FormatoA no encontrado"));
-
-        formato.setEstadoFormatoA(EstadoFormatoA.APROBADO);
-        formatoARepository.save(formato);
-
-        eventService.publishFormatoAApproved(formato);
-
-        return "FormatoA aprobado y evento publicado correctamente.";
+        this.formatoAService = formatoAService;
     }
 
     @GetMapping("/listar")
@@ -49,7 +35,8 @@ public class FormatoAController {
                         f.getTipoProyecto().toString(),
                         f.getFechaSubida(),
                         f.getEstadoFormatoA(),
-                        f.getNroVersion()
+                        f.getNroVersion(),
+                        f.getNombreFormatoA()
                 ))
                 .toList();
         return ResponseEntity.ok(lista);
@@ -61,14 +48,36 @@ public class FormatoAController {
                 .orElseThrow(() -> new RuntimeException("FormatoA no encontrado"));
     }
 
-    @GetMapping("/descargar/{id}")
-    public ResponseEntity<byte[]> descargarArchivo(@PathVariable Long id) {
-        FormatoA formatoA = formatoARepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Formato A no encontrado"));
+    @GetMapping("/{id}/descargar")
+    public ResponseEntity<byte[]> descargarFormato(@PathVariable Long id) {
+        FormatoA formato = formatoARepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Formato A no encontrado con id: " + id));
 
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + formatoA.getNombreProyecto() + ".pdf\"")
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .body(formatoA.getBlob());
+        byte[] archivo = formato.getBlob();
+        if (archivo == null || archivo.length == 0) {
+            return ResponseEntity.noContent().build();
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDisposition(ContentDisposition.builder("attachment")
+                .filename("FormatoA_" + formato.getNroVersion() + ".pdf")
+                .build());
+
+        return new ResponseEntity<>(archivo, headers, HttpStatus.OK);
     }
+
+    @PutMapping("/actualizar/{id}")
+    public ResponseEntity<FormatoA> actualizarFormato(
+            @PathVariable Long id,
+            @RequestParam("archivo") MultipartFile archivo,
+            @RequestParam("nuevoEstado") String nuevoEstado,
+            @RequestParam("nombreArchivo") String nombreArchivo,
+            @RequestParam("horaActual") String horaActual
+    ) throws IOException {
+
+        FormatoA actualizado = formatoAService.actualizarFormato(id, archivo, nuevoEstado, nombreArchivo, horaActual);
+        return ResponseEntity.ok(actualizado);
+    }
+
 }

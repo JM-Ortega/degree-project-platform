@@ -1,7 +1,6 @@
 package co.edu.unicauca.coordinatorservice.entity;
 
 import jakarta.persistence.*;
-
 import java.io.Serializable;
 
 @Entity

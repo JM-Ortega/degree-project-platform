@@ -1,7 +1,6 @@
 package co.edu.unicauca.coordinatorservice.infra.DTOSInternos;
 
-import co.edu.unicauca.coordinatorservice.entity.EstadoFormatoA;
-import co.edu.unicauca.coordinatorservice.entity.TipoProyecto;
+import co.edu.unicauca.coordinatorservice.infra.DTOS.EstadoFormatoA;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,5 +18,6 @@ public class FormatoAResumenDTO {
     private LocalDate fechaSubida;
     private EstadoFormatoA estadoFormatoA;
     private int nroVersion ;
+    private String nombreFormatoA;
 }
 

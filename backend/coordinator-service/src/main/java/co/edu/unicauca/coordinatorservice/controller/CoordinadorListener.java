@@ -17,7 +17,7 @@ public class CoordinadorListener {
         this.coordinadorRepository = coordinadorRepository;
     }
 
-    @RabbitListener(queues = "${messaging.queues.coordinator}")
+    //@RabbitListener(queues = "${messaging.queues.project}")
     @Transactional
     public void recibirCoordinador(CoordinadorDTO dto) {
         System.out.println("📩 [RabbitMQ] Mensaje recibido en CoordinatorService: " + dto.getNombres());

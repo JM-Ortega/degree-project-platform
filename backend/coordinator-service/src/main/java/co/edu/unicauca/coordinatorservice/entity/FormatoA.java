@@ -1,10 +1,10 @@
 package co.edu.unicauca.coordinatorservice.entity;
 
 import jakarta.persistence.*;
-
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
+import co.edu.unicauca.coordinatorservice.infra.DTOS.EstadoFormatoA;
 
 @Entity
 @Table(name = "formato_a")
@@ -18,6 +18,9 @@ public class FormatoA implements Serializable {
 
     @Column(name = "nro_version")
     private int nroVersion;
+
+    @Column(name = "nombre_formato_a")
+    private String nombreFormatoA;
 
     @Column(name = "nombre_proyecto")
     private String nombreProyecto;
@@ -60,12 +63,13 @@ public class FormatoA implements Serializable {
     @Enumerated(EnumType.STRING)
     private EstadoProyecto estadoProyecto;
 
-    public FormatoA(Long id, Long proyectoId, int nroVersion, String nombreProyecto, LocalDate fechaSubida, byte[] blob, EstadoFormatoA estadoFormatoA,
-                    List<String> estudiantesEmail, DocenteEmbeddable director, DocenteEmbeddable coodirector, TipoProyecto tipoProyecto,
-                    EstadoProyecto estadoProyecto) {
+    public FormatoA(Long id, Long proyectoId, int nroVersion, String nombreFormatoA, String nombreProyecto, LocalDate fechaSubida,
+                    byte[] blob, EstadoFormatoA estadoFormatoA, List<String> estudiantesEmail, DocenteEmbeddable director,
+                    DocenteEmbeddable coodirector, TipoProyecto tipoProyecto, EstadoProyecto estadoProyecto) {
         this.id = id;
         this.proyectoId = proyectoId;
         this.nroVersion = nroVersion;
+        this.nombreFormatoA = nombreFormatoA;
         this.nombreProyecto = nombreProyecto;
         this.fechaSubida = fechaSubida;
         this.blob = blob;
@@ -103,6 +107,14 @@ public class FormatoA implements Serializable {
 
     public void setNroVersion(int nroVersion) {
         this.nroVersion = nroVersion;
+    }
+
+    public String getNombreFormatoA() {
+        return nombreFormatoA;
+    }
+
+    public void setNombreFormatoA(String nombreFormatoA) {
+        this.nombreFormatoA = nombreFormatoA;
     }
 
     public String getNombreProyecto() {
