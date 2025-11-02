@@ -1,0 +1,116 @@
+package co.edu.unicauca.frontend.presentation;
+
+import co.edu.unicauca.frontend.dto.SessionInfo;
+import co.edu.unicauca.frontend.infra.session.SessionManager;
+import co.edu.unicauca.frontend.presentation.navigation.ViewNavigator;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
+
+import java.io.IOException;
+
+public class DepartmentHeadController {
+
+    @FXML
+    private Button btnPrincipal;
+    @FXML
+    private Button btnAnteproyectos;
+    @FXML
+    private Button btnSalir;
+    @FXML
+    private BorderPane bp;
+    @FXML
+    private Label NombreJefeDepartamento; // Asegúrate de que el fx:id coincida con el FXML
+
+    private Pane contenidoOriginal;
+
+    @FXML
+    public void initialize() {
+        // Cargar información de la sesión
+        cargarInformacionUsuario();
+
+        if (bp != null && bp.getCenter() != null) {
+            contenidoOriginal = (Pane) bp.getCenter();
+        }
+
+        if (btnPrincipal != null) {
+            activarBoton(btnPrincipal, btnAnteproyectos, btnSalir);
+        }
+    }
+
+    private void cargarInformacionUsuario() {
+        SessionInfo session = SessionManager.getInstance().getCurrentSession();
+        if (session != null && NombreJefeDepartamento != null) {
+            NombreJefeDepartamento.setText(session.nombres());
+        } else if (NombreJefeDepartamento != null) {
+            NombreJefeDepartamento.setText("Usuario no identificado");
+        }
+    }
+
+    @FXML
+    private void showInfoPrincipal(ActionEvent event) {
+        activarBoton(btnPrincipal, btnAnteproyectos, btnSalir);
+        restaurarContenidoOriginal();
+    }
+
+    @FXML
+    private void showInfoAnteproyectos(ActionEvent event) {
+        activarBoton(btnAnteproyectos, btnPrincipal, btnSalir);
+        cargarVistaEnBorderPane("/co/edu/unicauca/frontend/view/AnteproyectoJefeDepartamento.fxml");
+    }
+
+    @FXML
+    private void switchToLogin(ActionEvent event) {
+        // Limpiar la sesión antes de cerrar
+        SessionManager.getInstance().clear();
+        ViewNavigator.goTo("/co/edu/unicauca/frontend/view/SignIn.fxml", "Inicio de sesión");
+    }
+
+    private void restaurarContenidoOriginal() {
+        if (bp != null && contenidoOriginal != null) {
+            bp.setCenter(contenidoOriginal);
+        }
+    }
+
+    private void cargarVistaEnBorderPane(String rutaFxml) {
+        if (bp == null) {
+            return;
+        }
+
+        try {
+            if (getClass().getResource(rutaFxml) == null) {
+                return;
+            }
+
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(rutaFxml));
+            Pane vista = loader.load();
+            bp.setCenter(vista);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void activarBoton(Button botonActivo, Button... otros) {
+        if (botonActivo != null) {
+            botonActivo.getStyleClass().remove("btn-default");
+            if (!botonActivo.getStyleClass().contains("btn-pressed")) {
+                botonActivo.getStyleClass().add("btn-pressed");
+            }
+        }
+
+        for (Button b : otros) {
+            if (b != null) {
+                b.getStyleClass().remove("btn-pressed");
+                if (!b.getStyleClass().contains("btn-default")) {
+                    b.getStyleClass().add("btn-default");
+                }
+            }
+        }
+    }
+}
