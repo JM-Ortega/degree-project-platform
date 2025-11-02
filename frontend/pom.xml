@@ -74,11 +74,12 @@
             <version>1.5.8</version>
         </dependency>
 
-        <!-- Reutiliza DTOs -->
-        <dependency>
-            <groupId>co.edu.unicauca</groupId>
-            <artifactId>shared-contracts</artifactId>
-        </dependency>
+
+<!--        &lt;!&ndash; Reutiliza DTOs &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>co.edu.unicauca</groupId>-->
+<!--            <artifactId>shared-contracts</artifactId>-->
+<!--        </dependency>-->
 
         <!-- Tests JUnit 5 -->
         <dependency>
