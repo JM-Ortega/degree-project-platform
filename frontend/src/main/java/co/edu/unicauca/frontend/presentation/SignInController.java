@@ -1,63 +1,209 @@
 package co.edu.unicauca.frontend.presentation;
 
+import co.edu.unicauca.frontend.FrontendServices;
+import co.edu.unicauca.frontend.dto.LoginRequestDto;
+import co.edu.unicauca.frontend.dto.SessionInfo;
+import co.edu.unicauca.frontend.entities.enums.Rol;
+import co.edu.unicauca.frontend.infra.operation.LoginValidator;
+import co.edu.unicauca.frontend.infra.session.SessionManager;
+import co.edu.unicauca.frontend.presentation.navigation.ViewNavigator;
+import co.edu.unicauca.frontend.services.auth.AuthServiceFront;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 
-public class LoginController {
+import java.util.Map;
+
+public class SignInController {
 
     @FXML
-    private TextField emailField;
+    private TextField txtCorreo;
+
     @FXML
-    private PasswordField passwordField;
+    private PasswordField txtContrasena;
+
     @FXML
-    private Label errorLabel;
+    private ComboBox<String> cbRol;
+
+    @FXML
+    private Label errCorreo;
+
+    @FXML
+    private Label errContrasena;
+
+    @FXML
+    private Label errRol;
+
+    @FXML
+    private Label errGeneral;
+
+    private AuthServiceFront authService;
 
     @FXML
     private void initialize() {
-        if (errorLabel != null) {
-            errorLabel.setVisible(false);
-            errorLabel.setManaged(false);
+        this.authService = FrontendServices.authService();
+
+        for (Rol rol : Rol.values()) {
+            cbRol.getItems().add(rol.name());
         }
+
+        clearAllErrors();
     }
 
     @FXML
-    private void onLogin() {
-        String email = emailField.getText();
-        String pass = passwordField.getText();
+    private void ingresar() {
+        clearAllErrors();
 
-        if (email == null || email.isBlank() || pass == null || pass.isBlank()) {
-            showError("Por favor completa correo y contraseña.");
+        String rawEmail = textOrEmpty(txtCorreo);
+        String password = textOrEmpty(txtContrasena);
+        String rolTexto = cbRol.getValue();
+
+        // normalizar correo en el front
+        String email = rawEmail.trim().toLowerCase();
+
+        // 1) validación en cliente
+        Map<String, String> localErrors = LoginValidator.validate(email, password, rolTexto);
+        if (!localErrors.isEmpty()) {
+            if (localErrors.containsKey("email")) {
+                showError(errCorreo, localErrors.get("email"));
+            }
+            if (localErrors.containsKey("password")) {
+                showError(errContrasena, localErrors.get("password"));
+            }
+            if (localErrors.containsKey("rol")) {
+                showError(errRol, localErrors.get("rol"));
+            }
             return;
         }
 
-        // Stub: solo para ver que funciona la UI
-        hideError();
-        Alert ok = new Alert(Alert.AlertType.INFORMATION, "✅ Login stub OK (sin API).");
-        ok.setHeaderText(null);
-        ok.setTitle("Login");
-        ok.showAndWait();
+        Rol rolEnum = mapearRol(rolTexto);
+
+        LoginRequestDto dto = new LoginRequestDto(
+                email,
+                password,
+                rolEnum
+        );
+
+        // 2) llamada al servicio (valida en backend y guarda sesión si todo va bien)
+        Map<String, String> errors = authService.loginAndReturnErrors(dto);
+
+        if (!errors.isEmpty()) {
+            if (errors.containsKey("email")) {
+                showError(errCorreo, errors.get("email"));
+            }
+            if (errors.containsKey("password")) {
+                showError(errContrasena, errors.get("password"));
+            }
+            if (errors.containsKey("rol")) {
+                showError(errRol, errors.get("rol"));
+            }
+            if (errors.containsKey("general")) {
+                showError(errGeneral != null ? errGeneral : errContrasena, errors.get("general"));
+            }
+            return;
+        }
+
+        // 3) en este punto el login fue correcto y la sesión está en SessionManager
+        SessionInfo session = SessionManager.getInstance().getCurrentSession();
+
+        // opcional: mostrar confirmación
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Inicio de sesión");
+        alert.setHeaderText(null);
+        alert.setContentText("Ingresando como " + session.nombres() + " (" + session.rolActivo() + ")");
+        alert.showAndWait();
+
+        // 4) navegar según el rol activo
+        navigateByRole(session);
     }
 
     @FXML
-    private void onGoToRegister() {
-        Alert a = new Alert(Alert.AlertType.INFORMATION, "Navegación a registro (stub).");
-        a.setHeaderText(null);
-        a.setTitle("Registro");
-        a.showAndWait();
+    private void goToRegister() {
+        ViewNavigator.goTo("/co/edu/unicauca/frontend/view/SignUpView.fxml", "Registro de usuario");
     }
 
-    private void showError(String msg) {
-        errorLabel.setText(msg);
-        errorLabel.setManaged(true);
-        errorLabel.setVisible(true);
+    /**
+     * Decide a qué vista ir según el rol que quedó en la sesión.
+     *
+     * @param session información de sesión guardada luego del login.
+     */
+    private void navigateByRole(SessionInfo session) {
+        if (session == null || session.rolActivo() == null) {
+            // si por alguna razón no hay sesión, volver al login
+            ViewNavigator.goTo("/co/edu/unicauca/frontend/view/SignIn.fxml", "Inicio de sesión");
+            return;
+        }
+
+        Rol rol = session.rolActivo();
+
+        switch (rol) {
+            case Estudiante -> ViewNavigator.goTo(
+                    "/co/edu/unicauca/frontend/view/.fxml",
+                    "Panel del estudiante"
+            );
+            case Docente -> ViewNavigator.goTo(
+                    "/co/edu/unicauca/frontend/view/.fxml",
+                    "Panel del docente"
+            );
+            case Coordinador -> ViewNavigator.goTo(
+                    "/co/edu/unicauca/frontend/view/dashboard/.fxml",
+                    "Panel del coordinador"
+            );
+            case JefeDeDepartamento -> ViewNavigator.goTo(
+                    "/co/edu/unicauca/frontend/view/dashboard/JefeDepartamentoDashboard.fxml",
+                    "Panel del jefe de departamento"
+            );
+            default -> ViewNavigator.goTo(
+                    "/co/edu/unicauca/frontend/view/SignIn.fxml",
+                    "Inicio de sesión"
+            );
+        }
     }
 
-    private void hideError() {
-        errorLabel.setManaged(false);
-        errorLabel.setVisible(false);
-        errorLabel.setText(null);
+    // =========================================================
+    // helpers
+    // =========================================================
+
+    private String textOrEmpty(TextField field) {
+        String t = field.getText();
+        return t == null ? "" : t.trim();
+    }
+
+    private String textOrEmpty(PasswordField field) {
+        String t = field.getText();
+        return t == null ? "" : t;
+    }
+
+    private Rol mapearRol(String textoRol) {
+        try {
+            return Rol.valueOf(textoRol);
+        } catch (Exception e) {
+            return Rol.Estudiante;
+        }
+    }
+
+    private void showError(Label label, String message) {
+        if (label == null) {
+            return;
+        }
+        label.setText(message);
+        label.getStyleClass().remove("error-hidden");
+        label.setStyle("-fx-text-fill: red;");
+    }
+
+    private void clearError(Label label) {
+        if (label == null) {
+            return;
+        }
+        label.setText(" ");
+        if (!label.getStyleClass().contains("error-hidden")) {
+            label.getStyleClass().add("error-hidden");
+        }
+    }
+
+    private void clearAllErrors() {
+        clearError(errCorreo);
+        clearError(errContrasena);
+        clearError(errRol);
+        clearError(errGeneral);
     }
 }
