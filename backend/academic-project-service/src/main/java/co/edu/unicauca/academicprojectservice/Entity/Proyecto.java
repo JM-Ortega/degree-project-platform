@@ -2,6 +2,7 @@ package co.edu.unicauca.academicprojectservice.Entity;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -30,17 +31,16 @@ public class Proyecto {
     @JoinColumn(name = "codirector_id")
     private Docente codirector;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "anteproyecto_id")
-    private Anteproyecto anteproyecto;
-
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "formatoA_id")
-    private FormatoA formatoA;
+    @OneToMany(mappedBy = "proyecto", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FormatoA> formatosA = new ArrayList<>();
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "cartaLaboral_id")
     private CartaLaboral cartaLaboral;
+
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "anteproyecto_id")
+    private Anteproyecto anteproyecto;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "tipo_proyecto", nullable = false)
@@ -48,11 +48,12 @@ public class Proyecto {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "estado_proyecto", nullable = false)
-    private EstadoProyecto estado;
+    private EstadoProyecto estadoProyecto;
 
     public Proyecto() {}
 
     public Long getId() { return id; }
+    public void setId(Long id) {this.id = id;}
 
     public String getTitulo() { return titulo; }
     public void setTitulo(String titulo) { this.titulo = titulo; }
@@ -66,18 +67,18 @@ public class Proyecto {
     public Docente getCodirector() { return codirector; }
     public void setCodirector(Docente codirector) { this.codirector = codirector; }
 
-    public Anteproyecto getAnteproyecto() { return anteproyecto; }
-    public void setAnteproyecto(Anteproyecto anteproyecto) { this.anteproyecto = anteproyecto; }
-
     public TipoProyecto getTipoProyecto() { return tipoProyecto; }
     public void setTipoProyecto(TipoProyecto tipoProyecto) { this.tipoProyecto = tipoProyecto; }
-
-    public FormatoA getFormatoA() { return formatoA; }
-    public void setFormatoA(FormatoA formatoA) { this.formatoA = formatoA; }
 
     public CartaLaboral getCartaLaboral() { return cartaLaboral; }
     public void setCartaLaboral(CartaLaboral cartaLaboral) { this.cartaLaboral = cartaLaboral; }
 
-    public EstadoProyecto getEstado() { return estado; }
-    public void setEstado(EstadoProyecto estado) { this.estado = estado; }
+    public EstadoProyecto getEstadoProyecto() { return estadoProyecto; }
+    public void setEstadoProyecto(EstadoProyecto estadoProyecto) { this.estadoProyecto = estadoProyecto; }
+
+    public List<FormatoA> getFormatosA() {return formatosA;}
+    public void addFormato(FormatoA formato) {this.formatosA.add(formato);}
+
+    public Anteproyecto getAnteproyecto() {return anteproyecto;}
+    public void setAnteproyecto(Anteproyecto anteproyecto) {this.anteproyecto = anteproyecto;}
 }

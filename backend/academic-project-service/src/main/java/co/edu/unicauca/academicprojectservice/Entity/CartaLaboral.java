@@ -2,7 +2,6 @@ package co.edu.unicauca.academicprojectservice.Entity;
 
 import jakarta.persistence.*;
 
-import java.time.LocalDate;
 import java.util.Date;
 
 @Entity
@@ -16,8 +15,6 @@ public class CartaLaboral {
     private Date fechaCreacion;
     private byte[] blob;
     @Enumerated(EnumType.STRING)
-    @Column(name = "estado_archivo", nullable = false)
-    private EstadoArchivo estado;
 
     @OneToOne(mappedBy = "cartaLaboral", cascade = CascadeType.ALL)
     @com.fasterxml.jackson.annotation.JsonIgnore
@@ -31,14 +28,6 @@ public class CartaLaboral {
 
     public void setBlob(byte[] blob) {
         this.blob = blob;
-    }
-
-    public EstadoArchivo getEstado() {
-        return estado;
-    }
-
-    public void setEstado(EstadoArchivo estado) {
-        this.estado = estado;
     }
 
     public Date getFechaCreacion() {

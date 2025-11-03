@@ -1,5 +1,6 @@
 package co.edu.unicauca.academicprojectservice.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.Date;
@@ -20,8 +21,9 @@ public class FormatoA {
     @Column(name = "estado_archivo", nullable = false)
     private EstadoArchivo estado;
 
-    @OneToOne(mappedBy = "formatoA", cascade = CascadeType.ALL)
-    @com.fasterxml.jackson.annotation.JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "proyecto_id")
+    @JsonIgnore
     private Proyecto proyecto;
 
     public FormatoA() {}

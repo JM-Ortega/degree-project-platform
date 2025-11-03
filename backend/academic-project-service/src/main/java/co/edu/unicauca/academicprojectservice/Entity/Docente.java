@@ -22,14 +22,16 @@ public class Docente {
     @OneToMany(mappedBy = "codirector")
     @com.fasterxml.jackson.annotation.JsonIgnore
     private List<Proyecto> trabajosComoCodirector;
-    private String codigoDocente;
+
+    @ManyToMany(mappedBy = "evaluadores")
+    private List<Anteproyecto> anteproyectosAEvaluar;
+
 
     public Docente() {}
 
     public String getApellidos() {
         return apellidos;
     }
-
     public void setApellidos(String apellidos) {
         this.apellidos = apellidos;
     }
@@ -37,23 +39,13 @@ public class Docente {
     public String getCelular() {
         return celular;
     }
-
     public void setCelular(String celular) {
         this.celular = celular;
-    }
-
-    public String getCodigoDocente() {
-        return codigoDocente;
-    }
-
-    public void setCodigoDocente(String codigoDocente) {
-        this.codigoDocente = codigoDocente;
     }
 
     public String getCorreo() {
         return correo;
     }
-
     public void setCorreo(String correo) {
         this.correo = correo;
     }
@@ -61,7 +53,6 @@ public class Docente {
     public Departamento getDepartamento() {
         return departamento;
     }
-
     public void setDepartamento(Departamento departamento) {
         this.departamento = departamento;
     }
@@ -69,7 +60,6 @@ public class Docente {
     public Long getId() {
         return id;
     }
-
     public void setId(Long id) {
         this.id = id;
     }
@@ -77,7 +67,6 @@ public class Docente {
     public String getNombres() {
         return nombres;
     }
-
     public void setNombres(String nombres) {
         this.nombres = nombres;
     }
@@ -85,16 +74,13 @@ public class Docente {
     public List<Proyecto> getTrabajosComoCodirector() {
         return trabajosComoCodirector;
     }
-
-    public void setTrabajosComoCodirector(List<Proyecto> trabajosComoCodirector) {
-        this.trabajosComoCodirector = trabajosComoCodirector;
-    }
+    public void setTrabajosComoCodirector(List<Proyecto> trabajosComoCodirector) {this.trabajosComoCodirector = trabajosComoCodirector;}
 
     public List<Proyecto> getTrabajosComoDirector() {
         return trabajosComoDirector;
     }
+    public void setTrabajosComoDirector(List<Proyecto> trabajosComoDirector) {this.trabajosComoDirector = trabajosComoDirector;}
 
-    public void setTrabajosComoDirector(List<Proyecto> trabajosComoDirector) {
-        this.trabajosComoDirector = trabajosComoDirector;
-    }
+    public List<Anteproyecto> getAnteproyectosAEvaluar() {return anteproyectosAEvaluar;}
+    public void setAnteproyectosAEvaluar(List<Anteproyecto> anteproyectosAEvaluar) {this.anteproyectosAEvaluar = anteproyectosAEvaluar;}
 }

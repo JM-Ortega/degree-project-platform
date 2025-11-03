@@ -17,6 +17,7 @@ public class Estudiante {
     private String correo;
     @Column(length = 30, nullable = false, unique = true)
     private String codigoEstudiante;
+    @Enumerated(EnumType.STRING)
     private Programa programa;
 
     @ManyToMany(mappedBy = "estudiantes")
