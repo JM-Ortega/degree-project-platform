@@ -2,15 +2,17 @@ package co.edu.unicauca.authservice.services;
 
 import co.edu.unicauca.authservice.access.PersonaRepository;
 import co.edu.unicauca.authservice.access.UsuarioRepository;
-import co.edu.unicauca.authservice.domain.entities.*;
+import co.edu.unicauca.authservice.domain.entities.Docente;
+import co.edu.unicauca.authservice.domain.entities.JefeDeDepartamento;
+import co.edu.unicauca.authservice.domain.entities.Persona;
+import co.edu.unicauca.authservice.domain.entities.Usuario;
 import co.edu.unicauca.authservice.dto.LoginRequest;
 import co.edu.unicauca.authservice.dto.LoginResponse;
 import co.edu.unicauca.authservice.dto.RegistroPersonaDto;
-import co.edu.unicauca.authservice.infra.messaging.UserEventsPublisher;
 import co.edu.unicauca.authservice.infra.messaging.NotificationPublisher;
+import co.edu.unicauca.authservice.infra.messaging.UserEventsPublisher;
 import co.edu.unicauca.shared.contracts.dto.SessionInfo;
 import co.edu.unicauca.shared.contracts.events.auth.UserCreatedEvent;
-import co.edu.unicauca.shared.contracts.events.notification.SendEmailEvent;
 import co.edu.unicauca.shared.contracts.model.Departamento;
 import co.edu.unicauca.shared.contracts.model.Rol;
 import org.slf4j.Logger;
@@ -18,7 +20,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Servicio de aplicación para el registro y autenticación de usuarios.
@@ -117,19 +118,29 @@ public class AuthService {
             );
             userEventsPublisher.publishUserCreatedEvent(userEvent);
 
-            SendEmailEvent emailEvent = new SendEmailEvent(
-                    "noreply@unicauca.edu.co",
-                    List.of(usuario.getEmail()),
-                    "Bienvenido a la plataforma",
-                    "user.created",
-                    "Tu cuenta ha sido creada correctamente.",
-                    Map.of("nombre", persona.getNombres())
+            String type = "auth.user.created";
+            String subject = "Bienvenido a la plataforma";
+            String message = "Tu cuenta ha sido creada correctamente.";
+
+// emails destinatarios
+            var emails = List.of(usuario.getEmail());
+
+// celulares destinatarios (si hay)
+            var celulares = (persona.getCelular() != null && !persona.getCelular().isBlank())
+                    ? List.of(persona.getCelular())
+                    : List.<String>of();
+
+            notificationPublisher.publishNotification(
+                    type,
+                    emails,
+                    celulares,   // <— ahora sí
+                    subject,
+                    message
             );
-            notificationPublisher.publishEmail(emailEvent);
 
             log.info("Eventos publicados correctamente para usuario {}", usuario.getEmail());
         } catch (Exception e) {
-            log.error("Error al publicar eventos para el usuario {}: {}", emailNormalizado, e.getMessage());
+            log.error("Error al publicar eventos para el usuario {}: {}", emailNormalizado, e.getMessage(), e);
         }
 
         return persona;

@@ -113,7 +113,15 @@ class AuthServiceTest {
         assertEquals("docente.demo@unicauca.edu.co", personaGuardada.getUsuario().getEmail());
         verify(personaRepository).save(docenteEntidad);
         verify(userEventsPublisher).publishUserCreatedEvent(any());
-        verify(notificationPublisher).publishEmail(any());
+        verify(notificationPublisher).publishNotification(
+                any(String.class),
+                any(List.class),
+                any(List.class),
+                any(String.class),
+                any(String.class)
+        );
+
+
     }
 
 

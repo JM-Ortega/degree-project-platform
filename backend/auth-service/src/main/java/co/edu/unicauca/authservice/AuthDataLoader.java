@@ -4,24 +4,22 @@ import co.edu.unicauca.authservice.access.PersonaRepository;
 import co.edu.unicauca.authservice.access.UsuarioRepository;
 import co.edu.unicauca.authservice.domain.entities.Persona;
 import co.edu.unicauca.authservice.domain.entities.Usuario;
+import co.edu.unicauca.authservice.dto.RegistroPersonaDto;
 import co.edu.unicauca.authservice.infra.messaging.NotificationPublisher;
 import co.edu.unicauca.authservice.infra.messaging.UserEventsPublisher;
 import co.edu.unicauca.authservice.services.CodigoPersonaGenerator;
 import co.edu.unicauca.authservice.services.PasswordHasher;
 import co.edu.unicauca.authservice.services.PersonaFactory;
 import co.edu.unicauca.shared.contracts.events.auth.UserCreatedEvent;
-import co.edu.unicauca.shared.contracts.events.notification.SendEmailEvent;
 import co.edu.unicauca.shared.contracts.model.Departamento;
 import co.edu.unicauca.shared.contracts.model.Programa;
 import co.edu.unicauca.shared.contracts.model.Rol;
-import co.edu.unicauca.authservice.dto.RegistroPersonaDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Cargador de datos de ejemplo para el microservicio de autenticación.
@@ -217,13 +215,12 @@ public class AuthDataLoader implements CommandLineRunner {
      */
     private void publicarEventos(Persona persona, Usuario usuario) {
         try {
+            // 1) Evento funcional: user.created
             UserCreatedEvent userEvent = new UserCreatedEvent(
                     persona.getId(),
                     persona.getNombres() + " " + persona.getApellidos(),
                     usuario.getEmail(),
                     persona.getPrograma(),
-                    // si la persona es Docente/Jefe, el método de AuthService
-                    // saca el departamento. Aquí podemos leerlo directo con pattern matching
                     switch (persona) {
                         case co.edu.unicauca.authservice.domain.entities.Docente d -> d.getDepartamento();
                         case co.edu.unicauca.authservice.domain.entities.JefeDeDepartamento j -> j.getDepartamento();
@@ -233,19 +230,24 @@ public class AuthDataLoader implements CommandLineRunner {
             );
             userEventsPublisher.publishUserCreatedEvent(userEvent);
 
-            SendEmailEvent emailEvent = new SendEmailEvent(
-                    "noreply@unicauca.edu.co",
-                    List.of(usuario.getEmail()),
-                    "Bienvenido a la plataforma",
-                    "user.created",
-                    "Tu cuenta ha sido creada correctamente.",
-                    Map.of("nombre", persona.getNombres())
+            // 2) Evento de notificación (nuevo contrato)
+            // type define la cola lógica de notificación: "notification.send.auth.user.created"
+            String type = "auth.user.created";
+            String subject = "Bienvenido a la plataforma";
+            String message = "Tu cuenta ha sido creada correctamente.";
+
+            notificationPublisher.publishNotification(
+                    type,
+                    List.of(usuario.getEmail()), // toEmails
+                    List.of(),                    // toPhones (vacío si no SMS)
+                    subject,
+                    message
             );
-            notificationPublisher.publishEmail(emailEvent);
 
             log.info("Eventos publicados correctamente para usuario {}", usuario.getEmail());
         } catch (Exception e) {
-            log.error("Error al publicar eventos para {}: {}", usuario.getEmail(), e.getMessage());
+            log.error("Error al publicar eventos para {}: {}", usuario.getEmail(), e.getMessage(), e);
         }
     }
 }
+

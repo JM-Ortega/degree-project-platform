@@ -32,7 +32,12 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- Nada de MapStruct/Lombok aquí: contratos = POJOs/records -->
+        <!-- Lombok solo para generar código en compilación -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>

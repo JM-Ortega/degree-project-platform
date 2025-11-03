@@ -1,6 +1,6 @@
 package co.edu.unicauca.departmentheadservice.infra.messaging;
 
-import co.edu.unicauca.shared.contracts.events.notification.SendEmailEvent;
+import co.edu.unicauca.shared.contracts.events.notification.NotificationEvent;
 import co.edu.unicauca.shared.contracts.messaging.RoutingKeys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
  * del sistema.</p>
  *
  * <p>Utiliza la clave de enrutamiento {@link RoutingKeys#NOTIFICATION_SEND}
- * y el contrato de evento {@link SendEmailEvent} definido en el módulo
+ * y el contrato de evento {@link NotificationEvent} definido en el módulo
  * <code>shared-contracts</code>.</p>
  */
 @Component
@@ -45,9 +45,9 @@ public class NotificationPublisher {
     /**
      * Envía un mensaje de correo electrónico al microservicio de notificaciones.
      *
-     * @param event evento {@link SendEmailEvent} con la información del mensaje a enviar
+     * @param event evento {@link NotificationEvent} con la información del mensaje a enviar
      */
-    public void publishEmail(SendEmailEvent event) {
+    public void publishEmail(NotificationEvent event) {
         try {
             rabbitTemplate.convertAndSend(exchangeName, RoutingKeys.NOTIFICATION_SEND, event);
             log.info("Evento de notificación publicado: {} -> {}", RoutingKeys.NOTIFICATION_SEND, event);
