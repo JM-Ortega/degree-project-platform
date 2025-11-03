@@ -27,7 +27,7 @@ public class ProyectoEstudianteService {
     public List<ProyectoEstudianteDTO> obtenerProyectosEstudiante() {
         try {
             // Por ahora lo quemo
-            String correo = "lau@unicauca.edu.co";
+            String correo = "carlos.lopez@uni.edu";
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(new URI(BASE_URL + "/listar/" + correo))
@@ -36,21 +36,18 @@ public class ProyectoEstudianteService {
 
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
-            List<ProyectoEstudianteDTO> dtoList = mapper.readValue(
+            List<ProyectoEstudianteJsonDTO> jsonList = mapper.readValue(
                     response.body(),
-                    new TypeReference<List<ProyectoEstudianteDTO>>() {
-                    }
+                    new TypeReference<List<ProyectoEstudianteJsonDTO>>() {}
             );
 
-            // Convertir los DTOs en objetos que usa TableView
-            return dtoList.stream()
-                    .map(dto -> new ProyectoEstudianteDTO(
-                            dto.getId(),
-                            dto.getTitulo(),
-                            dto.getTipoProyecto(),
-                            dto.getNombreDirector(),
-                            dto.getFechaEmision(),
-                            dto.getEstadoProyecto()
+            return jsonList.stream()
+                    .map(json -> new ProyectoEstudianteDTO(
+                            json.getId(),
+                            json.getTitulo(),
+                            json.getNombreDirector(),
+                            json.getTipoProyecto(),
+                            json.getEstadoProyecto()
                     ))
                     .collect(Collectors.toList());
 

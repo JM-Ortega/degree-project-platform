@@ -19,8 +19,8 @@ public class FrontendApp extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         UsuarioDTO docentePrueba = new UsuarioDTO();
-        docentePrueba.setNombre("Maria Fernanda Fernández");
-        docentePrueba.setCorreo("mariafernandez@unicauca.edu.co");
+        docentePrueba.setNombre("Maria Torres Jiménez");
+        docentePrueba.setCorreo("maria.torres@uni.edu");
         SesionFront.getInstancia().setUsuarioActivo(docentePrueba);
 
         DocenteService docenteService = new DocenteService();
