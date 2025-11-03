@@ -1,4 +1,7 @@
-package co.edu.unicauca.frontend.entities;
+package co.edu.unicauca.frontend.infra.dto;
+
+import co.edu.unicauca.frontend.entities.EstadoProyecto;
+import co.edu.unicauca.frontend.entities.TipoProyecto;
 
 public class ProyectoDTO {
     private long id;
