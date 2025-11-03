@@ -1,6 +1,8 @@
 package co.edu.unicauca.coordinatorservice.controller;
 
+import co.edu.unicauca.coordinatorservice.entity.Estudiante;
 import co.edu.unicauca.coordinatorservice.entity.FormatoA;
+import co.edu.unicauca.coordinatorservice.infra.DTOS.Programa;
 import co.edu.unicauca.coordinatorservice.infra.DTOSInternos.FormatoAResumenDTO;
 import co.edu.unicauca.coordinatorservice.repository.FormatoARepository;
 import co.edu.unicauca.coordinatorservice.service.FormatoAService;
@@ -25,9 +27,17 @@ public class FormatoAController {
         this.formatoAService = formatoAService;
     }
 
-    @GetMapping("/listar")
-    public ResponseEntity<List<FormatoAResumenDTO>> listarFormatosAResumen() {
+    @GetMapping("/listar/{programa}")
+    public ResponseEntity<List<FormatoAResumenDTO>> listarFormatosAResumen(
+            @PathVariable String programa) {
+
         List<FormatoAResumenDTO> lista = formatoARepository.findAll().stream()
+                .filter(f -> {
+                    // Aseguramos que haya al menos un estudiante
+                    if (f.getEstudiantes() == null || f.getEstudiantes().isEmpty()) return false;
+                    Estudiante primerEstudiante = f.getEstudiantes().get(0);
+                    return primerEstudiante.getPrograma() == Programa.valueOf(programa);
+                })
                 .map(f -> new FormatoAResumenDTO(
                         f.getId(),
                         f.getNombreProyecto(),
@@ -39,8 +49,10 @@ public class FormatoAController {
                         f.getNombreFormatoA()
                 ))
                 .toList();
+
         return ResponseEntity.ok(lista);
     }
+
 
     @GetMapping("/{id}")
     public FormatoA obtenerPorId(@PathVariable Long id) {

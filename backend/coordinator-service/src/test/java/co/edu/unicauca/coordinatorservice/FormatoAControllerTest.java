@@ -2,13 +2,10 @@ package co.edu.unicauca.coordinatorservice;
 
 
 import co.edu.unicauca.coordinatorservice.controller.FormatoAController;
-import co.edu.unicauca.coordinatorservice.entity.DocenteEmbeddable;
 import co.edu.unicauca.coordinatorservice.entity.FormatoA;
-import co.edu.unicauca.coordinatorservice.entity.TipoProyecto;
 import co.edu.unicauca.coordinatorservice.infra.DTOS.EstadoFormatoA;
 import co.edu.unicauca.coordinatorservice.repository.FormatoARepository;
 import co.edu.unicauca.coordinatorservice.service.FormatoAService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;

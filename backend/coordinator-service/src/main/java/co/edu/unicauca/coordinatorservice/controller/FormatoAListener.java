@@ -1,15 +1,15 @@
 package co.edu.unicauca.coordinatorservice.controller;
 
-import co.edu.unicauca.coordinatorservice.entity.DocenteEmbeddable;
+import co.edu.unicauca.coordinatorservice.entity.*;
 import co.edu.unicauca.coordinatorservice.infra.DTOS.EstadoFormatoA;
-import co.edu.unicauca.coordinatorservice.entity.EstadoProyecto;
-import co.edu.unicauca.coordinatorservice.entity.FormatoA;
 import co.edu.unicauca.coordinatorservice.infra.DTOS.EstudianteDTO;
 import co.edu.unicauca.coordinatorservice.infra.DTOS.FormatoADTO;
 import co.edu.unicauca.coordinatorservice.infra.DTOS.ProyectoDTO;
+import co.edu.unicauca.coordinatorservice.infra.DTOS.TipoProyecto;
+import co.edu.unicauca.coordinatorservice.repository.DocenteRepository;
+import co.edu.unicauca.coordinatorservice.repository.EstudianteRepository;
 import co.edu.unicauca.coordinatorservice.repository.FormatoARepository;
 import jakarta.transaction.Transactional;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,9 +18,15 @@ import java.util.Optional;
 @Component
 public class FormatoAListener {
     private final FormatoARepository formatoARepository;
+    private final DocenteRepository docenteRepository;
+    private final EstudianteRepository estudianteRepository;
 
-    public FormatoAListener(FormatoARepository formatoARepository) {
+
+    public FormatoAListener(FormatoARepository formatoARepository, DocenteRepository docenteRepository,
+                            EstudianteRepository estudianteRepository) {
         this.formatoARepository = formatoARepository;
+        this.docenteRepository = docenteRepository;
+        this.estudianteRepository = estudianteRepository;
     }
 
     /**
@@ -41,8 +47,10 @@ public class FormatoAListener {
         // Actualizar campos con la información nueva
         formato.setProyectoId(dto.getProyectoId());
         formato.setNroVersion(dto.getNroVersion());
+        formato.setNombreFormatoA(dto.getNombreFormatoA());
         formato.setFechaSubida(dto.getFechaSubida());
         formato.setBlob(dto.getBlob());
+        //Si vamos a dejar los enums compartidos no tengo que hacer esto
         formato.setEstadoFormatoA(EstadoFormatoA.valueOf(dto.getEstado().toString()));
 
         formatoARepository.save(formato);
@@ -54,37 +62,55 @@ public class FormatoAListener {
     public void recibirProyecto(ProyectoDTO dto) {
         System.out.println("📩 [RabbitMQ] Mensaje recibido en CoordinatorService: " + dto.getTitulo());
 
-        // Buscar si ya existe el FormatoA en la base de datos local
+        // Formato A
         Optional<FormatoA> existingFormato = formatoARepository.findByProyectoId(dto.getId());
-
         FormatoA formato = existingFormato.orElse(new FormatoA());
 
-        // Actualizar campos con la información nueva
-        List<String> emailEstudiantes = new ArrayList<>();
-        for(EstudianteDTO e : dto.getEstudiantes()){
-            if (e.getUsuarioDTO() != null && e.getUsuarioDTO().getEmail() != null) {
-                emailEstudiantes.add(e.getUsuarioDTO().getEmail());
-            }
-        }
-        formato.setEstudiantesEmail(emailEstudiantes);
+        formato.setProyectoId(dto.getId());
+        formato.setNombreProyecto(dto.getTitulo());
+        //Si vamos a dejar los enums compartidos no tengo que hacer esto
+        formato.setTipoProyecto(TipoProyecto.valueOf(dto.getTipoProyecto().toString()));
 
-        DocenteEmbeddable director = new DocenteEmbeddable();
+        //Director
+        Optional<Docente> existingDirector = docenteRepository.findByEmail(dto.getDirector().getEmail());
+        Docente director = existingDirector.orElse(new Docente());
+
         director.setNombres(dto.getDirector().getNombres());
         director.setApellidos(dto.getDirector().getApellidos());
-        director.setEmail(dto.getDirector().getUsuarioDTO().getEmail());
+        director.setEmail(dto.getDirector().getEmail());
+        director.setCelular(dto.getDirector().getCelular());
+
+        docenteRepository.save(director);
         formato.setDirector(director);
 
-        if(dto.getCodirector() != null){
-            DocenteEmbeddable coodirector = new DocenteEmbeddable();
+        //Coodirector
+        if(dto.getCodirector()!=null){
+            Optional<Docente> existingCoodirector = docenteRepository.findByEmail(dto.getCodirector().getEmail());
+            Docente coodirector = existingCoodirector.orElse(new Docente());
+
             coodirector.setNombres(dto.getDirector().getNombres());
             coodirector.setApellidos(dto.getDirector().getApellidos());
-            coodirector.setEmail(dto.getDirector().getUsuarioDTO().getEmail());
-            formato.setDirector(coodirector);
+            coodirector.setEmail(dto.getDirector().getEmail());
+            coodirector.setCelular(dto.getDirector().getCelular());
+
+            docenteRepository.save(coodirector);
+            formato.setCoodirector(coodirector);
         }
 
-        formato.setEstadoProyecto(EstadoProyecto.valueOf(dto.getEstado().toString()));
+        //Estudiantes
+        List<Estudiante> estudiantes = new ArrayList<>();
+        for(EstudianteDTO dto2 : dto.getEstudiantes()){
+            Optional<Estudiante> existingEstudiante = estudianteRepository.findByEmail(dto2.getEmail());
+            Estudiante estudiante = existingEstudiante.orElse(new Estudiante());
 
-        formato.setNombreProyecto(dto.getTitulo());
+            estudiante.setEmail(dto2.getEmail());
+            estudiante.setCelular(dto2.getCelular());
+            estudiante.setPrograma(dto2.getPrograma());
+            estudiantes.add(estudiante);
+
+            estudianteRepository.save(estudiante);
+        }
+        formato.setEstudiantes(estudiantes);
 
         formatoARepository.save(formato);
 

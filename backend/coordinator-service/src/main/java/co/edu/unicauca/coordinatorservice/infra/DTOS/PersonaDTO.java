@@ -9,5 +9,7 @@ public class PersonaDTO {
     private String apellidos;
     private String celular;
     private Programa programa;
-    private UsuarioDTO usuarioDTO;
+    private String email;
+    private String passwordHash;
+    private Rol rol;
 }

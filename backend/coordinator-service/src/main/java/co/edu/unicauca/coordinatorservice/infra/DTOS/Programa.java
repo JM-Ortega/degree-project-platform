@@ -1,8 +1,8 @@
 package co.edu.unicauca.coordinatorservice.infra.DTOS;
 
 public enum Programa {
-    Ingenieria_de_Sistemas,
-    Ingenieria_Electronica_y_Telecomunicaciones,
-    Automatica_Industrial,
-    Tecnologia_en_Telematica
+    INGENIERIA_DE_SISTEMAS,
+    INGENIERIA_ELECTRONICA_Y_TELECOMUNICACIONES,
+    AUTOMATICA_INDUSTRIAL,
+    TECNOLOGIA_EN_TELEMATICA
 }
