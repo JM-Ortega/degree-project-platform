@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -150,7 +151,7 @@ public class ProyectoService {
         anteproyecto.setTitulo(dto.getTitulo());
         anteproyecto.setNombreArchivo(dto.getNombreArchivo());
         anteproyecto.setBlob(dto.getBlob());
-        anteproyecto.setFechaCreacion(new Date());
+        anteproyecto.setFechaCreacion(LocalDate.now());
 
         anteproyecto.setProyecto(proyecto);
 

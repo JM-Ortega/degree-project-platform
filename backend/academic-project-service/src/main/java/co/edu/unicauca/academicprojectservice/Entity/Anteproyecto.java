@@ -2,6 +2,7 @@ package co.edu.unicauca.academicprojectservice.Entity;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -16,8 +17,8 @@ public class Anteproyecto {
     private String titulo;
     private byte[] blob;
 
-    @Temporal(TemporalType.DATE)
-    private Date fechaCreacion;
+    @Column(name = "fecha_creacion")
+    private LocalDate fechaCreacion;
 
     @ManyToMany
     @JoinTable(
@@ -36,8 +37,13 @@ public class Anteproyecto {
     // Getters y setters
     public Long getId() { return id; }
 
-    public Date getFechaCreacion() { return fechaCreacion; }
-    public void setFechaCreacion(Date fechaCreacion) { this.fechaCreacion = fechaCreacion; }
+    public LocalDate getFechaCreacion() {
+        return fechaCreacion;
+    }
+
+    public void setFechaCreacion(LocalDate fechaCreacion) {
+        this.fechaCreacion = fechaCreacion;
+    }
 
     public Proyecto getProyecto() { return proyecto; }
     public void setProyecto(Proyecto proyecto) { this.proyecto = proyecto; }

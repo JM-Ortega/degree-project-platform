@@ -2,6 +2,7 @@ package co.edu.unicauca.academicprojectservice.infra.dto;
 
 import co.edu.unicauca.academicprojectservice.Entity.EstadoArchivo;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 public class AnteproyectoDTO {
@@ -10,14 +11,14 @@ public class AnteproyectoDTO {
     private String descripcion;
     private String titulo;
     private byte[] blob;
-    private Date fechaCreacion;
+    private LocalDate fechaCreacion;
     private String estudianteNombre;
     private String estudianteCorreo;
 
     public AnteproyectoDTO() {
     }
 
-    public AnteproyectoDTO(byte[] blob, String descripcion, String estudianteCorreo, String estudianteNombre, Date fechaCreacion, long id, String nombreArchivo, String titulo) {
+    public AnteproyectoDTO(byte[] blob, String descripcion, String estudianteCorreo, String estudianteNombre, LocalDate fechaCreacion, long id, String nombreArchivo, String titulo) {
         this.blob = blob;
         this.descripcion = descripcion;
         this.estudianteCorreo = estudianteCorreo;
@@ -40,8 +41,13 @@ public class AnteproyectoDTO {
     public byte[] getBlob() {return blob;}
     public void setBlob(byte[] blob) {this.blob = blob;}
 
-    public Date getFechaCreacion() {return fechaCreacion;}
-    public void setFechaCreacion(Date fechaCreacion) {this.fechaCreacion = fechaCreacion;}
+    public LocalDate getFechaCreacion() {
+        return fechaCreacion;
+    }
+
+    public void setFechaCreacion(LocalDate fechaCreacion) {
+        this.fechaCreacion = fechaCreacion;
+    }
 
     public long getId() {return id;}
     public void setId(long id) {this.id = id;}

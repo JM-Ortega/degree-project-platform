@@ -3,6 +3,7 @@ package co.edu.unicauca.academicprojectservice.Entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 
@@ -14,8 +15,10 @@ public class FormatoA {
     private Long id;
     private int nroVersion;
     private String nombreFormato;
-    @Temporal(TemporalType.DATE)
-    private Date fechaCreacion;
+
+    @Column(name = "fecha_creacion")
+    private LocalDate fechaCreacion;
+
     private byte[] blob;
     @Enumerated(EnumType.STRING)
     @Column(name = "estado_archivo", nullable = false)
@@ -44,11 +47,11 @@ public class FormatoA {
         this.estado = estado;
     }
 
-    public Date getFechaCreacion() {
+    public LocalDate getFechaCreacion() {
         return fechaCreacion;
     }
 
-    public void setFechaCreacion(Date fechaCreacion) {
+    public void setFechaCreacion(LocalDate fechaCreacion) {
         this.fechaCreacion = fechaCreacion;
     }
 

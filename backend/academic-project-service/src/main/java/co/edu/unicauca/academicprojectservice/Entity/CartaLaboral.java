@@ -2,6 +2,7 @@ package co.edu.unicauca.academicprojectservice.Entity;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Entity
@@ -11,8 +12,10 @@ public class CartaLaboral {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String nombreCartaLaboral;
-    @Temporal(TemporalType.DATE)
-    private Date fechaCreacion;
+
+    @Column(name = "fecha_creacion")
+    private LocalDate fechaCreacion;
+
     private byte[] blob;
     @Enumerated(EnumType.STRING)
 
@@ -30,11 +33,11 @@ public class CartaLaboral {
         this.blob = blob;
     }
 
-    public Date getFechaCreacion() {
+    public LocalDate getFechaCreacion() {
         return fechaCreacion;
     }
 
-    public void setFechaCreacion(Date fechaCreacion) {
+    public void setFechaCreacion(LocalDate fechaCreacion) {
         this.fechaCreacion = fechaCreacion;
     }
 

@@ -75,4 +75,8 @@ public interface ProyectoRepository extends JpaRepository<Proyecto, Long> {
     @Query("SELECT p FROM Proyecto p JOIN p.estudiantes e " +
             "WHERE lower(e.correo) = lower(:correo) AND p.estadoProyecto = :estado")
     Optional<Proyecto> findByEstudiantesCorreoIgnoreCaseAndEstadoProyecto(@Param("correo") String correo, @Param("estado") EstadoProyecto estado);
+
+
+    @Query("SELECT p FROM Proyecto p JOIN p.estudiantes e WHERE LOWER(e.correo) = LOWER(:correo)")
+    List<Proyecto> findByEstudianteCorreo(@Param("correo") String correo);
 }
