@@ -1,4 +1,4 @@
-package co.edu.unicauca.academicprojectservice.Entity;
+package co.edu.unicauca.frontend.entities;
 
 public enum Programa {
     INGENIERIA_DE_SISTEMAS,

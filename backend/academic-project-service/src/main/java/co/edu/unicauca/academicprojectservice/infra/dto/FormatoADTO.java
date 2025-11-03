@@ -1,4 +1,6 @@
-package co.edu.unicauca.frontend.entities;
+package co.edu.unicauca.academicprojectservice.infra.dto;
+
+import co.edu.unicauca.academicprojectservice.Entity.EstadoArchivo;
 
 import java.util.Date;
 

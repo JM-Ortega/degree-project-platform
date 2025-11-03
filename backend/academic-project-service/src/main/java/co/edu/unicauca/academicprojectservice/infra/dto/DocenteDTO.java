@@ -1,26 +1,31 @@
-package co.edu.unicauca.frontend.entities;
+package co.edu.unicauca.academicprojectservice.infra.dto;
 
 
 public class DocenteDTO {
-    private Long id;
-    private String nombre;
+    private String nombres;
+    private String apellidos;
+    private String celular;
     private String correo;
     private String departamento;
 
     public DocenteDTO() {}
 
-    public DocenteDTO(Long id, String nombre, String correo, String departamento) {
-        this.id = id;
-        this.nombre = nombre;
+    public DocenteDTO(String apellidos, String celular, String correo, String departamento, String nombres) {
+        this.apellidos = apellidos;
+        this.celular = celular;
         this.correo = correo;
         this.departamento = departamento;
+        this.nombres = nombres;
     }
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getApellidos() {return apellidos;}
+    public void setApellidos(String apellidos) {this.apellidos = apellidos;}
 
-    public String getNombre() { return nombre; }
-    public void setNombre(String nombre) { this.nombre = nombre; }
+    public String getNombres() {return nombres;}
+    public void setNombres(String nombres) {this.nombres = nombres;}
+
+    public String getCelular() {return celular;}
+    public void setCelular(String celular) {this.celular = celular;}
 
     public String getCorreo() { return correo; }
     public void setCorreo(String correo) { this.correo = correo; }

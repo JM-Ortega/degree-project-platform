@@ -1,10 +1,10 @@
-package co.unicauca.workflow.degree_project.presentation;
+package co.edu.unicauca.frontend.presentation;
 
-import co.unicauca.workflow.degree_project.domain.models.*;
-import co.unicauca.workflow.degree_project.domain.services.AuthResult;
-import co.unicauca.workflow.degree_project.domain.services.IProyectoService;
-import co.unicauca.workflow.degree_project.infra.security.Sesion;
-import co.unicauca.workflow.degree_project.main;
+import co.edu.unicauca.frontend.entities.*;
+import co.edu.unicauca.frontend.infra.dto.*;
+import co.edu.unicauca.frontend.services.DocenteService;
+import co.edu.unicauca.frontend.services.EstudianteService;
+import co.edu.unicauca.frontend.services.ProyectoService;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.util.Date;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -56,7 +57,7 @@ public class FormatoADocenteController implements Initializable {
 
     // Tipo trabajo + archivos
     @FXML
-    private ComboBox<TipoTrabajoGrado> cbTipoTrabajo;
+    private ComboBox<TipoProyecto> cbTipoTrabajo;
     @FXML
     private Button btnSeleccionarPdf;
     @FXML
@@ -100,12 +101,9 @@ public class FormatoADocenteController implements Initializable {
     private byte[] cartaBytes;
     private String cartaNombre;
 
-    private IProyectoService proyectoService;
-
-    // Inyección por constructor
-    public FormatoADocenteController(IProyectoService proyectoService) {
-        this.proyectoService = proyectoService;
-    }
+    private DocenteService docenteService;
+    private EstudianteService estudianteService;
+    private ProyectoService proyectoService;
 
     private static boolean isEmailLike(String s) {
         if (s == null) return false;
@@ -113,10 +111,6 @@ public class FormatoADocenteController implements Initializable {
         int at = v.indexOf('@');
         if (at <= 0 || at == v.length() - 1) return false;
         return v.matches("^[A-Za-z0-9._%+-]+@unicauca\\.edu\\.co$");
-    }
-
-    public void setService(IProyectoService proyectoService) {
-        this.proyectoService = proyectoService;
     }
 
     // =================== Utiles UI ===================
@@ -139,11 +133,10 @@ public class FormatoADocenteController implements Initializable {
         configurarTabla();
         tblProyectos.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-
         if (cbTipoTrabajo != null) {
-            cbTipoTrabajo.getItems().setAll(TipoTrabajoGrado.TESIS, TipoTrabajoGrado.PRACTICA_PROFESIONAL);
+            cbTipoTrabajo.getItems().setAll(TipoProyecto.TRABAJO_DE_INVESTIGACION, TipoProyecto.PRACTICA_PROFESIONAL);
             cbTipoTrabajo.valueProperty().addListener((obs, old, val) -> {
-                boolean requiereCarta = (val == TipoTrabajoGrado.PRACTICA_PROFESIONAL);
+                boolean requiereCarta = (val == TipoProyecto.PRACTICA_PROFESIONAL);
                 if (rowCarta != null) {
                     rowCarta.setVisible(requiereCarta);
                     rowCarta.setManaged(requiereCarta);
@@ -159,15 +152,11 @@ public class FormatoADocenteController implements Initializable {
 
     // =================== Carga inicial ===================
     public void cargarDatos() {
-        AuthResult auth = Sesion.getInstancia().getUsuarioActual();
-        if (auth == null) {
-            try {
-                main.navigate("signin", "Login");
-            } catch (Exception ignored) {
-            }
-            return;
+        UsuarioDTO docente = SesionFront.getInstancia().getUsuarioActivo();
+        if (docente == null) {
+            System.err.println("No hay sesión activa");
         }
-        nombreDocente.setText(auth.nombre());
+        nombreDocente.setText(docente.getNombre());
         ocultarPanelNuevo();
         if (lblPdfNombre != null) lblPdfNombre.setText("Ningún archivo seleccionado");
         if (lblCartaNombre != null) lblCartaNombre.setText("Ningún archivo seleccionado");
@@ -184,17 +173,27 @@ public class FormatoADocenteController implements Initializable {
     }
 
     @FXML
-    private void onVerEstadisticas() throws IOException {
-        FXMLLoader loaderEstadisticas = main.newInjectedLoader(
-                "/co/unicauca/workflow/degree_project/view/EstadisticasDocente.fxml"
-            );
-            Parent estadisticasView = loaderEstadisticas.load();
+    private void onVerEstadisticas() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(
+                    "/co/edu/unicauca/frontend/view/EstadisticasDocente.fxml"
+            ));
 
-            Stage estadisticasStage = new Stage();
-            estadisticasStage.setTitle("Estadísticas - Docente");
-            estadisticasStage.setScene(new Scene(estadisticasView));
-            estadisticasStage.show();
+            Parent vista = loader.load();
+            EstadisticasDocenteController estadisticasController = loader.getController();
+            estadisticasController.setServices(this.docenteService, this.proyectoService, this.estudianteService);
+
+            Stage stage = new Stage();
+            stage.setTitle("Estadísticas - Docente");
+            stage.setScene(new Scene(vista));
+            stage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.err.println("Error al cargar EstadisticasDocente.fxml: " + e.getMessage());
+        }
     }
+
 
     @FXML
     private void onCancelarNuevo() {
@@ -213,7 +212,7 @@ public class FormatoADocenteController implements Initializable {
             return;
         }
         try {
-            boolean libre = proyectoService.estudianteLibrePorCorreo(correo);
+            boolean libre = estudianteService.estudianteLibrePorCorreo(correo);
             if (libre) setOk(lblEstudianteNombre, "Estudiante disponible");
             else setError(lblEstudianteNombre, "Estudiante con proyecto en curso");
         } catch (IllegalArgumentException ex) {
@@ -257,19 +256,22 @@ public class FormatoADocenteController implements Initializable {
         }
     }
 
+    private static boolean isBlank(String s) {
+        return s == null || s.trim().isEmpty();
+    }
+
     @FXML
     private void onCrearProyecto() {
         lblNuevoProyectoMsg.setText("");
-
-        AuthResult auth = Sesion.getInstancia().getUsuarioActual();
-        if (auth == null) {
+        UsuarioDTO docente = SesionFront.getInstancia().getUsuarioActivo();
+        if (docente == null) {
             setError(lblNuevoProyectoMsg, "Sesión no válida");
             return;
         }
 
         String correo = safeText(txtEstudianteCorreo);
         String titulo = safeText(txtTitulo);
-        TipoTrabajoGrado tipoTrabajo = cbTipoTrabajo != null ? cbTipoTrabajo.getValue() : TipoTrabajoGrado.TESIS;
+        TipoProyecto tipoTrabajo = cbTipoTrabajo != null ? cbTipoTrabajo.getValue() : TipoProyecto.PRACTICA_PROFESIONAL;
 
         if (tipoTrabajo == null) {
             setError(lblNuevoProyectoMsg, "Seleccione el tipo de trabajo.");
@@ -287,32 +289,51 @@ public class FormatoADocenteController implements Initializable {
             setError(lblNuevoProyectoMsg, "Adjunte el Formato A (PDF).");
             return;
         }
-        if (tipoTrabajo == TipoTrabajoGrado.PRACTICA_PROFESIONAL && (cartaBytes == null || cartaNombre == null)) {
+        if (tipoTrabajo == TipoProyecto.PRACTICA_PROFESIONAL && (cartaBytes == null || cartaNombre == null)) {
             setError(lblNuevoProyectoMsg, "Adjunte la Carta de aceptación (PDF).");
             return;
         }
 
         try {
-            Proyecto p = new Proyecto();
-            p.setTipo(tipoTrabajo);
+            ProyectoDTO p = new ProyectoDTO();
+            p.setTipoProyecto(tipoTrabajo);
             p.setTitulo(titulo);
-            p.setDocenteId(auth.userId());
-            p.setEstudianteId(correo);
+            p.setDirector(docente.getCorreo());
+            p.setEstudiante(correo);
 
-            Archivo formatoA = new Archivo();
-            formatoA.setTipo(TipoArchivo.FORMATO_A);
-            formatoA.setNombreArchivo(formatoANombre);
-            formatoA.setBlob(formatoABytes);
+            Date fecha = new Date();
+            FormatoADTO formatoADTO = new FormatoADTO();
+            formatoADTO.setNombreFormato(formatoANombre);
+            formatoADTO.setBlob(formatoABytes);
+            formatoADTO.setEstado(EstadoArchivo.PENDIENTE);
+            formatoADTO.setFechaCreacion(fecha);
+            formatoADTO.setNroVersion(1);
 
+            if (isBlank(p.getTitulo()) || isBlank(p.getEstudiante()) || isBlank(p.getDirector()))
+                throw new IllegalArgumentException("Título, estudiante y docente son obligatorios");
 
-            if (tipoTrabajo == TipoTrabajoGrado.PRACTICA_PROFESIONAL) {
-                Archivo carta = new Archivo();
-                carta.setTipo(TipoArchivo.CARTA_ACEPTACION);
-                carta.setNombreArchivo(cartaNombre);
+            if (tipoTrabajo == TipoProyecto.PRACTICA_PROFESIONAL) {
+                CartaLaboralDTO carta = new CartaLaboralDTO();
+                carta.setNombreCartaLaboral(cartaNombre);
                 carta.setBlob(cartaBytes);
-                proyectoService.crearProyectoConArchivos(p, List.of(formatoA, carta));
+                carta.setFechaCreacion(fecha);
+
+                p.setFormatoA(formatoADTO);
+                p.setCartaLaboral(carta);
+
+                if (p.getCartaLaboral()==null || p.getFormatoA()==null) {
+                    throw new IllegalArgumentException("Datos incompletos");
+                }
+
+                proyectoService.crearProyecto(p);
             } else {
-                proyectoService.crearProyectoConArchivos(p, List.of(formatoA));
+                p.setFormatoA(formatoADTO);
+
+                if (p.getFormatoA()==null) {
+                    throw new IllegalArgumentException("Datos incompletos");
+                }
+
+                proyectoService.crearProyecto(p);
             }
 
             setOk(lblNuevoProyectoMsg, "Proyecto creado correctamente.");
@@ -385,14 +406,14 @@ public class FormatoADocenteController implements Initializable {
     private void cargarTabla() {
         lblTablaMsg.setText("");
 
-        AuthResult auth = Sesion.getInstancia().getUsuarioActual();
-        if (auth == null) return;
+        UsuarioDTO usuario = SesionFront.getInstancia().getUsuarioActivo();
+        if (usuario == null) return;
 
         String filtro = safeText(txtBuscar);
-        List<Proyecto> proyectos = proyectoService.listarProyectosDocente(auth.userId(), filtro);
+        List<ProyectoInfoDTO> proyectos = proyectoService.listarProyectosDocente(usuario.getCorreo(), filtro);
 
         ObservableList<RowVM> rows = FXCollections.observableArrayList();
-        for (Proyecto p : proyectos) {
+        for (ProyectoInfoDTO p : proyectos) {
             long id = p.getId();
             String titulo = p.getTitulo();
 
@@ -400,36 +421,20 @@ public class FormatoADocenteController implements Initializable {
 
             int version = proyectoService.maxVersionFormatoA(id);
 
-            String packed = p.getEstudianteId();
-
-            String estNombre = "";
-            String estCorreo = "";
-
-            if (packed != null) {
-                String v = packed.trim();
-                if (v.contains("||")) {
-                    int sep = v.indexOf("||");
-                    estNombre = v.substring(0, sep).trim();
-                    estCorreo = v.substring(sep + 2).trim();
-                } else if (v.contains("<") && v.contains(">")) {
-                    int i1 = v.lastIndexOf('<');
-                    int i2 = v.lastIndexOf('>');
-                    if (i1 >= 0 && i2 > i1) {
-                        estNombre = v.substring(0, i1).trim();
-                        estCorreo = v.substring(i1 + 1, i2).trim();
-                    } else {
-                        estCorreo = v;
-                    }
-                } else if (v.contains("@")) {
-                    estCorreo = v;
-                } else {
-                    estNombre = v;
-                }
+            String estNombre = p.getEstudianteNombre();
+            String estCorreo = p.getEstudianteCorreo();
+            if (estNombre != null) {
+                estNombre = estNombre.trim();
+            } else {
+                estNombre = "";
+            }
+            if (estCorreo != null) {
+                estCorreo = estCorreo.trim();
+            } else {
+                estCorreo = "";
             }
 
             rows.add(new RowVM(id, titulo, estNombre, estCorreo, version, estadoFinal.name()));
-
-
         }
 
         tblProyectos.setItems(rows);
@@ -446,9 +451,8 @@ public class FormatoADocenteController implements Initializable {
 
             byte[] bytes = Files.readAllBytes(f.toPath());
 
-            Archivo a = new Archivo();
-            a.setTipo(TipoArchivo.FORMATO_A);
-            a.setNombreArchivo(f.getName());
+            FormatoADTO a = new FormatoADTO();
+            a.setNombreFormato(f.getName());
             a.setBlob(bytes);
 
             var res = proyectoService.subirNuevaVersionFormatoA(row.proyectoId(), a);
@@ -464,8 +468,8 @@ public class FormatoADocenteController implements Initializable {
     private void descargarObservaciones(RowVM row) {
         try {
             proyectoService.enforceAutoCancelIfNeeded(row.proyectoId());
-            var arch = proyectoService.obtenerUltimoFormatoAConObservaciones(row.proyectoId());
-            if (arch == null) {
+            var form = proyectoService.obtenerUltimoFormatoAConObservaciones(row.proyectoId());
+            if (form == null) {
                 setError(lblTablaMsg, "No hay Formato A con observaciones.");
                 return;
             }
@@ -473,11 +477,11 @@ public class FormatoADocenteController implements Initializable {
             FileChooser fc = new FileChooser();
             fc.setTitle("Guardar Formato A con observaciones");
             fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF", "*.pdf"));
-            fc.setInitialFileName(arch.getNombreArchivo());
+            fc.setInitialFileName(form.getNombreFormato());
             File dest = fc.showSaveDialog(tblProyectos.getScene().getWindow());
             if (dest == null) return;
 
-            Files.write(dest.toPath(), arch.getBlob());
+            Files.write(dest.toPath(), form.getBlob());
             setOk(lblTablaMsg, "Observaciones descargadas.");
             cargarTabla();
         } catch (Exception ex) {
@@ -486,12 +490,12 @@ public class FormatoADocenteController implements Initializable {
     }
 
     private void actualizarCupo() {
-        AuthResult auth = Sesion.getInstancia().getUsuarioActual();
+        UsuarioDTO auth = SesionFront.getInstancia().getUsuarioActivo();
         if (auth == null) {
             btnIniciarNuevoProyecto.setDisable(true);
             return;
         }
-        boolean cupo = proyectoService.docenteTieneCupo(auth.userId());
+        boolean cupo = docenteService.docenteTieneCupo(auth.getCorreo());
         btnIniciarNuevoProyecto.setDisable(!cupo);
         lblCupoDocente.setText(cupo ? "" : "Límite de 7 proyectos en curso alcanzado");
     }
@@ -526,6 +530,11 @@ public class FormatoADocenteController implements Initializable {
         }
     }
 
+    public void setServices(DocenteService docenteService, ProyectoService proyectoService, EstudianteService estudianteService) {
+        this.docenteService = docenteService;
+        this.proyectoService = proyectoService;
+        this.estudianteService = estudianteService;
+    }
 
     // =================== ViewModel ===================
     public static class RowVM {

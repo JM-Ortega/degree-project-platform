@@ -1,7 +1,7 @@
-package co.edu.unicauca.frontend.infra.dto;
+package co.edu.unicauca.academicprojectservice.infra.dto;
 
-import co.edu.unicauca.frontend.entities.EstadoProyecto;
-import co.edu.unicauca.frontend.entities.TipoProyecto;
+import co.edu.unicauca.academicprojectservice.Entity.EstadoProyecto;
+import co.edu.unicauca.academicprojectservice.Entity.TipoProyecto;
 
 public class CountProyectoRequestDTO {
     private TipoProyecto tipoProyecto;

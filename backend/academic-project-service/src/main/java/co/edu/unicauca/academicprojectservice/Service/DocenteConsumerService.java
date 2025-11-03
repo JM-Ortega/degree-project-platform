@@ -1,6 +1,5 @@
-package co.edu.unicauca.academicprojectservice.infra.config;
+package co.edu.unicauca.academicprojectservice.Service;
 
-import co.edu.unicauca.academicprojectservice.Service.DocenteService;
 import co.edu.unicauca.academicprojectservice.infra.dto.UserDto;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +13,7 @@ public class DocenteConsumerService {
 
     @RabbitListener(queues = "${messaging.queues.project}")
     public void ingresoUsuario(UserDto user) {
-        docenteService.procesarDocente(user);
+        //docenteService.procesarDocente(user);
+        //TODO Procesar estudiante
     }
 }

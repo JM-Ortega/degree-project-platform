@@ -17,7 +17,7 @@
 <?import javafx.scene.text.Text?>
 <AnchorPane xmlns="http://javafx.com/javafx/21.0.3"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="co.unicauca.workflow.degree_project.presentation.FormatoADocenteController"
+            fx:controller="co.edu.unicauca.frontend.presentation.FormatoADocenteController"
             prefWidth="950.0" prefHeight="700.0"
             styleClass="root-white"
             stylesheets="@../styles/FormatoADocente.css">
@@ -52,7 +52,7 @@
                         onAction="#onIniciarNuevoProyecto"/>
                 <Label fx:id="lblCupoDocente" text="" styleClass="label-muted"/>
                 <Pane HBox.hgrow="ALWAYS"/>
-                <TextField fx:id="txtBuscar" promptText="Buscar por título, nombre o correo..." prefWidth="280.0"/>
+                <TextField fx:id="txtBuscar" promptText="Buscar por título, nombreFormato o correo..." prefWidth="280.0"/>
                 <Button fx:id="btnRefrescar" text="Refrescar" onAction="#onRefrescar"/>
             </HBox>
 
