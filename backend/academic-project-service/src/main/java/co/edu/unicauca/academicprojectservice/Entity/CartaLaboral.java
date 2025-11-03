@@ -3,7 +3,6 @@ package co.edu.unicauca.academicprojectservice.Entity;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
-import java.util.Date;
 
 @Entity
 @Table(name = "cartaLaboral")

@@ -1,6 +1,6 @@
 package co.edu.unicauca.academicprojectservice.Entity;
 
-public enum EstadoArchivo {
+public enum EstadoFormatoA {
     PENDIENTE,
     APROBADO,
     RECHAZADO,

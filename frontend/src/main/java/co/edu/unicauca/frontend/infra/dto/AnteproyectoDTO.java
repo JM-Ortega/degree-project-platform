@@ -1,5 +1,6 @@
 package co.edu.unicauca.frontend.infra.dto;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 public class AnteproyectoDTO {
@@ -8,7 +9,7 @@ public class AnteproyectoDTO {
     private String descripcion;
     private String titulo;
     private byte[] blob;
-    private Date fechaCreacion;
+    private LocalDate fechaCreacion;
     private String estudianteNombre;
     private String estudianteCorreo;
 
@@ -27,8 +28,8 @@ public class AnteproyectoDTO {
     public byte[] getBlob() {return blob;}
     public void setBlob(byte[] blob) {this.blob = blob;}
 
-    public Date getFechaCreacion() {return fechaCreacion;}
-    public void setFechaCreacion(Date fechaCreacion) {this.fechaCreacion = fechaCreacion;}
+    public LocalDate getFechaCreacion() {return fechaCreacion;}
+    public void setFechaCreacion(LocalDate fechaCreacion) {this.fechaCreacion = fechaCreacion;}
 
     public long getId() {return id;}
     public void setId(long id) {this.id = id;}

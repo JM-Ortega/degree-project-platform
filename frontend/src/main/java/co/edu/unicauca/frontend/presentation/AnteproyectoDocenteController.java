@@ -19,6 +19,7 @@ import javafx.stage.FileChooser;
 import java.io.File;
 import java.net.URL;
 import java.nio.file.Files;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -210,8 +211,7 @@ public class AnteproyectoDocenteController implements Initializable {
             a.setBlob(anteproyectoBytes);
             a.setNombreArchivo(anteproyectoNombre);
             a.setEstudianteCorreo(correo);
-            Date fecha = new Date();
-            a.setFechaCreacion(fecha);
+            a.setFechaCreacion(LocalDate.now());
 
             if (isBlank(a.getTitulo()) || isBlank(a.getDescripcion()))
                 throw new IllegalArgumentException("Título y descripcion son obligatorios");
@@ -279,7 +279,7 @@ public class AnteproyectoDocenteController implements Initializable {
 
         colAccion.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue()));
         colAccion.setCellFactory(col -> new TableCell<>() {
-            private final Button btnObs = new Button("Descargar obs.");
+            private final Button btnObs = new Button("Descargar");
             private final VBox box = new VBox(6, btnObs);
 
             {

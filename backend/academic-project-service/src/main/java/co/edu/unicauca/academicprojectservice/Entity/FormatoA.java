@@ -22,7 +22,7 @@ public class FormatoA {
     private byte[] blob;
     @Enumerated(EnumType.STRING)
     @Column(name = "estado_archivo", nullable = false)
-    private EstadoArchivo estado;
+    private EstadoFormatoA estado;
 
     @ManyToOne
     @JoinColumn(name = "proyecto_id")
@@ -39,11 +39,11 @@ public class FormatoA {
         this.blob = blob;
     }
 
-    public EstadoArchivo getEstado() {
+    public EstadoFormatoA getEstado() {
         return estado;
     }
 
-    public void setEstado(EstadoArchivo estado) {
+    public void setEstado(EstadoFormatoA estado) {
         this.estado = estado;
     }
 

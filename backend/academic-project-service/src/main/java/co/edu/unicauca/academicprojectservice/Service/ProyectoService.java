@@ -2,20 +2,26 @@ package co.edu.unicauca.academicprojectservice.Service;
 
 import co.edu.unicauca.academicprojectservice.Entity.*;
 import co.edu.unicauca.academicprojectservice.Repository.*;
+import co.edu.unicauca.academicprojectservice.infra.DTOs.*;
 import co.edu.unicauca.academicprojectservice.infra.dto.AnteproyectoDTO;
 import co.edu.unicauca.academicprojectservice.infra.dto.FormatoADTO;
 import co.edu.unicauca.academicprojectservice.infra.dto.ProyectoDTO;
 import co.edu.unicauca.academicprojectservice.infra.dto.ProyectoInfoDTO;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class ProyectoService {
     @Autowired
@@ -28,6 +34,17 @@ public class ProyectoService {
     private FormatoARepository formatoARepository;
     @Autowired
     private AnteproyectoRepository anteproyectoRepository;
+    @Autowired
+    private RabbitTemplate  rabbitTemplate;
+
+    @Value("${messaging.exchange.main}")
+    private String mainExchange;
+
+    @Value("${messaging.routing.projectCreated}")
+    private String routingKeyProjectCreated;
+
+    @Value("${messaging.routing.projectUpdated}")
+    private String routingKeyProjectUpdated;
 
     public List<ProyectoInfoDTO> listarInfoPorCorreoDocente(String correo, String filtro) {
         Docente docente = docenteRepository.findByCorreo(correo)
@@ -36,20 +53,26 @@ public class ProyectoService {
         return proyectoRepository.listarInfoPorDocente(docente.getId(), filtro);
     }
 
-    public void crearProyectoConArchivos(ProyectoDTO dto){
+    @Transactional
+    public void crearProyectoConArchivos(ProyectoDTO dto) {
+
+        // ===== Crear y poblar la entidad Proyecto =====
         Proyecto proyecto = new Proyecto();
         proyecto.setTitulo(dto.getTitulo());
         proyecto.setTipoProyecto(dto.getTipoProyecto());
         proyecto.setEstadoProyecto(EstadoProyecto.EN_TRAMITE);
 
+        // ===== Asociar estudiante =====
         Estudiante estudiante = estudianteRepository.findByCorreoIgnoreCase(dto.getEstudiante())
                 .orElseThrow(() -> new IllegalArgumentException("No existe un estudiante con ese correo"));
         proyecto.setEstudiantes(List.of(estudiante));
 
+        // ===== Asociar director =====
         Docente docente = docenteRepository.findByCorreo(dto.getDirector())
                 .orElseThrow(() -> new IllegalArgumentException("No existe un docente con ese correo"));
         proyecto.setDirector(docente);
 
+        // ===== Asociar Formato A (si lo hay) =====
         FormatoA formatoA = dto.getFormatoA();
         if (formatoA != null) {
             formatoA.setProyecto(proyecto);
@@ -60,6 +83,7 @@ public class ProyectoService {
             proyecto.addFormato(formatoA);
         }
 
+        // ===== Asociar Carta Laboral (si la hay) =====
         CartaLaboral cartaLaboral = dto.getCartaLaboral();
         if (cartaLaboral != null) {
             cartaLaboral.setProyecto(proyecto);
@@ -68,11 +92,79 @@ public class ProyectoService {
             proyecto.setCartaLaboral(cartaLaboral);
         }
 
-        proyectoRepository.save(proyecto);
+        // ===== Guardar el proyecto y obtener su ID =====
+        Proyecto proyectoGuardado = proyectoRepository.save(proyecto);
+        Long proyectoId = proyectoGuardado.getId();
+
+        // =====================================================
+        // Construcción del DTO que se enviará por RabbitMQ
+        // =====================================================
+        ProyectoDTOSend pDtoSend = new ProyectoDTOSend();
+        pDtoSend.setId(proyectoId);
+        pDtoSend.setTitulo(proyectoGuardado.getTitulo());
+        pDtoSend.setTipoProyecto(proyectoGuardado.getTipoProyecto());
+        pDtoSend.setEstado(proyectoGuardado.getEstadoProyecto());
+
+        // ======= Estudiantes DTO =======
+        List<EstudianteDTOSend> estudiantes = new ArrayList<>();
+        EstudianteDTOSend estDto = new EstudianteDTOSend();
+        estDto.setId(proyectoGuardado.getEstudiantes().get(0).getId());
+        estDto.setCodigo(estudiante.getCodigoEstudiante());
+        estDto.setPrograma(estudiante.getPrograma());
+        estDto.setEmail(estudiante.getCorreo());
+        estDto.setNombres(estudiante.getNombres());
+        estDto.setApellidos(estudiante.getApellidos());
+        estDto.setCelular(estudiante.getCelular());
+
+        // Referencia inversa de trabajos (puede ser omitida si genera bucle en serialización)
+        estDto.setTrabajos(List.of(pDtoSend));
+        estudiantes.add(estDto);
+        pDtoSend.setEstudiantes(estudiantes);
+
+        // ======= Director DTO =======
+        DocenteDTOSend docDto = new DocenteDTOSend();
+        docDto.setId(proyectoGuardado.getDirector().getId());
+        docDto.setDepartamento(docente.getDepartamento());
+        docDto.setEmail(docente.getCorreo());
+        docDto.setNombres(docente.getNombres());
+        docDto.setApellidos(docente.getApellidos());
+        docDto.setCelular(docente.getCelular());
+
+        // Referencia inversa
+        docDto.setTrabajosComoDirector(List.of(pDtoSend));
+        docDto.setTrabajosComoCodirector(null);
+
+        pDtoSend.setDirector(docDto);
+        pDtoSend.setCodirector(null); // En caso de no tener
+
+        // ======= Formato A DTO =======
+        if (formatoA != null) {
+            FormatoADTOSend formatoSend = new FormatoADTOSend();
+            formatoSend.setId(formatoA.getId());
+            formatoSend.setProyectoId(proyectoId);
+            formatoSend.setNroVersion(formatoA.getNroVersion());
+            formatoSend.setNombreFormatoA(formatoA.getNombreFormato());
+            formatoSend.setFechaSubida(formatoA.getFechaCreacion());
+            formatoSend.setBlob(formatoA.getBlob());
+            formatoSend.setEstado(formatoA.getEstado());
+            pDtoSend.setFormatoA(formatoSend);
+        } else {
+            pDtoSend.setFormatoA(null);
+        }
+
+        // No hay anteproyecto al crear
+        pDtoSend.setAnteproyecto(null);
+
+        // ======= Envío del mensaje =======
+        rabbitTemplate.convertAndSend(mainExchange, routingKeyProjectCreated, pDtoSend);
+
+        ProyectoService.log.info("[RabbitMQ] Proyecto creado enviado a la cola: " + routingKeyProjectCreated +
+                " con ID: " + proyectoId);
     }
 
+
     public EstadoProyecto enforceAutoCancelIfNeeded(long proyectoId) {
-        int observados = formatoARepository.countByProyectoIdAndEstado(proyectoId, EstadoArchivo.OBSERVADO);
+        int observados = formatoARepository.countByProyectoIdAndEstado(proyectoId, EstadoFormatoA.OBSERVADO);
         if (observados >= 3) {
             proyectoRepository.actualizarEstadoProyecto(proyectoId, EstadoProyecto.RECHAZADO);
         }
@@ -102,12 +194,12 @@ public class ProyectoService {
         FormatoA ultimo = getUltimoFormatoA(proyectoId);
         if (ultimo == null) return true;
 
-        return ultimo.getEstado() == EstadoArchivo.OBSERVADO;
+        return ultimo.getEstado() == EstadoFormatoA.OBSERVADO;
     }
 
     public boolean tieneObservaciones(Long proyectoId) {
         FormatoA ultimo = getUltimoFormatoA(proyectoId);
-        return ultimo != null && ultimo.getEstado() == EstadoArchivo.OBSERVADO;
+        return ultimo != null && ultimo.getEstado() == EstadoFormatoA.OBSERVADO;
     }
 
     public boolean existeProyecto(Long proyectoId) {
@@ -119,17 +211,95 @@ public class ProyectoService {
     }
 
     public boolean insertarFormatoAEnProyecto(Long proyectoId, FormatoA formatoA) {
-        return false;
+        Proyecto proyecto = proyectoRepository.findById(proyectoId)
+                .orElseThrow(() -> new IllegalArgumentException("No existe un proyecto con id " + proyectoId));
+
+        int ultimaVersion = 0;
+        if (proyecto.getFormatosA() != null && !proyecto.getFormatosA().isEmpty()) {
+            ultimaVersion = proyecto.getFormatosA().stream()
+                    .mapToInt(FormatoA::getNroVersion)
+                    .max()
+                    .orElse(0);
+        }
+
+        formatoA.setNroVersion(ultimaVersion + 1);
+        formatoA.setFechaCreacion(LocalDate.now());
+        formatoA.setProyecto(proyecto);
+
+        proyecto.addFormato(formatoA);
+
+        Proyecto proyectoGuardado = proyectoRepository.save(proyecto);
+
+        FormatoA formatoGuardado = proyectoGuardado.getFormatosA().stream()
+                .filter(f -> f.getNroVersion() == formatoA.getNroVersion())
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("No se encontró el formato recién guardado"));
+
+        // =====================================================
+        // Construcción del DTO que se enviará por RabbitMQ
+        // =====================================================
+        ProyectoDTOSend pDtoSend = new ProyectoDTOSend();
+        pDtoSend.setId(proyectoGuardado.getId());
+        pDtoSend.setTitulo(proyectoGuardado.getTitulo());
+        pDtoSend.setTipoProyecto(proyectoGuardado.getTipoProyecto());
+        pDtoSend.setEstado(proyectoGuardado.getEstadoProyecto());
+
+        // ======= Estudiantes DTO =======
+        List<EstudianteDTOSend> estudiantes = new ArrayList<>();
+        for (Estudiante est : proyectoGuardado.getEstudiantes()) {
+            EstudianteDTOSend estDto = new EstudianteDTOSend();
+            estDto.setId(est.getId());
+            estDto.setCodigo(est.getCodigoEstudiante());
+            estDto.setPrograma(est.getPrograma());
+            estDto.setEmail(est.getCorreo());
+            estDto.setNombres(est.getNombres());
+            estDto.setApellidos(est.getApellidos());
+            estDto.setCelular(est.getCelular());
+            estudiantes.add(estDto);
+        }
+        pDtoSend.setEstudiantes(estudiantes);
+        // ======= Director DTO =======
+        Docente director = proyectoGuardado.getDirector();
+        if (director != null) {
+            DocenteDTOSend docDto = new DocenteDTOSend();
+            docDto.setId(director.getId());
+            docDto.setDepartamento(director.getDepartamento());
+            docDto.setEmail(director.getCorreo());
+            docDto.setNombres(director.getNombres());
+            docDto.setApellidos(director.getApellidos());
+            docDto.setCelular(director.getCelular());
+            pDtoSend.setDirector(docDto);
+        } else {
+            pDtoSend.setDirector(null);
+        }
+        // ======= Formato A DTO (nuevo formato subido) =======
+        FormatoADTOSend formatoSend = new FormatoADTOSend();
+        formatoSend.setId(formatoGuardado.getId());
+        formatoSend.setProyectoId(proyectoId);
+        formatoSend.setNroVersion(formatoA.getNroVersion());
+        formatoSend.setNombreFormatoA(formatoA.getNombreFormato());
+        formatoSend.setFechaSubida(formatoA.getFechaCreacion());
+        formatoSend.setBlob(formatoA.getBlob());
+        formatoSend.setEstado(formatoA.getEstado());
+        pDtoSend.setFormatoA(formatoSend);
+
+        // ======= Envío del mensaje =======
+        rabbitTemplate.convertAndSend(mainExchange, routingKeyProjectUpdated, pDtoSend);
+
+        log.info("[RabbitMQ] Nueva versión de Formato A enviada a la cola: {} (Proyecto ID: {}, Versión: {})",
+                routingKeyProjectUpdated, proyectoId, formatoA.getNroVersion());
+
+        return true;
     }
 
     public FormatoA obtenerUltimoFormatoAConObservaciones(Long proyectoId) {
         List<FormatoA> resultados = formatoARepository.findUltimoFormatoAObservado(
-                proyectoId, EstadoArchivo.OBSERVADO, PageRequest.of(0, 1)
+                proyectoId, EstadoFormatoA.OBSERVADO, PageRequest.of(0, 1)
         );
         return resultados.isEmpty() ? null : resultados.get(0);
     }
 
-    public void actualizarFormatoA(Long proyectoId, EstadoArchivo estado) {
+    public void actualizarFormatoA(Long proyectoId, EstadoFormatoA estado) {
         formatoARepository.actualizarFormatoA(proyectoId, estado);
     }
 
@@ -159,6 +329,51 @@ public class ProyectoService {
 
         proyecto.setAnteproyecto(anteproyecto);
         proyectoRepository.save(proyecto);
+
+        // --- Enviar evento de actualización del proyecto ---
+        ProyectoDTOSend pDtoSend = new ProyectoDTOSend();
+        pDtoSend.setId(proyecto.getId());
+        pDtoSend.setTitulo(proyecto.getTitulo());
+        pDtoSend.setTipoProyecto(proyecto.getTipoProyecto());
+        pDtoSend.setEstado(proyecto.getEstadoProyecto());
+
+        Docente director = proyecto.getDirector();
+        if (director != null) {
+            DocenteDTOSend docDto = new DocenteDTOSend();
+            docDto.setId(director.getId());
+            docDto.setCelular(director.getCelular());
+            docDto.setDepartamento(director.getDepartamento());
+            docDto.setNombres(director.getNombres());
+            docDto.setApellidos(director.getApellidos());
+            docDto.setEmail(director.getCorreo());
+            pDtoSend.setDirector(docDto);
+        }
+
+        // Estudiantes
+        List<EstudianteDTOSend> estudiantes = new ArrayList<>();
+        for (Estudiante e : proyecto.getEstudiantes()) {
+            EstudianteDTOSend estDto = new EstudianteDTOSend();
+            estDto.setId(e.getId());
+            estDto.setNombres(e.getNombres());
+            estDto.setApellidos(e.getApellidos());
+            estDto.setCelular(e.getCelular());
+            estDto.setCodigo(e.getCodigoEstudiante());
+            estDto.setPrograma(e.getPrograma());
+            estDto.setEmail(e.getCorreo());
+            estudiantes.add(estDto);
+        }
+        pDtoSend.setEstudiantes(estudiantes);
+
+        // Anteproyecto asociado
+        AnteproyectoDTOSend anteDto = new AnteproyectoDTOSend();
+        anteDto.setId(proyecto.getAnteproyecto().getId());
+        anteDto.setTitulo(anteproyecto.getTitulo());
+        anteDto.setDescripcion(anteproyecto.getDescripcion());
+        anteDto.setFechaCreacion(anteproyecto.getFechaCreacion());
+        pDtoSend.setAnteproyecto(anteDto);
+
+        rabbitTemplate.convertAndSend(mainExchange, routingKeyProjectUpdated, pDtoSend);
+        log.info("[RabbitMQ] Proyecto actualizado enviado a la cola: " + routingKeyProjectUpdated);
     }
 
     public AnteproyectoDTO obtenerAnteproyecto(long proyectoId) {
@@ -191,7 +406,7 @@ public class ProyectoService {
                 .orElseThrow(() -> new EntityNotFoundException("No se encontró el proyecto con ID: " + proyectoId));
 
         List<FormatoA> observados = proyecto.getFormatosA().stream()
-                .filter(f -> f.getEstado() == EstadoArchivo.OBSERVADO)
+                .filter(f -> f.getEstado() == EstadoFormatoA.OBSERVADO)
                 .sorted((f1, f2) -> f2.getFechaCreacion().compareTo(f1.getFechaCreacion()))
                 .collect(Collectors.toList());
 

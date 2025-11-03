@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -301,12 +302,11 @@ public class FormatoADocenteController implements Initializable {
             p.setDirector(docente.getCorreo());
             p.setEstudiante(correo);
 
-            Date fecha = new Date();
             FormatoADTO formatoADTO = new FormatoADTO();
             formatoADTO.setNombreFormato(formatoANombre);
             formatoADTO.setBlob(formatoABytes);
             formatoADTO.setEstado(EstadoArchivo.PENDIENTE);
-            formatoADTO.setFechaCreacion(fecha);
+            formatoADTO.setFechaCreacion(LocalDate.now());
             formatoADTO.setNroVersion(1);
 
             if (isBlank(p.getTitulo()) || isBlank(p.getEstudiante()) || isBlank(p.getDirector()))
@@ -316,7 +316,7 @@ public class FormatoADocenteController implements Initializable {
                 CartaLaboralDTO carta = new CartaLaboralDTO();
                 carta.setNombreCartaLaboral(cartaNombre);
                 carta.setBlob(cartaBytes);
-                carta.setFechaCreacion(fecha);
+                carta.setFechaCreacion(LocalDate.now());
 
                 p.setFormatoA(formatoADTO);
                 p.setCartaLaboral(carta);

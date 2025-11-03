@@ -2,8 +2,8 @@ package co.edu.unicauca.academicprojectservice.infra.dto;
 
 import co.edu.unicauca.academicprojectservice.Entity.*;
 
+
 public class ProyectoDTO {
-    private long id;
     private String titulo;
     private String estudiante;
     private String director;
@@ -12,9 +12,6 @@ public class ProyectoDTO {
     private CartaLaboral cartaLaboral;
     private TipoProyecto tipoProyecto;
     private EstadoProyecto estadoProyecto;
-
-    public long getId() {return id;}
-    public void setId(long id) {this.id = id;}
 
     public Anteproyecto getAnteproyecto() {return anteproyecto;}
     public void setAnteproyecto(Anteproyecto anteproyecto) {this.anteproyecto = anteproyecto;}

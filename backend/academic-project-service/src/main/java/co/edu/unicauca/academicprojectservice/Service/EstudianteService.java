@@ -1,19 +1,17 @@
 package co.edu.unicauca.academicprojectservice.Service;
 
-import co.edu.unicauca.academicprojectservice.Entity.EstadoArchivo;
+import co.edu.unicauca.academicprojectservice.Entity.EstadoFormatoA;
 import co.edu.unicauca.academicprojectservice.Entity.Estudiante;
 import co.edu.unicauca.academicprojectservice.Entity.Programa;
 import co.edu.unicauca.academicprojectservice.Entity.Proyecto;
 import co.edu.unicauca.academicprojectservice.Repository.EstudianteRepository;
 import co.edu.unicauca.academicprojectservice.Repository.FormatoARepository;
-import co.edu.unicauca.academicprojectservice.infra.dto.AnteproyectoDTO;
 import co.edu.unicauca.academicprojectservice.infra.dto.EstudianteDTO;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class EstudianteService {
@@ -82,7 +80,7 @@ public class EstudianteService {
     }
 
     public boolean estudianteTieneFormatoAAprobado(String correo) {
-        return formatoARepository.existeFormatoAAprobadoPorCorreo(correo, EstadoArchivo.APROBADO);
+        return formatoARepository.existeFormatoAAprobadoPorCorreo(correo, EstadoFormatoA.APROBADO);
     }
 
     public boolean estudianteTieneAnteproyectoAsociado(String correo) {

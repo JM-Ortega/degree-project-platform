@@ -1,9 +1,6 @@
 package co.edu.unicauca.academicprojectservice.infra.dto;
 
-import co.edu.unicauca.academicprojectservice.Entity.EstadoArchivo;
-
 import java.time.LocalDate;
-import java.util.Date;
 
 public class AnteproyectoDTO {
     private long id;
@@ -41,13 +38,8 @@ public class AnteproyectoDTO {
     public byte[] getBlob() {return blob;}
     public void setBlob(byte[] blob) {this.blob = blob;}
 
-    public LocalDate getFechaCreacion() {
-        return fechaCreacion;
-    }
-
-    public void setFechaCreacion(LocalDate fechaCreacion) {
-        this.fechaCreacion = fechaCreacion;
-    }
+    public LocalDate getFechaCreacion() {return fechaCreacion;}
+    public void setFechaCreacion(LocalDate fechaCreacion) {this.fechaCreacion = fechaCreacion;}
 
     public long getId() {return id;}
     public void setId(long id) {this.id = id;}
