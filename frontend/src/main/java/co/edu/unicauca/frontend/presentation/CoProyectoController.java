@@ -2,6 +2,7 @@ package co.edu.unicauca.frontend.presentation;
 
 import co.edu.unicauca.frontend.entities.FormatoAResumen;
 import co.edu.unicauca.frontend.services.FormatoService;
+import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -44,7 +45,22 @@ public class CoProyectoController implements Initializable {
         // Configurar columnas
         colNombreProyecto.setCellValueFactory(cell -> cell.getValue().nombreProyectoProperty());
         colNombreProfesor.setCellValueFactory(cell -> cell.getValue().nombreDirectorProperty());
-        colTipoP.setCellValueFactory(cell -> cell.getValue().tipoProyectoProperty());
+        colTipoP.setCellValueFactory(cellData -> {
+            String tipo = cellData.getValue().getTipoProyecto(); // o .tipoProyectoProperty().get()
+            String tipoP;
+            switch (tipo) {
+                case "TRABAJO_DE_INVESTIGACION":
+                    tipoP = "Trabajo de investigación";
+                    break;
+                case "PRACTICA_PROFESIONAL":
+                    tipoP = "Práctica profesional";
+                    break;
+                default:
+                    tipoP = tipo;
+                    break;
+            }
+            return new ReadOnlyStringWrapper(tipoP);
+        });
         colFecha.setCellValueFactory(cell -> cell.getValue().fechaSubidaProperty());
         colEstado.setCellValueFactory(cell -> cell.getValue().estadoFormatoAProperty());
         colVersion.setCellValueFactory(cell -> cell.getValue().nroVersionProperty());

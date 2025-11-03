@@ -5,7 +5,6 @@ import co.edu.unicauca.frontend.entities.FormatoAResumenDTO;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,8 +36,11 @@ public class FormatoService {
 
     public List<FormatoAResumen> obtenerFormatosAResumen() {
         try {
+            // Por ahora lo quemo
+            String programa = "INGENIERIA_DE_SISTEMAS";
+
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI(BASE_URL + "/listar"))
+                    .uri(new URI(BASE_URL + "/listar/" + programa))
                     .GET()
                     .build();
 

@@ -59,11 +59,11 @@ public class CoordinadorController implements Initializable{
         cargarDatos();
     }
 
+    //-------------------- AJUSTAR LOS DATOS CORRESPONDIENTES CUANDO YA SE TENGA EL SINGELTON DE JUAN ---------------------
     void cargarDatos() {
         try {
-            String json = client.getCoordinadorInfo("laura.gomez@unicauca.edu.co"); // coordinador con correo seteado
+            String json = client.getCoordinadorInfo("carlos.martinez@uni.edu"); // coordinador con correo seteado
 
-            // Si la respuesta contiene un "timestamp" o "error", probablemente es un error del backend
             if (json.contains("\"timestamp\"") || json.contains("\"error\"")) {
                 System.err.println("Error del backend: " + json);
                 return; // o muestra una alerta al usuario
@@ -72,8 +72,17 @@ public class CoordinadorController implements Initializable{
             CoordinadorResumen info = mapper.readValue(json, CoordinadorResumen.class);
 
             lblNombreCompleto.setText(info.getNombreCompleto());
-            lblPrograma.setText(info.getPrograma());
 
+            switch (info.getPrograma()){
+                case "INGENIERIA_DE_SISTEMAS":
+                    lblPrograma.setText("Ingeniería de Sistemas");
+                case "INGENIERIA_ELECTRONICA_Y_TELECOMUNICACIONES" :
+                    lblPrograma.setText("Ingeniería Electrónica y Telecomunicaciones");
+                case "AUTOMATICA_INDUSTRIAL":
+                    lblPrograma.setText("Automática Industrial");
+                case "TECNOLOGIA_EN_TELEMATICA":
+                    lblPrograma.setText("Tecnología en Telemática");
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
