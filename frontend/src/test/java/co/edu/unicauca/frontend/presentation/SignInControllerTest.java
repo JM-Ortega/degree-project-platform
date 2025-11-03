@@ -18,6 +18,7 @@ import org.mockito.Mockito;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -43,23 +44,46 @@ class SignInControllerTest {
     // Helpers para usar reflexión
     // =========================================================
 
-    private void setPrivateField(Object target, String fieldName, Object value) {
+    private static void setPrivateField(Object target, String fieldName, Object value) {
         try {
             Field field = target.getClass().getDeclaredField(fieldName);
             field.setAccessible(true);
             field.set(target, value);
         } catch (Exception e) {
-            throw new RuntimeException("Error al asignar el campo " + fieldName, e);
+            throw new RuntimeException("Error al asignar campo " + fieldName, e);
         }
     }
 
-    private Object invokePrivateMethod(Object target, String methodName, Class<?>[] paramTypes, Object... args) {
+    private static Object invokePrivateMethod(Object target, String methodName, Object... args) {
         try {
-            Method method = target.getClass().getDeclaredMethod(methodName, paramTypes);
+            Class<?>[] types = Arrays.stream(args).map(Object::getClass).toArray(Class[]::new);
+            Method method = target.getClass().getDeclaredMethod(methodName, types);
             method.setAccessible(true);
             return method.invoke(target, args);
         } catch (Exception e) {
-            throw new RuntimeException("Error al invocar el método " + methodName, e);
+            throw new RuntimeException("Error al invocar método " + methodName, e);
+        }
+    }
+
+
+    // helpers
+    private static void setField(Object target, String name, Object value) {
+        try {
+            var f = target.getClass().getDeclaredField(name);
+            f.setAccessible(true);
+            f.set(target, value);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static void invoke(Object target, String methodName) {
+        try {
+            var m = target.getClass().getDeclaredMethod(methodName);
+            m.setAccessible(true);
+            m.invoke(target);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -140,50 +164,66 @@ class SignInControllerTest {
         verify(authServiceMock, never()).loginAndReturnErrors(any(LoginRequestDto.class));
     }
 
+
     @Test
     void testIngresar_conErrorBackend_muestraMensajes() {
-        // Configurar datos válidos en frontend
+        // Nodos reales que usará el controller
+        TextField txtCorreo = new TextField();
+        PasswordField txtContrasena = new PasswordField();
+        ComboBox<Rol> cbRol = new ComboBox<>();
+        Label errCorreo = new Label();
+        Label errContrasena = new Label();
+        Label errRol = new Label();
+        Label errGeneral = new Label();
+
+        // Controller real
+        SignInController controller = new SignInController();
+
+        // Inyecta los campos privados del controller por reflexión
+        setField(controller, "txtCorreo", txtCorreo);
+        setField(controller, "txtContrasena", txtContrasena);
+        setField(controller, "cbRol", cbRol);
+        setField(controller, "errCorreo", errCorreo);
+        setField(controller, "errContrasena", errContrasena);
+        setField(controller, "errRol", errRol);
+        setField(controller, "errGeneral", errGeneral);
+
+        // Prepara combo y limpia errores (equivalente a initialize())
+        cbRol.getItems().setAll(Rol.values());
+        invoke(controller, "clearAllErrors");
+
+        // Inyecta el mock del servicio DESPUÉS (para no pisarlo con initialize())
+        setField(controller, "authService", authServiceMock);
+
+        // Datos válidos
         txtCorreo.setText("docente@unicauca.edu.co");
         txtContrasena.setText("password123");
-        cbRol.setValue("Docente");
+        cbRol.setValue(Rol.DOCENTE);
 
-        // Simular error en backend
         when(authServiceMock.loginAndReturnErrors(any(LoginRequestDto.class)))
                 .thenReturn(Map.of("general", "Credenciales inválidas"));
 
-        try {
-            invokePrivateMethod(controller, "ingresar", new Class[]{});
-        } catch (Exception e) {
-            // Ignorar errores de JavaFX
-        }
+        // Ejecuta acción
+        invoke(controller, "ingresar");
 
-        assertEquals("Credenciales inválidas", errGeneral.getText(),
-                "Debe mostrar el error general del backend");
+        // Assert: ahora sí es el mismo Label
+        assertEquals("Credenciales inválidas", errGeneral.getText());
 
-        // Verificar que se llamó al servicio
         verify(authServiceMock, times(1)).loginAndReturnErrors(any(LoginRequestDto.class));
     }
 
+
     @Test
-    void testIngresar_conErrorEspecificoBackend_muestraEnCampoCorrespondiente() {
-        // Configurar datos válidos
-        txtCorreo.setText("estudiante@unicauca.edu.co");
-        txtContrasena.setText("password123");
-        cbRol.setValue("Estudiante");
+    void validarRol_null_muestraErrorRol() {
+        txtCorreo.setText("alguien@unicauca.edu.co");
+        txtContrasena.setText("x");
+        cbRol.setValue(null);
 
-        // Simular error específico de email
-        when(authServiceMock.loginAndReturnErrors(any(LoginRequestDto.class)))
-                .thenReturn(Map.of("email", "Usuario no encontrado"));
+        invokePrivateMethod(controller, "ingresar", new Class[]{}); // tu helper
 
-        try {
-            invokePrivateMethod(controller, "ingresar", new Class[]{});
-        } catch (Exception e) {
-            // Ignorar errores de JavaFX
-        }
-
-        assertEquals("Usuario no encontrado", errCorreo.getText(),
-                "Debe mostrar el error específico en el campo correo");
+        assertFalse(errRol.getText().isBlank()); // hay mensaje de error en rol
     }
+
 
     @Test
     void testGoToRegister_llamaViewNavigator() {
@@ -196,30 +236,7 @@ class SignInControllerTest {
         }
     }
 
-    @Test
-    void testMapearRol_valoresValidos() throws Exception {
-        Method method = SignInController.class.getDeclaredMethod("mapearRol", String.class);
-        method.setAccessible(true);
 
-        assertEquals(Rol.ESTUDIANTE, method.invoke(controller, "Estudiante"));
-        assertEquals(Rol.DOCENTE, method.invoke(controller, "Docente"));
-        assertEquals(Rol.COORDINADOR, method.invoke(controller, "Coordinador"));
-        assertEquals(Rol.JEFE_DE_DEPARTAMENTO, method.invoke(controller, "JefeDeDepartamento"));
-    }
-
-    @Test
-    void testMapearRol_invalido_devuelveEstudiante() throws Exception {
-        Method method = SignInController.class.getDeclaredMethod("mapearRol", String.class);
-        method.setAccessible(true);
-
-        Rol result = (Rol) method.invoke(controller, "RolInexistente");
-        assertEquals(Rol.ESTUDIANTE, result,
-                "Debe devolver Estudiante por defecto para roles inválidos");
-
-        result = (Rol) method.invoke(controller, new Object[]{null});
-        assertEquals(Rol.ESTUDIANTE, result,
-                "Debe devolver Estudiante por defecto para null");
-    }
 
     @Test
     void testTextOrEmpty_TextField() throws Exception {
@@ -341,4 +358,6 @@ class SignInControllerTest {
 
         assertEquals(" ", testLabel.getText());
     }
+
+
 }

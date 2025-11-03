@@ -68,7 +68,7 @@ class AuthControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.session.email").value("juan@unicauca.edu.co"))
                 .andExpect(jsonPath("$.session.nombres").value("Juan"))
-                .andExpect(jsonPath("$.session.rolActivo").value("Estudiante"))
+                .andExpect(jsonPath("$.session.rolActivo").value("ESTUDIANTE"))
                 .andExpect(jsonPath("$.token").value("token123"));
     }
 
