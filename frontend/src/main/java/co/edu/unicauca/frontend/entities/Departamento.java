@@ -1,4 +1,4 @@
 package co.edu.unicauca.frontend.entities;
 
-public class tpm {
+public enum Departamento {
 }
