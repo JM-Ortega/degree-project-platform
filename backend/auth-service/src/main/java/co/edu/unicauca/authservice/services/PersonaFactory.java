@@ -19,10 +19,10 @@ import java.util.UUID;
  * prioridad de roles va del más alto al más básico:</p>
  *
  * <ol>
- *   <li>{@link Rol#JefeDeDepartamento}</li>
- *   <li>{@link Rol#Coordinador}</li>
- *   <li>{@link Rol#Docente}</li>
- *   <li>{@link Rol#Estudiante}</li>
+ *   <li>{@link Rol#JEFE_DE_DEPARTAMENTO}</li>
+ *   <li>{@link Rol#COORDINADOR}</li>
+ *   <li>{@link Rol#DOCENTE}</li>
+ *   <li>{@link Rol#ESTUDIANTE}</li>
  * </ol>
  *
  * <p>De esta forma, si un usuario tiene múltiples roles, se elegirá
@@ -34,10 +34,10 @@ public class PersonaFactory {
 
     /** Orden de prioridad de roles (de mayor a menor privilegio). */
     private static final List<Rol> PRIORIDAD = List.of(
-            Rol.JefeDeDepartamento,
-            Rol.Coordinador,
-            Rol.Docente,
-            Rol.Estudiante
+            Rol.JEFE_DE_DEPARTAMENTO,
+            Rol.COORDINADOR,
+            Rol.DOCENTE,
+            Rol.ESTUDIANTE
     );
 
     /**
@@ -53,7 +53,7 @@ public class PersonaFactory {
         String id = UUID.randomUUID().toString();
 
         return switch (rolPrincipal) {
-            case Estudiante -> new Estudiante(
+            case ESTUDIANTE -> new Estudiante(
                     id, null,
                     dto.nombres(),
                     dto.apellidos(),
@@ -62,7 +62,7 @@ public class PersonaFactory {
                     usuario
             );
 
-            case Docente -> new Docente(
+            case DOCENTE -> new Docente(
                     id, null,
                     dto.nombres(),
                     dto.apellidos(),
@@ -72,7 +72,7 @@ public class PersonaFactory {
                     dto.departamento() // solo aplica a docentes
             );
 
-            case Coordinador -> new Coordinador(
+            case COORDINADOR -> new Coordinador(
                     id, null,
                     dto.nombres(),
                     dto.apellidos(),
@@ -82,7 +82,7 @@ public class PersonaFactory {
                     dto.programa() // el coordinador tiene programa, no departamento
             );
 
-            case JefeDeDepartamento -> new JefeDeDepartamento(
+            case JEFE_DE_DEPARTAMENTO -> new JefeDeDepartamento(
                     id, null,
                     dto.nombres(),
                     dto.apellidos(),
