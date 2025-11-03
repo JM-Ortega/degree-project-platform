@@ -1,25 +1,16 @@
 package co.edu.unicauca.authservice.infra.messaging;
 
-import co.edu.unicauca.shared.contracts.messaging.RoutingKeys;
-import co.edu.unicauca.shared.contracts.events.notification.SendEmailEvent;
+import co.edu.unicauca.shared.contracts.events.notification.NotificationEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-/**
- * Publica mensajes hacia el microservicio de notificaciones.
- *
- * <p>Este componente permite enviar eventos que indican al micro de
- * notificaciones que debe procesar un correo electrónico, por ejemplo,
- * para dar la bienvenida a un nuevo usuario o informar sobre una acción
- * del sistema.</p>
- *
- * <p>Utiliza la clave de enrutamiento {@link RoutingKeys#NOTIFICATION_SEND}
- * y el contrato de evento {@link SendEmailEvent} definido en el módulo
- * <code>shared-contracts</code>.</p>
- */
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.List;
+
 @Component
 public class NotificationPublisher {
 
@@ -28,12 +19,6 @@ public class NotificationPublisher {
     private final RabbitTemplate rabbitTemplate;
     private final String exchangeName;
 
-    /**
-     * Inyección por constructor: garantiza inmutabilidad y facilita las pruebas.
-     *
-     * @param rabbitTemplate plantilla de RabbitMQ utilizada para enviar los mensajes
-     * @param exchangeName nombre del exchange principal configurado en el YAML
-     */
     public NotificationPublisher(
             RabbitTemplate rabbitTemplate,
             @Value("${messaging.exchange.main}") String exchangeName
@@ -43,16 +28,34 @@ public class NotificationPublisher {
     }
 
     /**
-     * Envía un mensaje de correo electrónico al microservicio de notificaciones.
-     *
-     * @param event evento {@link SendEmailEvent} con la información del mensaje a enviar
+     * Publica una notificación genérica hacia notification-service.
+     * @param type    Ej: "auth.user.created" (se enviará a la ruta "notification.send.auth.user.created")
+     * @param toEmails lista de destinatarios por email
+     * @param toPhones lista de celulares (puede ir vacía)
+     * @param subject asunto del correo
+     * @param message cuerpo del mensaje
      */
-    public void publishEmail(SendEmailEvent event) {
+    public void publishNotification(String type,
+                                    List<String> toEmails,
+                                    List<String> toPhones,
+                                    String subject,
+                                    String message) {
+        NotificationEvent event = new NotificationEvent(
+                type,
+                toEmails,
+                subject,
+                message,
+                toPhones,
+                OffsetDateTime.now(ZoneOffset.UTC)
+        );
+
+        String routingKey = "notification.send." + type; // p.ej. notification.send.auth.user.created
+
         try {
-            rabbitTemplate.convertAndSend(exchangeName, RoutingKeys.NOTIFICATION_SEND, event);
-            log.info("Evento de notificación publicado: {} -> {}", RoutingKeys.NOTIFICATION_SEND, event);
+            rabbitTemplate.convertAndSend(exchangeName, routingKey, event);
+            log.info("Evento de notificación publicado: {} -> {}", routingKey, event);
         } catch (Exception ex) {
-            log.error("Error al publicar evento {}: {}", RoutingKeys.NOTIFICATION_SEND, ex.getMessage(), ex);
+            log.error("Error al publicar evento {}: {}", routingKey, ex.getMessage(), ex);
         }
     }
 }

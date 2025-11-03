@@ -1,6 +1,6 @@
 package co.edu.unicauca.notificationservice.service;
 
-import co.edu.unicauca.notificationservice.model.NotificationEvent;
+import co.edu.unicauca.shared.contracts.events.notification.NotificationEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

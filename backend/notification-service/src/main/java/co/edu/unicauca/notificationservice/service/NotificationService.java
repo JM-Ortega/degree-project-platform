@@ -4,7 +4,7 @@ import co.edu.unicauca.notificationservice.sender.EmailNotificationSender;
 import co.edu.unicauca.notificationservice.sender.NotificationSender;
 import co.edu.unicauca.notificationservice.sender.SmsNotificationDecorator;
 import lombok.extern.slf4j.Slf4j;
-import co.edu.unicauca.notificationservice.model.NotificationEvent;
+import co.edu.unicauca.shared.contracts.events.notification.NotificationEvent;
 import org.springframework.stereotype.Service;
 
 

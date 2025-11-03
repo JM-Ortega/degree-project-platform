@@ -1,19 +1,21 @@
 package co.edu.unicauca.coordinatorservice.service;
 
 import co.edu.unicauca.coordinatorservice.entity.Estudiante;
-import co.edu.unicauca.coordinatorservice.infra.DTOS.EstadoFormatoA;
 import co.edu.unicauca.coordinatorservice.entity.FormatoA;
-import co.edu.unicauca.coordinatorservice.infra.DTOSInternos.NotificationEvent;
+import co.edu.unicauca.coordinatorservice.infra.DTOS.EstadoFormatoA;
 import co.edu.unicauca.coordinatorservice.repository.FormatoARepository;
+import co.edu.unicauca.shared.contracts.events.notification.NotificationEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -109,7 +111,7 @@ public class FormatoAService {
                 subject,
                 message,
                 celulares,
-                LocalDateTime.now()
+                OffsetDateTime.now(ZoneOffset.UTC)
         );
 
         rabbitTemplate.convertAndSend(mainExchange, "notification.send." + eventType, notificationEvent);
