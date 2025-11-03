@@ -1,4 +1,78 @@
 package co.edu.unicauca.academicprojectservice.Controller;
 
+import co.edu.unicauca.academicprojectservice.Entity.Docente;
+import co.edu.unicauca.academicprojectservice.Entity.Estudiante;
+import co.edu.unicauca.academicprojectservice.Repository.DocenteRepository;
+import co.edu.unicauca.academicprojectservice.Repository.EstudianteRepository;
+import co.edu.unicauca.academicprojectservice.infra.dto.UserDto;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
+
 public class UsuarioListener {
+    private final DocenteRepository docenteRepository;
+    private final EstudianteRepository estudianteRepository;
+
+    public UsuarioListener(DocenteRepository docenteRepository, EstudianteRepository estudianteRepository) {
+        this.docenteRepository = docenteRepository;
+        this.estudianteRepository = estudianteRepository;
+    }
+
+    /**
+     * Escucha los mensajes enviados cuando se crea o actualiza un usuario en otro microservicio.
+     * Se determina si es Docente o Estudiante según el campo "rol" del DTO.
+     */
+    //@RabbitListener(queues = "${messaging.queues.project}")
+    @Transactional
+    public void recibirUsuario(UserDto dto) {
+        System.out.println("[RabbitMQ] Mensaje recibido en UserListener: " + dto.getCorreo());
+
+        if (dto.getRol() == null) {
+            System.err.println("Rol no especificado en el mensaje recibido. No se puede procesar.");
+            return;
+        }
+
+        String rol = dto.getRol().trim().toUpperCase();
+
+        switch (rol) {
+            case "DOCENTE":
+                procesarDocente(dto);
+                break;
+            case "ESTUDIANTE":
+                procesarEstudiante(dto);
+                break;
+            default:
+                System.err.println("Rol no reconocido: " + rol);
+        }
+    }
+
+    private void procesarDocente(UserDto dto) {
+        Optional<Docente> existente = docenteRepository.findByCorreo(dto.getCorreo());
+        Docente docente = existente.orElse(new Docente());
+
+        docente.setNombres(dto.getNombres());
+        docente.setApellidos(dto.getApellidos());
+        docente.setCorreo(dto.getCorreo());
+        docente.setCelular(dto.getCelular());
+        docente.setDepartamento(dto.getDepartamento());
+
+        docenteRepository.save(docente);
+        System.out.println("[UserListener] Docente guardado/actualizado: " + docente.getNombres() + " " + docente.getApellidos());
+    }
+
+    private void procesarEstudiante(UserDto dto) {
+        Optional<Estudiante> existente = estudianteRepository.findByCorreoIgnoreCase(dto.getCorreo());
+        Estudiante estudiante = existente.orElse(new Estudiante());
+
+        estudiante.setCodigoEstudiante(dto.getCodigo());
+        estudiante.setNombres(dto.getNombres());
+        estudiante.setApellidos(dto.getApellidos());
+        estudiante.setCorreo(dto.getCorreo());
+        estudiante.setCelular(dto.getCelular());
+        estudiante.setPrograma(dto.getPrograma());
+
+        estudianteRepository.save(estudiante);
+        System.out.println("[UserListener] Estudiante guardado/actualizado: " + estudiante.getNombres() + " " + estudiante.getApellidos());
+    }
 }
