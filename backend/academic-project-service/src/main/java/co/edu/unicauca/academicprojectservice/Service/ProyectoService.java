@@ -228,7 +228,66 @@ public class ProyectoService {
 
         proyecto.addFormato(formatoA);
 
-        proyectoRepository.save(proyecto);
+        Proyecto proyectoGuardado = proyectoRepository.save(proyecto);
+
+        FormatoA formatoGuardado = proyectoGuardado.getFormatosA().stream()
+                .filter(f -> f.getNroVersion() == formatoA.getNroVersion())
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("No se encontró el formato recién guardado"));
+
+        // =====================================================
+        // Construcción del DTO que se enviará por RabbitMQ
+        // =====================================================
+        ProyectoDTOSend pDtoSend = new ProyectoDTOSend();
+        pDtoSend.setId(proyectoGuardado.getId());
+        pDtoSend.setTitulo(proyectoGuardado.getTitulo());
+        pDtoSend.setTipoProyecto(proyectoGuardado.getTipoProyecto());
+        pDtoSend.setEstado(proyectoGuardado.getEstadoProyecto());
+
+        // ======= Estudiantes DTO =======
+        List<EstudianteDTOSend> estudiantes = new ArrayList<>();
+        for (Estudiante est : proyectoGuardado.getEstudiantes()) {
+            EstudianteDTOSend estDto = new EstudianteDTOSend();
+            estDto.setId(est.getId());
+            estDto.setCodigo(est.getCodigoEstudiante());
+            estDto.setPrograma(est.getPrograma());
+            estDto.setEmail(est.getCorreo());
+            estDto.setNombres(est.getNombres());
+            estDto.setApellidos(est.getApellidos());
+            estDto.setCelular(est.getCelular());
+            estudiantes.add(estDto);
+        }
+        pDtoSend.setEstudiantes(estudiantes);
+        // ======= Director DTO =======
+        Docente director = proyectoGuardado.getDirector();
+        if (director != null) {
+            DocenteDTOSend docDto = new DocenteDTOSend();
+            docDto.setId(director.getId());
+            docDto.setDepartamento(director.getDepartamento());
+            docDto.setEmail(director.getCorreo());
+            docDto.setNombres(director.getNombres());
+            docDto.setApellidos(director.getApellidos());
+            docDto.setCelular(director.getCelular());
+            pDtoSend.setDirector(docDto);
+        } else {
+            pDtoSend.setDirector(null);
+        }
+        // ======= Formato A DTO (nuevo formato subido) =======
+        FormatoADTOSend formatoSend = new FormatoADTOSend();
+        formatoSend.setId(formatoGuardado.getId());
+        formatoSend.setProyectoId(proyectoId);
+        formatoSend.setNroVersion(formatoA.getNroVersion());
+        formatoSend.setNombreFormatoA(formatoA.getNombreFormato());
+        formatoSend.setFechaSubida(formatoA.getFechaCreacion());
+        formatoSend.setBlob(formatoA.getBlob());
+        formatoSend.setEstado(formatoA.getEstado());
+        pDtoSend.setFormatoA(formatoSend);
+
+        // ======= Envío del mensaje =======
+        rabbitTemplate.convertAndSend(mainExchange, routingKeyProjectUpdated, pDtoSend);
+
+        log.info("[RabbitMQ] Nueva versión de Formato A enviada a la cola: {} (Proyecto ID: {}, Versión: {})",
+                routingKeyProjectUpdated, proyectoId, formatoA.getNroVersion());
 
         return true;
     }
