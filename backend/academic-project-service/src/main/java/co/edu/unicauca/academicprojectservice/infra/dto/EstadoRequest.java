@@ -1,15 +1,15 @@
 package co.edu.unicauca.academicprojectservice.infra.dto;
 
-import co.edu.unicauca.academicprojectservice.Entity.EstadoArchivo;
+import co.edu.unicauca.academicprojectservice.Entity.EstadoFormatoA;
 
 public class EstadoRequest {
-    private EstadoArchivo estado;
+    private EstadoFormatoA estado;
 
-    public EstadoArchivo getEstado() {
+    public EstadoFormatoA getEstado() {
         return estado;
     }
 
-    public void setEstado(EstadoArchivo estado) {
+    public void setEstado(EstadoFormatoA estado) {
         this.estado = estado;
     }
 }

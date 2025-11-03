@@ -1,4 +1,4 @@
-package co.edu.unicauca.academicprojectservice.infra.dtoInterno;
+package co.edu.unicauca.academicprojectservice.infra.dto;
 
 import co.edu.unicauca.academicprojectservice.Entity.Departamento;
 import co.edu.unicauca.academicprojectservice.Entity.Programa;
