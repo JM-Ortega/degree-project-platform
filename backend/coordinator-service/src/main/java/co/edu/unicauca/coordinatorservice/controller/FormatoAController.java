@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/formatoA")
+@RequestMapping("/formatoA")
 public class FormatoAController {
     private final FormatoARepository formatoARepository;
     private final FormatoAService formatoAService;

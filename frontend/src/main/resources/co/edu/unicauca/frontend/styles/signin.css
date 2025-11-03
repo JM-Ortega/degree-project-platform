@@ -1,24 +1,81 @@
-/* Estilos del formulario Sign In*/
-.fondo{
-    -fx-background-color: #ffffff;
+/* Estilos del formulario Sign In */
+
+/* Fondo general */
+.fondo {
+  -fx-background-color: #ffffff;
+  -fx-font-family: "Roboto";
 }
 
-.controlador_sign_in{
-    -fx-spacing: 15;
-    -fx-alignement: top_left;
-    -fx-background-color: #ffffff;
+/* Contenedor del formulario */
+.controlador_sign_in {
+  -fx-spacing: 15;
+  -fx-alignment: top-left;
+  -fx-background-color: #ffffff;
 }
 
-.campo_de_entrada{
-    -fx-background-color: white;          /* Fondo blanco */
-    -fx-background-insets: 0;             /* Quita los rellenos */
-    -fx-background-radius: 0;             /* Esquinas rectas */
-    -fx-border-color: transparent transparent #0066CC transparent; /* Solo borde inferior azul */
-    -fx-border-width: 0 0 2 0;            /* Solo abajo con grosor 2px */
-    -fx-border-radius: 0;                 /* Esquinas rectas en el borde */
-    -fx-padding: 5 0 5 0;                 /* Espaciado interno */
+/* Campos de entrada (TextField y PasswordField) */
+.campo_de_entrada {
+  -fx-background-color: white;
+  -fx-background-insets: 0;
+  -fx-background-radius: 0;
+  -fx-border-color: transparent transparent #0066cc transparent;
+  -fx-border-width: 0 0 2px 0;
+  -fx-border-radius: 0;
+  -fx-padding: 5 0 5 0;
+  -fx-font-family: "Roboto";
+  -fx-font-size: 14px;
 }
 
-.boton{
-    -fx-background-color: #0066CC;
+/* Efecto focus en los campos de entrada */
+.campo_de_entrada:focused {
+  -fx-border-color: transparent transparent #0052a3 transparent;
+  -fx-border-width: 0 0 3px 0;
+}
+
+/* Botón principal */
+.boton {
+  -fx-background-color: #0066cc;
+  -fx-text-fill: white;
+  -fx-font-family: "Roboto";
+  -fx-font-weight: bold;
+  -fx-background-radius: 5;
+}
+
+/* Efecto hover en el botón */
+.boton:hover {
+  -fx-background-color: #0052a3;
+  -fx-cursor: hand;
+}
+
+/* Mensajes de error - VISIBLE */
+.error {
+  -fx-text-fill: red !important;
+  -fx-font-family: "Roboto" !important;
+  -fx-font-size: 12px !important;
+  -fx-background-color: transparent !important;
+}
+
+/* Error oculto - INVISIBLE */
+.error-hidden {
+  -fx-opacity: 0 !important;
+}
+
+/* Asegurar que Labels con clase error sean rojos */
+Label.error {
+  -fx-text-fill: red !important;
+}
+
+/* ComboBox */
+.combo-box {
+  -fx-background-color: white;
+  -fx-border-color: transparent transparent #0066cc transparent;
+  -fx-border-width: 0 0 2px 0;
+  -fx-font-family: "Roboto";
+  -fx-font-size: 14px;
+}
+
+/* Labels generales */
+.label {
+  -fx-font-family: "Roboto";
+  -fx-background-color: transparent;
 }

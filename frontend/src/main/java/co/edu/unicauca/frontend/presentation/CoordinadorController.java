@@ -1,56 +1,50 @@
 package co.edu.unicauca.frontend.presentation;
 
-import co.edu.unicauca.frontend.FrontendApp;
+import co.edu.unicauca.frontend.FrontendServices;
+import co.edu.unicauca.frontend.dto.SessionInfo;
 import co.edu.unicauca.frontend.entities.CoordinadorResumen;
 import co.edu.unicauca.frontend.entities.FormatoAResumen;
-import co.edu.unicauca.frontend.services.CoordinadorClient;
+import co.edu.unicauca.frontend.infra.session.SessionManager;
+import co.edu.unicauca.frontend.presentation.navigation.ViewLoader;
+import co.edu.unicauca.frontend.presentation.navigation.ViewNavigator;
+import co.edu.unicauca.frontend.services.coordinator.CoordinadorClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
-import javafx.stage.Stage;
-import java.io.IOException;
+
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class CoordinadorController implements Initializable{
+public class CoordinadorController implements Initializable {
     @FXML
     private AnchorPane contentArea;
-    
     @FXML
     private Button btnProyectos;
-
     @FXML
     private Button btnSalir;
-    
     @FXML
     private Label lblNombreCompleto;
-
     @FXML
     private Label lblPrograma;
 
-    private final CoordinadorClient client = new CoordinadorClient();
+    private final CoordinadorClient client = FrontendServices.coordinadorClient();
     private final ObjectMapper mapper = new ObjectMapper();
+    private Button selectedButton = null;
 
-    private Button selectedButton = null; // botón actualmente seleccionado
-    
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         btnSalir.setOnAction(this::onSalir);
 
         btnProyectos.setOnMouseEntered(e -> btnProyectos.getStyleClass().add("hoverable"));
         btnProyectos.setOnMouseExited(e -> btnProyectos.getStyleClass().remove("hoverable"));
-        
+
         btnSalir.setOnMouseEntered(e -> btnSalir.getStyleClass().add("hoverable"));
         btnSalir.setOnMouseExited(e -> btnSalir.getStyleClass().remove("hoverable"));
 
-        // Configurar eventos para cada botón
         btnProyectos.setOnAction(e -> {
             loadUI("Coordinador_Proyectos");
             selectButton(btnProyectos);
@@ -59,105 +53,69 @@ public class CoordinadorController implements Initializable{
         cargarDatos();
     }
 
-    //-------------------- AJUSTAR LOS DATOS CORRESPONDIENTES CUANDO YA SE TENGA EL SINGELTON DE JUAN ---------------------
     void cargarDatos() {
         try {
-            String json = client.getCoordinadorInfo("carlos.martinez@uni.edu"); // coordinador con correo seteado
+            SessionInfo session = SessionManager.getInstance().getCurrentSession();
+            if (session == null || session.email() == null || session.email().isBlank()) {
+                ViewNavigator.goTo("/co/edu/unicauca/frontend/view/SignIn.fxml", "Inicio de sesión");
+                return;
+            }
+
+            // Mostrar el nombre localmente antes de cargar datos del backend
+            lblNombreCompleto.setText(session.nombres());
+
+            String email = session.email().trim().toLowerCase();
+            String json = client.getCoordinadorInfo(email);
 
             if (json.contains("\"timestamp\"") || json.contains("\"error\"")) {
                 System.err.println("Error del backend: " + json);
-                return; // o muestra una alerta al usuario
+                return;
             }
 
             CoordinadorResumen info = mapper.readValue(json, CoordinadorResumen.class);
+            lblPrograma.setText(info.getPrograma()); // solo actualiza el programa
 
-            lblNombreCompleto.setText(info.getNombreCompleto());
-
-            switch (info.getPrograma()){
-                case "INGENIERIA_DE_SISTEMAS":
-                    lblPrograma.setText("Ingeniería de Sistemas");
-                case "INGENIERIA_ELECTRONICA_Y_TELECOMUNICACIONES" :
-                    lblPrograma.setText("Ingeniería Electrónica y Telecomunicaciones");
-                case "AUTOMATICA_INDUSTRIAL":
-                    lblPrograma.setText("Automática Industrial");
-                case "TECNOLOGIA_EN_TELEMATICA":
-                    lblPrograma.setText("Tecnología en Telemática");
-            }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-    
+
     private void selectButton(Button button) {
-        // Si ya hay un botón seleccionado, quitarle la clase CSS
-        if (selectedButton != null) {
-            selectedButton.getStyleClass().remove("selected");
-        }
-        // Agregar clase al nuevo botón seleccionado
-        if (!button.getStyleClass().contains("selected")) {
-            button.getStyleClass().add("selected");
-        }
+        if (selectedButton != null) selectedButton.getStyleClass().remove("selected");
+        if (!button.getStyleClass().contains("selected")) button.getStyleClass().add("selected");
         selectedButton = button;
     }
 
     public void loadUI(String fxml) {
-        try {
-            FXMLLoader loader = FrontendApp.newLoader("/co/edu/unicauca/frontend/view/" + fxml + ".fxml");
-            Parent root = loader.load();
+        String path = "/co/edu/unicauca/frontend/view/" + fxml + ".fxml";
+        Object controller = ViewLoader.loadIntoWithController(contentArea, path);
 
-            Object controller = loader.getController();
-
-            if (controller instanceof CoProyectoController cpc) {
-                cpc.setParentController(this);
-            }
-
-            contentArea.getChildren().setAll(root);
-            AnchorPane.setTopAnchor(root, 0.0);
-            AnchorPane.setRightAnchor(root, 0.0);
-            AnchorPane.setBottomAnchor(root, 0.0);
-            AnchorPane.setLeftAnchor(root, 0.0);
-
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (controller instanceof CoProyectoController cpc) {
+            cpc.setParentController(this);
         }
+
+        // Asegurar anclaje (si tu FXML no trae AnchorPane.fitToAnchorPane)
+        Parent root = (Parent) contentArea.getChildren().getFirst();
+        AnchorPane.setTopAnchor(root, 0.0);
+        AnchorPane.setRightAnchor(root, 0.0);
+        AnchorPane.setBottomAnchor(root, 0.0);
+        AnchorPane.setLeftAnchor(root, 0.0);
     }
 
     public void loadUI(String fxmlPath, FormatoAResumen formatoSeleccionado) {
-        try {
-            FXMLLoader loader = FrontendApp.newLoader("/co/edu/unicauca/frontend/view/" + fxmlPath + ".fxml");
-            Parent root = loader.load();
+        String path = "/co/edu/unicauca/frontend/view/" + fxmlPath + ".fxml";
+        Object controller = ViewLoader.loadIntoWithController(contentArea, path);
 
-            // Si la vista cargada es Coordinador_Observaciones, pásale el formato
-            if (loader.getController() instanceof CoObservacionesController controller) {
-                controller.setFormatoSeleccionado(formatoSeleccionado);
-                controller.setParentController(this);
-            }
-
-            // Cambiar el contenido principal
-            contentArea.getChildren().setAll(root);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            new Alert(Alert.AlertType.ERROR, "Error al cargar vista: " + e.getMessage()).show();
+        if (controller instanceof CoObservacionesController c) {
+            c.setFormatoSeleccionado(formatoSeleccionado);
+            c.setParentController(this);
         }
     }
 
     @FXML
     public void onSalir(javafx.event.ActionEvent event) {
-        try {
-            FXMLLoader loader = FrontendApp.newLoader("/co/edu/unicauca/frontend/view/signin.fxml");
-            Parent root = loader.load();
-
-            // Obtener la ventana actual (Stage)
-            Stage stage = (Stage) btnSalir.getScene().getWindow();
-
-            // Cambiar la escena por la del inicio de sesión
-            Scene scene = new Scene(root);
-            stage.setScene(scene);
-            stage.show();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        // Limpia sesión y vuelve al login
+        SessionManager.getInstance().clear();
+        ViewNavigator.goTo("/co/edu/unicauca/frontend/view/SignIn.fxml", "Inicio de sesión");
     }
 }

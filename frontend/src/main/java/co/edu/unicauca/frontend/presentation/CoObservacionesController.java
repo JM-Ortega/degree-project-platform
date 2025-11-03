@@ -1,7 +1,7 @@
 package co.edu.unicauca.frontend.presentation;
 
 import co.edu.unicauca.frontend.entities.FormatoAResumen;
-import co.edu.unicauca.frontend.services.FormatoService;
+import co.edu.unicauca.frontend.services.coordinator.FormatoService;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;

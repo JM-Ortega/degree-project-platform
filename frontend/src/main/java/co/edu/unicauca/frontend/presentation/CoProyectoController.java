@@ -1,7 +1,7 @@
 package co.edu.unicauca.frontend.presentation;
 
 import co.edu.unicauca.frontend.entities.FormatoAResumen;
-import co.edu.unicauca.frontend.services.FormatoService;
+import co.edu.unicauca.frontend.services.coordinator.FormatoService;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
