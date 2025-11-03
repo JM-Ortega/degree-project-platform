@@ -1,34 +1,44 @@
 package co.edu.unicauca.notificationservice.consumer;
 
 
+import co.edu.unicauca.notificationservice.sender.NotificationSender;
+import co.edu.unicauca.notificationservice.sender.SmsNotificationDecorator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import co.edu.unicauca.notificationservice.model.NotificationEvent;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.stereotype.Service;
-import co.edu.unicauca.notificationservice.service.NotificationService;
+import org.springframework.stereotype.Component;
 
-@Service
+
 @Slf4j
+@Component
 @RequiredArgsConstructor
 public class NotificationListener {
 
-    private final NotificationService notificationService;
+    // Inyectamos el bean base (correo)
+    private final NotificationSender emailNotificationSender;
 
     @RabbitListener(queues = "${messaging.queues.notification}")
     public void handleNotification(NotificationEvent event) {
         log.info("""
         
-        📬 Nuevo correo:
-        ├── Para: {}
-        ├── Asunto: {}
+        📬 Nueva notificación recibida:
+        ├── Tipo: {}
+        ├── Destinatarios: {}
         └── Mensaje: {}
-        """, String.join(", ", event.getRecipientEmails()), event.getSubject(), event.getMessage());
+        """, event.getType(), String.join(", ", event.getRecipientEmails()), event.getMessage());
+
         try {
-            notificationService.processNotification(event);
+            // 🔹 Si hay teléfonos, agregamos el decorador SMS
+            NotificationSender senderToUse = event.getRecipientPhones() != null && !event.getRecipientPhones().isEmpty()
+                    ? new SmsNotificationDecorator(emailNotificationSender)
+                    : emailNotificationSender;
+
+            senderToUse.send(event);
+
         } catch (Exception e) {
-            log.error("Error al procesar notificación: {}", e.getMessage());
+            log.error("❌ Error al procesar notificación: {}", e.getMessage());
             throw new AmqpRejectAndDontRequeueException(e);
         }
     }
