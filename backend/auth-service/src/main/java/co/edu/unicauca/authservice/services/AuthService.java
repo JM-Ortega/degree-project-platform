@@ -122,10 +122,18 @@ public class AuthService {
             String subject = "Bienvenido a la plataforma";
             String message = "Tu cuenta ha sido creada correctamente.";
 
+// emails destinatarios
+            var emails = List.of(usuario.getEmail());
+
+// celulares destinatarios (si hay)
+            var celulares = (persona.getCelular() != null && !persona.getCelular().isBlank())
+                    ? List.of(persona.getCelular())
+                    : List.<String>of();
+
             notificationPublisher.publishNotification(
                     type,
-                    List.of(usuario.getEmail()), // emails destinatarios
-                    List.of(),                   // celulares (vacío si no SMS)
+                    emails,
+                    celulares,   // <— ahora sí
                     subject,
                     message
             );
