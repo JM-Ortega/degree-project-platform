@@ -91,5 +91,4 @@ public class FormatoAController {
         FormatoA actualizado = formatoAService.actualizarFormato(id, archivo, nuevoEstado, nombreArchivo, horaActual);
         return ResponseEntity.ok(actualizado);
     }
-
 }

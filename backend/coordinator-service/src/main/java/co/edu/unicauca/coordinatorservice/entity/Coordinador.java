@@ -2,6 +2,7 @@ package co.edu.unicauca.coordinatorservice.entity;
 
 import jakarta.persistence.*;
 import java.io.Serializable;
+import co.edu.unicauca.coordinatorservice.infra.DTOS.Programa;
 
 @Entity
 @Table(name = "coordinador")
@@ -10,26 +11,13 @@ public class Coordinador implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true, nullable = false)
     private String codigo;
     private String nombres;
     private String apellidos;
     private String correo;
     @Enumerated(EnumType.STRING)
     private Programa programa;
-
-    public Coordinador(Long id, String codigo, String nombres, String apellidos, String correo, Programa programa) {
-        this.id = id;
-        this.codigo = codigo;
-        this.nombres = nombres;
-        this.apellidos = apellidos;
-        this.correo = correo;
-        this.programa = programa;
-    }
-
-    public Coordinador(String nombres, String apellidos) {
-        this.nombres = nombres;
-        this.apellidos = apellidos;
-    }
 
     public Coordinador() {
         this.id= null;

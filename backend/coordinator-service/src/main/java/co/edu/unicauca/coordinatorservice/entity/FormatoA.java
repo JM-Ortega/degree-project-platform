@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
 import co.edu.unicauca.coordinatorservice.infra.DTOS.EstadoFormatoA;
+import co.edu.unicauca.coordinatorservice.infra.DTOS.TipoProyecto;
 
 @Entity
 @Table(name = "formato_a")
@@ -13,10 +14,10 @@ public class FormatoA implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "proyecto_id")
+    @Column(name = "proyecto_id", nullable = false)
     private Long proyectoId;
 
-    @Column(name = "nro_version")
+    @Column(name = "nro_version",  nullable = false)
     private int nroVersion;
 
     @Column(name = "nombre_formato_a")
@@ -36,54 +37,24 @@ public class FormatoA implements Serializable {
     @Column(name = "estado_formato_a")
     private EstadoFormatoA estadoFormatoA;
 
-    // Lista de correos de los estudiantes en formato JSON o TEXT
-    @Convert(converter = StringListConverter.class)
-    @Column(name = "estudiantes_email", columnDefinition = "TEXT")
-    private List<String> estudiantesEmail;
+    @ManyToMany
+    @JoinTable(
+            name = "formato_a_estudiantes",
+            joinColumns = @JoinColumn(name = "formato_a_id"),
+            inverseJoinColumns = @JoinColumn(name = "estudiante_id")
+    )
+    private List<Estudiante> estudiantes;
 
-    @Embedded
-    @AttributeOverrides({
-            @AttributeOverride(name = "nombres", column = @Column(name = "director_nombres")),
-            @AttributeOverride(name = "apellidos", column = @Column(name = "director_apellidos")),
-            @AttributeOverride(name = "email", column = @Column(name = "director_email"))
-    })
-    private DocenteEmbeddable director;
+    @ManyToOne
+    @JoinColumn(name = "director_id")
+    private Docente director;
 
-    @Embedded
-    @AttributeOverrides({
-            @AttributeOverride(name = "nombres", column = @Column(name = "coodirector_nombres")),
-            @AttributeOverride(name = "apellidos", column = @Column(name = "coodirector_apellidos")),
-            @AttributeOverride(name = "email", column = @Column(name = "coodirector_email"))
-    })
-    private DocenteEmbeddable coodirector;
+    @ManyToOne
+    @JoinColumn(name = "coodirector_id")
+    private Docente coodirector;
 
     @Enumerated(EnumType.STRING)
     private TipoProyecto tipoProyecto;
-
-    @Enumerated(EnumType.STRING)
-    private EstadoProyecto estadoProyecto;
-
-    public FormatoA(Long id, Long proyectoId, int nroVersion, String nombreFormatoA, String nombreProyecto, LocalDate fechaSubida,
-                    byte[] blob, EstadoFormatoA estadoFormatoA, List<String> estudiantesEmail, DocenteEmbeddable director,
-                    DocenteEmbeddable coodirector, TipoProyecto tipoProyecto, EstadoProyecto estadoProyecto) {
-        this.id = id;
-        this.proyectoId = proyectoId;
-        this.nroVersion = nroVersion;
-        this.nombreFormatoA = nombreFormatoA;
-        this.nombreProyecto = nombreProyecto;
-        this.fechaSubida = fechaSubida;
-        this.blob = blob;
-        this.estadoFormatoA = estadoFormatoA;
-        this.estudiantesEmail = estudiantesEmail;
-        this.director = director;
-        this.coodirector = coodirector;
-        this.tipoProyecto = tipoProyecto;
-        this.estadoProyecto = estadoProyecto;
-    }
-
-    public FormatoA() {
-
-    }
 
     public Long getId() {
         return id;
@@ -149,27 +120,27 @@ public class FormatoA implements Serializable {
         this.estadoFormatoA = estadoFormatoA;
     }
 
-    public List<String> getEstudiantesEmail() {
-        return estudiantesEmail;
+    public List<Estudiante> getEstudiantes() {
+        return estudiantes;
     }
 
-    public void setEstudiantesEmail(List<String> estudiantesEmail) {
-        this.estudiantesEmail = estudiantesEmail;
+    public void setEstudiantes(List<Estudiante> estudiantes) {
+        this.estudiantes = estudiantes;
     }
 
-    public DocenteEmbeddable getDirector() {
+    public Docente getDirector() {
         return director;
     }
 
-    public void setDirector(DocenteEmbeddable director) {
+    public void setDirector(Docente director) {
         this.director = director;
     }
 
-    public DocenteEmbeddable getCoodirector() {
+    public Docente getCoodirector() {
         return coodirector;
     }
 
-    public void setCoodirector(DocenteEmbeddable coodirector) {
+    public void setCoodirector(Docente coodirector) {
         this.coodirector = coodirector;
     }
 
@@ -179,13 +150,5 @@ public class FormatoA implements Serializable {
 
     public void setTipoProyecto(TipoProyecto tipoProyecto) {
         this.tipoProyecto = tipoProyecto;
-    }
-
-    public EstadoProyecto getEstadoProyecto() {
-        return estadoProyecto;
-    }
-
-    public void setEstadoProyecto(EstadoProyecto estadoProyecto) {
-        this.estadoProyecto = estadoProyecto;
     }
 }
