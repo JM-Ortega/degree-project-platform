@@ -15,66 +15,69 @@ import java.util.List;
 public class DepartmentHeadEventListener {
 
     private final AnteproyectoRepository anteproyectoRepository;
-    private final DocenteRepository docenteRepository; // Repositorio para buscar los docentes
+    private final DocenteRepository docenteRepository;
 
-    // Inyección de repositorios
     public DepartmentHeadEventListener(AnteproyectoRepository anteproyectoRepository, DocenteRepository docenteRepository) {
         this.anteproyectoRepository = anteproyectoRepository;
         this.docenteRepository = docenteRepository;
     }
 
     /**
-     * Escuchar el evento de creación de usuario (docentes) y transformarlo en una entidad Docente.
+     * Procesa eventos de creación de usuarios y almacena únicamente los registros de docentes.
+     * Evalúa la lista de roles para identificar usuarios con rol de docente.
      *
-     * @param event Evento recibido con los datos del usuario (docente) creado.
+     * @param event Evento recibido con los datos del usuario creado
      */
     @RabbitListener(queues = "${messaging.queues.department}")
     public void handleUserCreatedEvent(UserCreatedEvent event) {
-        // Log para ver el evento recibido
-        System.out.println("Evento recibido: Docente creado: " + event.nombre());
+        System.out.println("Evento recibido: Usuario creado - Nombre: " + event.nombre() + ", Roles: " +
+                          event.roles().stream().map(Enum::name).reduce((a, b) -> a + ", " + b).orElse("Ninguno"));
 
-        try {
-            // Transformar el evento en una entidad Docente
-            Docente docente = new Docente(event.personaId(), event.nombre(), event.email());
+        // Validar si el usuario tiene rol de docente
+        boolean esDocente = event.roles().stream()
+                .anyMatch(rol -> rol.name().equalsIgnoreCase("DOCENTE"));
 
-            // Guardar el docente en la base de datos
-            docenteRepository.save(docente);
-
-            System.out.println("Docente guardado en la base de datos: " + docente.getNombre());
-        } catch (Exception e) {
-            System.err.println("Error al guardar el docente: " + e.getMessage());
+        if (esDocente) {
+            try {
+                Docente docente = new Docente(event.personaId(), event.nombre(), event.email());
+                docenteRepository.save(docente);
+                System.out.println("Docente almacenado en base de datos: " + docente.getNombre());
+            } catch (Exception e) {
+                System.err.println("Error durante el almacenamiento del docente: " + e.getMessage());
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("Usuario descartado - No contiene rol docente. Roles asignados: " +
+                             event.roles().stream().map(Enum::name).reduce((a, b) -> a + ", " + b).orElse("Ninguno"));
         }
     }
 
     /**
-     * Escuchar el evento de creación de anteproyecto SIN evaluadores asignados
-     * y guardarlo en la base de datos con evaluadores vacíos.
+     * Procesa eventos de creación de anteproyectos sin evaluadores asignados.
+     * Almacena el anteproyecto con una lista vacía de evaluadores para su posterior asignación.
      *
-     * @param event Evento recibido con los datos del anteproyecto.
+     * @param event Evento recibido con los datos del anteproyecto creado
      */
     @RabbitListener(queues = "${messaging.queues.department}")
     public void handleAnteproyectoSinEvaluadoresEvent(AnteproyectoSinEvaluadoresEvent event) {
-        // Log para ver el evento recibido
         System.out.println("Evento recibido: Anteproyecto creado (sin evaluadores): " + event.titulo());
 
         try {
-            // Aquí no tenemos evaluadores al principio, asignamos una lista vacía
-            List<Docente> evaluadores = List.of(); // No hay evaluadores al principio
+            // Inicializar lista vacía de evaluadores para asignación posterior
+            List<Docente> evaluadores = List.of();
 
-            // Crear una entidad Anteproyecto con evaluadores vacíos
             Anteproyecto anteproyecto = new Anteproyecto(
-                    event.titulo(),          // Título del anteproyecto
-                    event.descripcion(),     // Descripción del anteproyecto
-                    event.fechaCreacion(),   // Fecha de creación
-                    evaluadores              // Lista de evaluadores (vacía por ahora)
+                    event.titulo(),
+                    event.descripcion(),
+                    event.fechaCreacion(),
+                    evaluadores
             );
 
-            // Guardar el anteproyecto en la base de datos
             anteproyectoRepository.save(anteproyecto);
-
-            System.out.println("Anteproyecto guardado en la base de datos: " + anteproyecto.getTitulo());
+            System.out.println("Anteproyecto almacenado en base de datos: " + anteproyecto.getTitulo());
         } catch (Exception e) {
-            System.err.println("Error al guardar el anteproyecto: " + e.getMessage());
+            System.err.println("Error durante el almacenamiento del anteproyecto: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }
