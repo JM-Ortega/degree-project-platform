@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="602.0" prefWidth="950.0" style="-fx-background-color: #FFFFFF;" styleClass="fondo" stylesheets="@../styles/Estudiante.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="co.edu.unicauca.frontend.presentation.FormatoAEstudianteController">
+   <children>
+      <TableView fx:id="tabla" layoutX="13.0" layoutY="10.0" prefHeight="582.0" prefWidth="924.0" stylesheets="@../styles/Estudiante.css">
+        <columns>
+          <TableColumn fx:id="colTitulo" prefWidth="286.0" text="Titulo" />
+          <TableColumn fx:id="colTipo" prefWidth="183.0" text="Tipo" />
+            <TableColumn fx:id="colDirector" prefWidth="177.0" text="Director" />
+            <TableColumn fx:id="colEstado" minWidth="0.0" prefWidth="167.0" text="Estado" />
+            <TableColumn fx:id="colDescarga" minWidth="0.0" prefWidth="110.0" text="Descargar" />
+        </columns>
+      </TableView>
+   </children>
+</AnchorPane>

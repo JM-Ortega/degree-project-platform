@@ -11,7 +11,10 @@ public class CartaLaboral {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String nombreCartaLaboral;
+
+    @Column(name = "fecha_creacion")
     private LocalDate fechaCreacion;
+
     private byte[] blob;
     @Enumerated(EnumType.STRING)
 

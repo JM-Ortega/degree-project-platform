@@ -16,7 +16,7 @@ public class Anteproyecto {
     private String titulo;
     private byte[] blob;
 
-    @Temporal(TemporalType.DATE)
+    @Column(name = "fecha_creacion")
     private LocalDate fechaCreacion;
 
     @ManyToMany

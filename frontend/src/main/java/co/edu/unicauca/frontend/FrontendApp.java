@@ -3,6 +3,7 @@ package co.edu.unicauca.frontend;
 import co.edu.unicauca.frontend.entities.SesionFront;
 import co.edu.unicauca.frontend.infra.dto.UsuarioDTO;
 import co.edu.unicauca.frontend.presentation.DocenteController;
+import co.edu.unicauca.frontend.presentation.EstudianteController;
 import co.edu.unicauca.frontend.services.DocenteService;
 import co.edu.unicauca.frontend.services.EstudianteService;
 import co.edu.unicauca.frontend.services.ProyectoService;
@@ -18,8 +19,8 @@ public class FrontendApp extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         UsuarioDTO docentePrueba = new UsuarioDTO();
-        docentePrueba.setNombre("Maria Fernanda Fernández");
-        docentePrueba.setCorreo("mariafernandez@unicauca.edu.co");
+        docentePrueba.setNombre("Maria Torres Jiménez");
+        docentePrueba.setCorreo("maria.torres@uni.edu");
         SesionFront.getInstancia().setUsuarioActivo(docentePrueba);
 
         DocenteService docenteService = new DocenteService();
@@ -27,12 +28,12 @@ public class FrontendApp extends Application {
         EstudianteService  estudianteService = new EstudianteService();
 
         FXMLLoader fxmlLoader = new FXMLLoader(
-                FrontendApp.class.getResource("/co/edu/unicauca/frontend/view/Docente.fxml")
+                FrontendApp.class.getResource("/co/edu/unicauca/frontend/view/Estudiante.fxml")
         );
         Parent root = fxmlLoader.load();
 
-        DocenteController docenteController = fxmlLoader.getController();
-        docenteController.setServices(docenteService, proyectoService, estudianteService);
+        EstudianteController estudianteController = fxmlLoader.getController();
+        //estudianteController.setServices(docenteService, proyectoService, estudianteService);
 
         Scene scene = new Scene(root);
         stage.setTitle("Docente - Prueba");

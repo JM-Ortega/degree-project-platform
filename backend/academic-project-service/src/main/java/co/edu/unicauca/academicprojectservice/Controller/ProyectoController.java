@@ -1,6 +1,7 @@
 package co.edu.unicauca.academicprojectservice.Controller;
 
 import co.edu.unicauca.academicprojectservice.Entity.*;
+import co.edu.unicauca.academicprojectservice.Repository.ProyectoRepository;
 import co.edu.unicauca.academicprojectservice.Service.ProyectoService;
 import co.edu.unicauca.academicprojectservice.infra.dto.*;
 import jakarta.persistence.EntityNotFoundException;
@@ -14,9 +15,11 @@ import java.util.List;
 @RequestMapping("/proyectos")
 public class ProyectoController {
     private final ProyectoService proyectoService;
+    private final ProyectoRepository proyectoRepository;
 
-    public ProyectoController(ProyectoService proyectoService) {
+    public ProyectoController(ProyectoService proyectoService, ProyectoRepository proyectoRepository) {
         this.proyectoService = proyectoService;
+        this.proyectoRepository = proyectoRepository;
     }
 
     @GetMapping("/docente/{correo}")
@@ -26,6 +29,23 @@ public class ProyectoController {
     ) {
         List<ProyectoInfoDTO> proyectos = proyectoService.listarInfoPorCorreoDocente(correo, filtro);
         return ResponseEntity.ok(proyectos);
+    }
+
+    @GetMapping("/listar/{correo}")
+    public ResponseEntity<List<ProyectoEstudianteDTO>> listarPorEstudiante(@PathVariable String correo) {
+        List<Proyecto> proyectos = proyectoRepository.findByEstudianteCorreo(correo);
+
+        List<ProyectoEstudianteDTO> lista = proyectos.stream()
+                .map(p -> new ProyectoEstudianteDTO(
+                        p.getId(),
+                        p.getTitulo(),
+                        p.getDirector().getNombres() + " " + p.getDirector().getApellidos(),
+                        p.getTipoProyecto().toString(),
+                        p.getEstadoProyecto().toString()
+                ))
+                .toList();
+
+        return ResponseEntity.ok(lista);
     }
 
     @PostMapping("/crearConArchivos")
