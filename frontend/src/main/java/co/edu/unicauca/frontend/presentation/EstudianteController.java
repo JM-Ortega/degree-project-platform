@@ -3,7 +3,6 @@ package co.edu.unicauca.frontend.presentation;
 import co.edu.unicauca.frontend.FrontendApp;
 import co.edu.unicauca.frontend.entities.SesionFront;
 import co.edu.unicauca.frontend.infra.dto.UsuarioDTO;
-import co.edu.unicauca.frontend.services.EstudianteService;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -12,7 +11,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -59,9 +57,9 @@ public class EstudianteController implements Initializable {
     }
 
     void cargarDatos() {
-        UsuarioDTO docente = SesionFront.getInstancia().getUsuarioActivo();
-        if (docente != null) {
-            nombreEstudiante.setText(docente.getNombre());
+        UsuarioDTO estudiante = SesionFront.getInstancia().getUsuarioActivo();
+        if (estudiante != null) {
+            nombreEstudiante.setText(estudiante.getNombre());
         } else {
             System.err.println("No hay sesión activa");
         }

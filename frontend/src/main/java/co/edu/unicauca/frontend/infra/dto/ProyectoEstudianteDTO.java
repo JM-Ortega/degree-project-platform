@@ -11,6 +11,16 @@ public class ProyectoEstudianteDTO {
     private ObjectProperty<LocalDate> fechaEmision = new SimpleObjectProperty<>();
     private StringProperty estadoProyecto = new SimpleStringProperty();
 
+    public ProyectoEstudianteDTO(Long id, String titulo, String nombreDirector,
+                           String tipoProyecto, LocalDate fechaEmision, String estadoProyecto) {
+        this.id = new SimpleLongProperty(id);
+        this.titulo = new SimpleStringProperty(titulo);
+        this.nombreDirector = new SimpleStringProperty(nombreDirector);
+        this.tipoProyecto = new SimpleStringProperty(tipoProyecto);
+        this.fechaEmision = new SimpleObjectProperty<>(fechaEmision);
+        this.estadoProyecto = new SimpleStringProperty(estadoProyecto);
+    }
+
     // Getters para las columnas
     public Long getId() { return id.get(); }
     public String getTitulo() { return titulo.get(); }
