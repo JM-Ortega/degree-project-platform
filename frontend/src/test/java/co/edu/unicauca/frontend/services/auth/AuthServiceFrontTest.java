@@ -166,9 +166,9 @@ class AuthServiceFrontTest {
     @Test
     void testLoginAndReturnErrors_Success() throws Exception {
         // Configurar
-        LoginRequestDto loginDto = new LoginRequestDto("test@unicauca.edu.co", "password123", Rol.Estudiante);
+        LoginRequestDto loginDto = new LoginRequestDto("test@unicauca.edu.co", "password123", Rol.ESTUDIANTE);
         LoginResponseDto responseDto = new LoginResponseDto(
-                new SessionInfo("test@unicauca.edu.co", "Test User", Rol.Estudiante),
+                new SessionInfo("test@unicauca.edu.co", "Test User", Rol.ESTUDIANTE),
                 "token123"
         );
 
@@ -193,7 +193,7 @@ class AuthServiceFrontTest {
     @Test
     void testLoginAndReturnErrors_WithClientValidationErrors() {
         // Configurar - credenciales inválidas (email vacío)
-        LoginRequestDto loginDto = new LoginRequestDto("", "pass", Rol.Estudiante);
+        LoginRequestDto loginDto = new LoginRequestDto("", "pass", Rol.ESTUDIANTE);
 
         // Ejecutar
         Map<String, String> result = authServiceFront.loginAndReturnErrors(loginDto);
@@ -208,7 +208,7 @@ class AuthServiceFrontTest {
     @Test
     void testLoginAndReturnErrors_WithBackendAuthError() throws Exception {
         // Configurar
-        LoginRequestDto loginDto = new LoginRequestDto("test@unicauca.edu.co", "password123", Rol.Estudiante);
+        LoginRequestDto loginDto = new LoginRequestDto("test@unicauca.edu.co", "password123", Rol.ESTUDIANTE);
 
         HttpClientException httpException = new HttpClientException(401,
                 "Credenciales inválidas");
@@ -228,7 +228,7 @@ class AuthServiceFrontTest {
     @Test
     void testLoginAndReturnErrors_WithBackendServerError() throws Exception {
         // Configurar
-        LoginRequestDto loginDto = new LoginRequestDto("test@unicauca.edu.co", "password123", Rol.Estudiante);
+        LoginRequestDto loginDto = new LoginRequestDto("test@unicauca.edu.co", "password123", Rol.ESTUDIANTE);
 
         HttpClientException httpException = new HttpClientException(500,
                 "Internal Server Error");
@@ -248,7 +248,7 @@ class AuthServiceFrontTest {
     @Test
     void testLoginAndReturnErrors_WithGenericException() throws Exception {
         // Configurar
-        LoginRequestDto loginDto = new LoginRequestDto("test@unicauca.edu.co", "password123", Rol.Estudiante);
+        LoginRequestDto loginDto = new LoginRequestDto("test@unicauca.edu.co", "password123", Rol.ESTUDIANTE);
 
         when(mockAuthApi.login(loginDto)).thenThrow(new RuntimeException("Connection error"));
 
@@ -265,9 +265,9 @@ class AuthServiceFrontTest {
     @Test
     void testLogin_Success() throws Exception {
         // Configurar
-        LoginRequestDto loginDto = new LoginRequestDto("test@unicauca.edu.co", "password123", Rol.Estudiante);
+        LoginRequestDto loginDto = new LoginRequestDto("test@unicauca.edu.co", "password123", Rol.ESTUDIANTE);
         LoginResponseDto responseDto = new LoginResponseDto(
-                new SessionInfo("test@unicauca.edu.co", "Test User", Rol.Estudiante),
+                new SessionInfo("test@unicauca.edu.co", "Test User", Rol.ESTUDIANTE),
                 "token123"
         );
 
@@ -288,7 +288,7 @@ class AuthServiceFrontTest {
     @Test
     void testLogin_WithBackendException() throws Exception {
         // Configurar
-        LoginRequestDto loginDto = new LoginRequestDto("test@unicauca.edu.co", "password123", Rol.Estudiante);
+        LoginRequestDto loginDto = new LoginRequestDto("test@unicauca.edu.co", "password123", Rol.ESTUDIANTE);
 
         HttpClientException httpException = new HttpClientException(401, "Unauthorized");
         when(mockAuthApi.login(loginDto)).thenThrow(httpException);
@@ -367,7 +367,7 @@ class AuthServiceFrontTest {
     @Test
     void testLoginAndReturnErrors_WithNullBackendResponse() throws Exception {
         // Configurar
-        LoginRequestDto loginDto = new LoginRequestDto("test@unicauca.edu.co", "password123", Rol.Estudiante);
+        LoginRequestDto loginDto = new LoginRequestDto("test@unicauca.edu.co", "password123", Rol.ESTUDIANTE);
 
         HttpClientException httpException = new HttpClientException(401, null);
 

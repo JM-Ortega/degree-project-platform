@@ -201,10 +201,10 @@ class SignInControllerTest {
         Method method = SignInController.class.getDeclaredMethod("mapearRol", String.class);
         method.setAccessible(true);
 
-        assertEquals(Rol.Estudiante, method.invoke(controller, "Estudiante"));
-        assertEquals(Rol.Docente, method.invoke(controller, "Docente"));
-        assertEquals(Rol.Coordinador, method.invoke(controller, "Coordinador"));
-        assertEquals(Rol.JefeDeDepartamento, method.invoke(controller, "JefeDeDepartamento"));
+        assertEquals(Rol.ESTUDIANTE, method.invoke(controller, "Estudiante"));
+        assertEquals(Rol.DOCENTE, method.invoke(controller, "Docente"));
+        assertEquals(Rol.COORDINADOR, method.invoke(controller, "Coordinador"));
+        assertEquals(Rol.JEFE_DE_DEPARTAMENTO, method.invoke(controller, "JefeDeDepartamento"));
     }
 
     @Test
@@ -213,11 +213,11 @@ class SignInControllerTest {
         method.setAccessible(true);
 
         Rol result = (Rol) method.invoke(controller, "RolInexistente");
-        assertEquals(Rol.Estudiante, result,
+        assertEquals(Rol.ESTUDIANTE, result,
                 "Debe devolver Estudiante por defecto para roles inválidos");
 
         result = (Rol) method.invoke(controller, new Object[]{null});
-        assertEquals(Rol.Estudiante, result,
+        assertEquals(Rol.ESTUDIANTE, result,
                 "Debe devolver Estudiante por defecto para null");
     }
 
@@ -260,7 +260,7 @@ class SignInControllerTest {
         method.setAccessible(true);
 
         try (MockedStatic<ViewNavigator> vnMock = Mockito.mockStatic(ViewNavigator.class)) {
-            SessionInfo session = new SessionInfo("test@unicauca.edu.co", "Test User", Rol.JefeDeDepartamento);
+            SessionInfo session = new SessionInfo("test@unicauca.edu.co", "Test User", Rol.JEFE_DE_DEPARTAMENTO);
             method.invoke(controller, session);
 
             vnMock.verify(() -> ViewNavigator.goTo(
