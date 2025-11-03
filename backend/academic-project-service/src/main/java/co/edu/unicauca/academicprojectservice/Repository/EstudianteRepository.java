@@ -1,6 +1,5 @@
 package co.edu.unicauca.academicprojectservice.Repository;
 
-import co.edu.unicauca.academicprojectservice.Entity.EstadoArchivo;
 import co.edu.unicauca.academicprojectservice.Entity.Estudiante;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
