@@ -1,5 +1,8 @@
-package co.edu.unicauca.coordinatorservice.infra.config;
+package co.edu.unicauca.authservice.infra.messaging;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -10,79 +13,87 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class RabbitMQConfig {
+
     @Value("${messaging.exchange.main}")
-    private String mainExchange;
+    private String mainExchangeName;
 
     @Value("${messaging.exchange.dlx}")
-    private String dlxExchange;
+    private String dlxExchangeName;
 
-    @Value("${messaging.queues.coordinator}")
-    private String coordinatorQueue;
+    @Value("${messaging.queues.auth}")
+    private String authQueueName;
 
-    @Value("${messaging.queues.coordinatorDlq}")
-    private String coordinatorDlq;
+    @Value("${messaging.queues.authDlq}")
+    private String authDlqName;
 
-    @Value("${messaging.routing.formatAApprovedByCoordinator}")
-    private String routingKeyFormatAApproved;
-
-
-    // =====================================================
-    //  1. Declaramos el exchange principal
-    // =====================================================
+    // ===== Exchanges =====
     @Bean
     public TopicExchange mainExchange() {
-        return new TopicExchange(mainExchange);
+        return ExchangeBuilder.topicExchange(mainExchangeName).durable(true).build();
     }
 
-    //  2. Declaramos el exchange Dead Letter (DLX)
     @Bean
-    public TopicExchange deadLetterExchange() {
-        return new TopicExchange(dlxExchange);
+    public TopicExchange dlxExchange() {
+        return ExchangeBuilder.topicExchange(dlxExchangeName).durable(true).build();
     }
 
-    // =====================================================
-    //  3. Declaramos la cola principal del coordinador
-    // =====================================================
+    // ===== Queues =====
     @Bean
-    public Queue coordinatorQueue() {
-        return QueueBuilder
-                .durable(coordinatorQueue)
-                .withArgument("x-dead-letter-exchange", dlxExchange) // si falla, se envía al DLX
-                .withArgument("x-dead-letter-routing-key", coordinatorDlq)
+    public Queue authQueue() {
+        return QueueBuilder.durable(authQueueName)
+                .withArgument("x-dead-letter-exchange", dlxExchangeName)
+                .withArgument("x-dead-letter-routing-key", authDlqName)
                 .build();
     }
 
-    //  4. Declaramos la cola DLQ del coordinador
     @Bean
-    public Queue coordinatorDlq() {
-        return QueueBuilder.durable(coordinatorDlq).build();
+    public Queue authDlq() {
+        return QueueBuilder.durable(authDlqName).build();
     }
 
-    // =====================================================
-    //  5. Enlazamos la cola con el exchange
-    // =====================================================
+    // ===== Bindings =====
     @Bean
-    public Binding bindingCoordinator() {
-        return BindingBuilder
-                .bind(coordinatorQueue())
-                .to(mainExchange())
-                .with(routingKeyFormatAApproved);
+    public Binding authBinding() {
+        return BindingBuilder.bind(authQueue()).to(mainExchange()).with("auth.#");
     }
 
-    // =====================================================
-    //  6. Convertidor JSON (Jackson)
-    // =====================================================
     @Bean
-    public Jackson2JsonMessageConverter jackson2JsonMessageConverter() {
-        return new Jackson2JsonMessageConverter();
+    public Binding authDlqBinding() {
+        return BindingBuilder.bind(authDlq()).to(dlxExchange()).with(authDlqName);
     }
 
-    //  7. RabbitTemplate con convertidor JSON
+    // ===== JSON Converter con soporte JavaTime =====
     @Bean
-    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
-        RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
-        rabbitTemplate.setMessageConverter(jackson2JsonMessageConverter());
-        return rabbitTemplate;
+    public ObjectMapper rabbitObjectMapper() {
+        return new ObjectMapper()
+                .registerModule(new JavaTimeModule())
+                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+    }
+
+    @Bean
+    public Jackson2JsonMessageConverter jackson2JsonMessageConverter(ObjectMapper rabbitObjectMapper) {
+        return new Jackson2JsonMessageConverter(rabbitObjectMapper);
+    }
+
+    // ===== RabbitTemplate (opcional: confirms/returns para robustez) =====
+    @Bean
+    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory,
+                                         Jackson2JsonMessageConverter messageConverter) {
+        RabbitTemplate template = new RabbitTemplate(connectionFactory);
+        template.setMessageConverter(messageConverter);
+
+
+        template.setMandatory(true);
+        template.setConfirmCallback((corr, ack, cause) -> {
+            if (!ack) {
+                System.err.println("❌ NACK publish: " + cause);
+            }
+        });
+        template.setReturnsCallback(ret -> {
+            System.err.println("❌ Returned msg rk=" + ret.getRoutingKey() +
+                    " body=" + new String(ret.getMessage().getBody()));
+        });
+
+        return template;
     }
 }
-
