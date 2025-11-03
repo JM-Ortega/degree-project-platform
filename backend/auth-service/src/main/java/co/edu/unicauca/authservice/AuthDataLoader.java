@@ -18,7 +18,6 @@ import co.edu.unicauca.authservice.dto.RegistroPersonaDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -87,9 +86,9 @@ public class AuthDataLoader implements CommandLineRunner {
                 "estudiante.demo@unicauca.edu.co",
                 "Camila",
                 "López",
-                Programa.IngenieriaDeSistemas,
+                Programa.INGENIERIA_DE_SISTEMAS,
                 null,
-                List.of(Rol.Estudiante),
+                List.of(Rol.ESTUDIANTE),
                 passwordPlano
         );
 
@@ -98,9 +97,9 @@ public class AuthDataLoader implements CommandLineRunner {
                 "docente.demo@unicauca.edu.co",
                 "Andrés",
                 "García",
-                Programa.IngenieriaDeSistemas,
-                Departamento.Sistemas,
-                List.of(Rol.Docente),
+                Programa.INGENIERIA_DE_SISTEMAS,
+                Departamento.SISTEMAS,
+                List.of(Rol.DOCENTE),
                 passwordPlano
         );
 
@@ -109,9 +108,9 @@ public class AuthDataLoader implements CommandLineRunner {
                 "coordinador.demo@unicauca.edu.co",
                 "María",
                 "Pérez",
-                Programa.IngenieriaDeSistemas,   // también será su programa coordinado
+                Programa.INGENIERIA_DE_SISTEMAS,   // también será su programa coordinado
                 null,
-                List.of(Rol.Coordinador),
+                List.of(Rol.COORDINADOR),
                 passwordPlano
         );
 
@@ -120,9 +119,9 @@ public class AuthDataLoader implements CommandLineRunner {
                 "jefe.demo@unicauca.edu.co",
                 "Jorge",
                 "Ramírez",
-                Programa.IngenieriaElectronicaYTelecomunicaciones,
-                Departamento.Sistemas,
-                List.of(Rol.JefeDeDepartamento),
+                Programa.INGENIERIA_ELECTRONICA_Y_TELECOMUNICACIONES,
+                Departamento.SISTEMAS,
+                List.of(Rol.JEFE_DE_DEPARTAMENTO),
                 passwordPlano
         );
 
@@ -131,13 +130,13 @@ public class AuthDataLoader implements CommandLineRunner {
                 "multi.demo@unicauca.edu.co",
                 "Laura",
                 "Hernández",
-                Programa.IngenieriaDeSistemas,
-                Departamento.Sistemas,
+                Programa.INGENIERIA_DE_SISTEMAS,
+                Departamento.SISTEMAS,
                 List.of(
-                        Rol.Estudiante,
-                        Rol.Docente,
-                        Rol.Coordinador,
-                        Rol.JefeDeDepartamento
+                        Rol.ESTUDIANTE,
+                        Rol.DOCENTE,
+                        Rol.COORDINADOR,
+                        Rol.JEFE_DE_DEPARTAMENTO
                 ),
                 passwordPlano
         );

@@ -29,8 +29,8 @@ public class AuthService {
     private static final Logger log = LoggerFactory.getLogger(AuthService.class);
 
     private static final List<Rol> ROLES_AUTOREGISTRO = List.of(
-            Rol.Estudiante,
-            Rol.Docente
+            Rol.ESTUDIANTE,
+            Rol.DOCENTE
     );
 
     private final UsuarioRepository usuarioRepository;
