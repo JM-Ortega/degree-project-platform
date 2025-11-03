@@ -75,10 +75,10 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>co.edu.unicauca</groupId>
-            <artifactId>shared-contracts</artifactId>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>co.edu.unicauca</groupId>-->
+<!--            <artifactId>shared-contracts</artifactId>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
