@@ -28,9 +28,9 @@ class PersonaFactoryTest {
                 "3180000004",
                 "jefe@unicauca.edu.co",
                 "Uni123456*",
-                Programa.IngenieriaDeSistemas,
-                List.of(Rol.JefeDeDepartamento, Rol.Docente),
-                Departamento.Sistemas
+                Programa.INGENIERIA_DE_SISTEMAS,
+                List.of(Rol.JEFE_DE_DEPARTAMENTO, Rol.DOCENTE),
+                Departamento.SISTEMAS
         );
 
         var usuario = buildUsuarioDemo(dto.roles());
@@ -39,7 +39,7 @@ class PersonaFactoryTest {
 
         assertTrue(persona instanceof JefeDeDepartamento);
         var jefe = (JefeDeDepartamento) persona;
-        assertEquals(Departamento.Sistemas, jefe.getDepartamento());
+        assertEquals(Departamento.SISTEMAS, jefe.getDepartamento());
         assertEquals("Luis", jefe.getNombres());
         assertEquals("Torres", jefe.getApellidos());
         assertNotNull(jefe.getUsuario());
@@ -53,8 +53,8 @@ class PersonaFactoryTest {
                 "3170000003",
                 "coord@unicauca.edu.co",
                 "Uni123456*",
-                Programa.AutomaticaIndustrial,
-                List.of(Rol.Coordinador),
+                Programa.AUTOMATICA_INDUSTRIAL,
+                List.of(Rol.COORDINADOR),
                 null // coordinador no usa departamento
         );
 
@@ -65,7 +65,7 @@ class PersonaFactoryTest {
         assertTrue(persona instanceof Coordinador);
         var coord = (Coordinador) persona;
         // en tu factory usas dto.programa() como programa coordinado
-        assertEquals(Programa.AutomaticaIndustrial, coord.getProgramaCoordinado());
+        assertEquals(Programa.AUTOMATICA_INDUSTRIAL, coord.getProgramaCoordinado());
     }
 
     @Test
@@ -76,9 +76,9 @@ class PersonaFactoryTest {
                 "3160000002",
                 "doc@unicauca.edu.co",
                 "Uni123456*",
-                Programa.IngenieriaDeSistemas,
-                List.of(Rol.Docente),
-                Departamento.Sistemas
+                Programa.INGENIERIA_DE_SISTEMAS,
+                List.of(Rol.DOCENTE),
+                Departamento.SISTEMAS
         );
 
         var usuario = buildUsuarioDemo(dto.roles());
@@ -87,8 +87,8 @@ class PersonaFactoryTest {
 
         assertTrue(persona instanceof Docente);
         var doc = (Docente) persona;
-        assertEquals(Departamento.Sistemas, doc.getDepartamento());
-        assertEquals(Programa.IngenieriaDeSistemas, doc.getPrograma());
+        assertEquals(Departamento.SISTEMAS, doc.getDepartamento());
+        assertEquals(Programa.INGENIERIA_DE_SISTEMAS, doc.getPrograma());
     }
 
     @Test
@@ -99,8 +99,8 @@ class PersonaFactoryTest {
                 "3150000001",
                 "estu@unicauca.edu.co",
                 "Uni123456*",
-                Programa.IngenieriaDeSistemas,
-                List.of(Rol.Estudiante),
+                Programa.INGENIERIA_DE_SISTEMAS,
+                List.of(Rol.ESTUDIANTE),
                 null
         );
 
@@ -111,7 +111,7 @@ class PersonaFactoryTest {
         assertTrue(persona instanceof Estudiante);
         assertEquals("Camila", persona.getNombres());
         assertEquals("López", persona.getApellidos());
-        assertEquals(Programa.IngenieriaDeSistemas, persona.getPrograma());
+        assertEquals(Programa.INGENIERIA_DE_SISTEMAS, persona.getPrograma());
     }
 
     @Test
@@ -122,7 +122,7 @@ class PersonaFactoryTest {
                 "3000000000",
                 "sinrol@unicauca.edu.co",
                 "Uni123456*",
-                Programa.IngenieriaDeSistemas,
+                Programa.INGENIERIA_DE_SISTEMAS,
                 List.of(),     // ← aquí va la lista de roles VACÍA
                 null           // ← y luego el depto
         );

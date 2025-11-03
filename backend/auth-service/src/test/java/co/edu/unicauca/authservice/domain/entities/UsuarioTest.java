@@ -11,18 +11,18 @@ class UsuarioTest {
 
     @Test
     void shouldGenerateIdAndStoreData() {
-        Usuario u = new Usuario("juan.perez@unicauca.edu.co", "hash123", List.of(Rol.Docente));
+        Usuario u = new Usuario("juan.perez@unicauca.edu.co", "hash123", List.of(Rol.DOCENTE));
 
         assertNotNull(u.getId(), "El UUID no debe ser nulo");
         assertEquals("juan.perez@unicauca.edu.co", u.getEmail());
         assertEquals("hash123", u.getPasswordHash());
         assertEquals(1, u.getRoles().size());
-        assertTrue(u.getRoles().contains(Rol.Docente));
+        assertTrue(u.getRoles().contains(Rol.DOCENTE));
     }
 
     @Test
     void shouldAllowUpdatingEmailAndPassword() {
-        Usuario u = new Usuario("demo@unicauca.edu.co", "hashA", List.of(Rol.Estudiante));
+        Usuario u = new Usuario("demo@unicauca.edu.co", "hashA", List.of(Rol.ESTUDIANTE));
         u.setEmail("nuevo@unicauca.edu.co");
         u.setPasswordHash("hashB");
 
@@ -32,10 +32,10 @@ class UsuarioTest {
 
     @Test
     void shouldAllowUpdatingRoles() {
-        Usuario u = new Usuario("demo@unicauca.edu.co", "hash", List.of(Rol.Estudiante));
-        u.setRoles(List.of(Rol.Estudiante, Rol.Docente));
+        Usuario u = new Usuario("demo@unicauca.edu.co", "hash", List.of(Rol.ESTUDIANTE));
+        u.setRoles(List.of(Rol.ESTUDIANTE, Rol.DOCENTE));
 
         assertEquals(2, u.getRoles().size());
-        assertTrue(u.getRoles().contains(Rol.Docente));
+        assertTrue(u.getRoles().contains(Rol.DOCENTE));
     }
 }

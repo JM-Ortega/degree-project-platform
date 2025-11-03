@@ -61,9 +61,9 @@ class AuthServiceTest {
                 "DOCENTE.DEMO@unicauca.edu.co",     // 3 ← email
                 "Uni123456*",                       // 4 ← password
                 "3160000002",                       // 5 ← celular
-                Programa.IngenieriaDeSistemas,      // 6 ← programa
-                List.of(Rol.Docente),               // 7 ← roles
-                Departamento.Sistemas              // 8 ← departamento
+                Programa.INGENIERIA_DE_SISTEMAS,      // 6 ← programa
+                List.of(Rol.DOCENTE),               // 7 ← roles
+                Departamento.SISTEMAS              // 8 ← departamento
         );
 
     }
@@ -85,7 +85,7 @@ class AuthServiceTest {
         Usuario usuarioCreado = new Usuario(
                 "docente.demo@unicauca.edu.co",
                 "HASH-ARGON2",
-                List.of(Rol.Docente)
+                List.of(Rol.DOCENTE)
         );
 
         // Mock: creación de la entidad Docente
@@ -95,9 +95,9 @@ class AuthServiceTest {
                 "Andrés",
                 "García",
                 "3160000002",
-                Programa.IngenieriaDeSistemas,
+                Programa.INGENIERIA_DE_SISTEMAS,
                 usuarioCreado,
-                Departamento.Sistemas
+                Departamento.SISTEMAS
         );
 
         // Mock: llamada a la factory para crear el docente desde el DTO
@@ -139,9 +139,9 @@ class AuthServiceTest {
                 "jefe.demo@unicauca.edu.co",     // email ✓
                 "Uni123456*",                    // password ✓
                 "3180000004",                    // celular ✓
-                Programa.IngenieriaDeSistemas,   // programa
-                List.of(Rol.JefeDeDepartamento), // roles
-                Departamento.Sistemas            // departamento
+                Programa.INGENIERIA_DE_SISTEMAS,   // programa
+                List.of(Rol.JEFE_DE_DEPARTAMENTO), // roles
+                Departamento.SISTEMAS            // departamento
         );
 
         // Stub: simula que el email NO existe todavía
@@ -163,7 +163,7 @@ class AuthServiceTest {
         Usuario usuario = new Usuario(
                 "docente.demo@unicauca.edu.co",
                 "HASH-ARGON2",
-                List.of(Rol.Docente)
+                List.of(Rol.DOCENTE)
         );
         when(usuarioRepository.findByEmail("docente.demo@unicauca.edu.co"))
                 .thenReturn(Optional.of(usuario));
@@ -176,9 +176,9 @@ class AuthServiceTest {
                 "Andrés",
                 "García",
                 "3160000002",
-                Programa.IngenieriaDeSistemas,
+                Programa.INGENIERIA_DE_SISTEMAS,
                 usuario,
-                Departamento.Sistemas
+                Departamento.SISTEMAS
         );
         when(personaRepository.findByUsuarioId(usuario.getId()))
                 .thenReturn(Optional.of(docente));
@@ -186,7 +186,7 @@ class AuthServiceTest {
         LoginRequest req = new LoginRequest(
                 " DOCENTE.DEMO@unicauca.edu.co ",  // con espacios y mayúsculas
                 "Uni123456*",
-                Rol.Docente
+                Rol.DOCENTE
         );
 
         var resp = authService.login(req);
@@ -195,7 +195,7 @@ class AuthServiceTest {
         assertNotNull(resp.session());
         assertEquals("Andrés García", resp.session().nombres());
         assertEquals("docente.demo@unicauca.edu.co", resp.session().email());
-        assertEquals(Rol.Docente, resp.session().rolActivo());
+        assertEquals(Rol.DOCENTE, resp.session().rolActivo());
         assertTrue(resp.token().startsWith("SESSION-"));
     }
 
@@ -204,7 +204,7 @@ class AuthServiceTest {
         Usuario usuario = new Usuario(
                 "docente.demo@unicauca.edu.co",
                 "HASH-ARGON2",
-                List.of(Rol.Docente)
+                List.of(Rol.DOCENTE)
         );
         when(usuarioRepository.findByEmail("docente.demo@unicauca.edu.co"))
                 .thenReturn(Optional.of(usuario));
@@ -214,7 +214,7 @@ class AuthServiceTest {
         LoginRequest req = new LoginRequest(
                 "docente.demo@unicauca.edu.co",
                 "mala",
-                Rol.Docente
+                Rol.DOCENTE
         );
 
         assertThrows(IllegalArgumentException.class,
@@ -226,7 +226,7 @@ class AuthServiceTest {
         Usuario usuario = new Usuario(
                 "docente.demo@unicauca.edu.co",
                 "HASH-ARGON2",
-                List.of(Rol.Docente)
+                List.of(Rol.DOCENTE)
         );
         when(usuarioRepository.findByEmail("docente.demo@unicauca.edu.co"))
                 .thenReturn(Optional.of(usuario));
@@ -236,7 +236,7 @@ class AuthServiceTest {
         LoginRequest req = new LoginRequest(
                 "docente.demo@unicauca.edu.co",
                 "Uni123456*",
-                Rol.Estudiante
+                Rol.ESTUDIANTE
         );
 
         assertThrows(IllegalArgumentException.class,
@@ -251,7 +251,7 @@ class AuthServiceTest {
         LoginRequest req = new LoginRequest(
                 "noexiste@unicauca.edu.co",
                 "cualquier",
-                Rol.Docente
+                Rol.DOCENTE
         );
 
         assertThrows(IllegalArgumentException.class,

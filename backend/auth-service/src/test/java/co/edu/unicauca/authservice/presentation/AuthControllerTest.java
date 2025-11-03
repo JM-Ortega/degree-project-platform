@@ -52,10 +52,10 @@ class AuthControllerTest {
     @Test
     void testLogin() throws Exception {
         // Datos de entrada
-        LoginRequest loginRequest = new LoginRequest("juan@unicauca.edu.co", "Clave123*", Rol.Estudiante);
+        LoginRequest loginRequest = new LoginRequest("juan@unicauca.edu.co", "Clave123*", Rol.ESTUDIANTE);
 
         // Datos de respuesta simulada
-        SessionInfo sessionInfo = new SessionInfo("juan@unicauca.edu.co", "Juan", Rol.Estudiante);
+        SessionInfo sessionInfo = new SessionInfo("juan@unicauca.edu.co", "Juan", Rol.ESTUDIANTE);
         LoginResponse loginResponse = new LoginResponse(sessionInfo, "token123");
 
         // Simular el comportamiento del servicio
@@ -96,7 +96,7 @@ class AuthControllerTest {
     @Test
     void testLoginBadRequest() throws Exception {
         // Datos inválidos
-        LoginRequest invalidLoginRequest = new LoginRequest("juan@unicauca.edu.co", "", Rol.Estudiante);
+        LoginRequest invalidLoginRequest = new LoginRequest("juan@unicauca.edu.co", "", Rol.ESTUDIANTE);
 
         // Realizar el test de la ruta /login con credenciales inválidas
         mockMvc.perform(post("/login")
@@ -117,13 +117,13 @@ class AuthControllerTest {
                 "juan@unicauca.edu.co",
                 "Clave123*",
                 "3145678901",
-                Programa.IngenieriaDeSistemas,
-                List.of(Rol.Docente),
-                Departamento.Sistemas
+                Programa.INGENIERIA_DE_SISTEMAS,
+                List.of(Rol.DOCENTE),
+                Departamento.SISTEMAS
         );
 
         // Crear un usuario mock
-        Usuario usuario = new Usuario("juan@unicauca.edu.co", "HASH-ARGON2", List.of(Rol.Docente));
+        Usuario usuario = new Usuario("juan@unicauca.edu.co", "HASH-ARGON2", List.of(Rol.DOCENTE));
 
         // Usar el factory para crear la persona concreta (en este caso, Docente)
         Persona personaRegistrada = personaFactory.crearDesdeDto(dto, usuario);
@@ -132,7 +132,7 @@ class AuthControllerTest {
         assertNotNull(personaRegistrada);
         assertEquals("juan@unicauca.edu.co", personaRegistrada.getUsuario().getEmail());
         assertEquals("Juan Sebastián", personaRegistrada.getNombres());
-        assertEquals(Rol.Docente, personaRegistrada.getUsuario().getRoles().get(0));
+        assertEquals(Rol.DOCENTE, personaRegistrada.getUsuario().getRoles().get(0));
     }
 
 

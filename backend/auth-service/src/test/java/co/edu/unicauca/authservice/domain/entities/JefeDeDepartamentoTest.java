@@ -20,14 +20,14 @@ class JefeDeDepartamentoTest {
                 "Luis",
                 "Torres",
                 "3180000004",
-                Programa.IngenieriaDeSistemas,
+                Programa.INGENIERIA_DE_SISTEMAS,
                 u,
-                Departamento.Sistemas
+                Departamento.SISTEMAS
         );
 
         assertEquals("JEFE-001", j.getCodigo());
         assertEquals("Luis", j.getNombres());
         assertEquals("Torres", j.getApellidos());
-        assertEquals(Departamento.Sistemas, j.getDepartamento());
+        assertEquals(Departamento.SISTEMAS, j.getDepartamento());
     }
 }

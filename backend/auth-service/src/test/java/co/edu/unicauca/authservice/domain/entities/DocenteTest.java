@@ -20,15 +20,15 @@ class DocenteTest {
                 "Andrés",
                 "García",
                 "3160000002",
-                Programa.IngenieriaDeSistemas,
+                Programa.INGENIERIA_DE_SISTEMAS,
                 u,
-                Departamento.Sistemas
+                Departamento.SISTEMAS
         );
 
         assertEquals("DOC-001", d.getCodigo());
         assertEquals("Andrés", d.getNombres());
         assertEquals("García", d.getApellidos());
-        assertEquals(Departamento.Sistemas, d.getDepartamento());
+        assertEquals(Departamento.SISTEMAS, d.getDepartamento());
     }
 
     @Test
@@ -40,13 +40,13 @@ class DocenteTest {
                 "Ana",
                 "Vera",
                 "3160000003",
-                Programa.IngenieriaDeSistemas,
+                Programa.INGENIERIA_DE_SISTEMAS,
                 u,
-                Departamento.Sistemas
+                Departamento.SISTEMAS
         );
 
-        d.setDepartamento(Departamento.ElectronicaInstrumentacionYControl);
+        d.setDepartamento(Departamento.ELECTRONICA_INSTRUMENTACION_Y_CONTROL);
 
-        assertEquals(Departamento.ElectronicaInstrumentacionYControl, d.getDepartamento());
+        assertEquals(Departamento.ELECTRONICA_INSTRUMENTACION_Y_CONTROL, d.getDepartamento());
     }
 }

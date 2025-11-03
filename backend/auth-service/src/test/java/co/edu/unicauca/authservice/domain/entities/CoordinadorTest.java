@@ -19,15 +19,15 @@ class CoordinadorTest {
                 "Marta",
                 "Ruiz",
                 "3170000003",
-                Programa.AutomaticaIndustrial,
+                Programa.AUTOMATICA_INDUSTRIAL,
                 u,
-                Programa.AutomaticaIndustrial
+                Programa.AUTOMATICA_INDUSTRIAL
         );
 
         assertEquals("COOR-001", c.getCodigo());
         assertEquals("Marta", c.getNombres());
         assertEquals("Ruiz", c.getApellidos());
-        assertEquals(Programa.AutomaticaIndustrial, c.getProgramaCoordinado());
+        assertEquals(Programa.AUTOMATICA_INDUSTRIAL, c.getProgramaCoordinado());
     }
 
     @Test
@@ -39,13 +39,13 @@ class CoordinadorTest {
                 "Marta",
                 "Ruiz",
                 "3170000003",
-                Programa.AutomaticaIndustrial,
+                Programa.AUTOMATICA_INDUSTRIAL,
                 u,
-                Programa.AutomaticaIndustrial
+                Programa.AUTOMATICA_INDUSTRIAL
         );
 
-        c.setProgramaCoordinado(Programa.IngenieriaDeSistemas);
+        c.setProgramaCoordinado(Programa.INGENIERIA_DE_SISTEMAS);
 
-        assertEquals(Programa.IngenieriaDeSistemas, c.getProgramaCoordinado());
+        assertEquals(Programa.INGENIERIA_DE_SISTEMAS, c.getProgramaCoordinado());
     }
 }

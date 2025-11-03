@@ -19,7 +19,7 @@ class EstudianteTest {
                 "Camila",
                 "López",
                 "3150000001",
-                Programa.IngenieriaDeSistemas,
+                Programa.INGENIERIA_DE_SISTEMAS,
                 u
         );
 
@@ -27,7 +27,7 @@ class EstudianteTest {
         assertEquals("Camila", est.getNombres());
         assertEquals("López", est.getApellidos());
         assertEquals("3150000001", est.getCelular());
-        assertEquals(Programa.IngenieriaDeSistemas, est.getPrograma());
+        assertEquals(Programa.INGENIERIA_DE_SISTEMAS, est.getPrograma());
         assertSame(u, est.getUsuario());
     }
 }

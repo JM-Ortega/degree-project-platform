@@ -25,7 +25,7 @@ class PersonaTest {
                 "Juan",
                 "Ortega",
                 "3150000000",
-                Programa.IngenieriaDeSistemas,
+                Programa.INGENIERIA_DE_SISTEMAS,
                 usuario
         );
 
@@ -33,7 +33,7 @@ class PersonaTest {
         assertEquals("Juan", p.getNombres());
         assertEquals("Ortega", p.getApellidos());
         assertEquals("3150000000", p.getCelular());
-        assertEquals(Programa.IngenieriaDeSistemas, p.getPrograma());
+        assertEquals(Programa.INGENIERIA_DE_SISTEMAS, p.getPrograma());
         assertSame(usuario, p.getUsuario());
     }
 }
