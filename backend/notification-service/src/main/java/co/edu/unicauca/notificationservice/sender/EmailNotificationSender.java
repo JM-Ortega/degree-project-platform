@@ -1,18 +1,20 @@
 package co.edu.unicauca.notificationservice.sender;
 
 import co.edu.unicauca.notificationservice.model.NotificationEvent;
-import co.edu.unicauca.notificationservice.service.NotificationService;
-import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-@RequiredArgsConstructor
+@Slf4j
 @Component
 public class EmailNotificationSender implements NotificationSender {
 
-    private final NotificationService notificationService;
-
     @Override
     public void send(NotificationEvent event) {
-        notificationService.processNotification(event);
+        log.info("""
+        ✉️  Enviando correo electrónico
+        ├── Para: {}
+        ├── Asunto: {}
+        └── Mensaje: {}
+        """, String.join(", ", event.getRecipientEmails()), event.getSubject(), event.getMessage());
     }
 }
