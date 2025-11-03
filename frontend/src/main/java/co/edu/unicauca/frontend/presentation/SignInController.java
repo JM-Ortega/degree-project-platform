@@ -22,7 +22,7 @@ public class SignInController {
     private PasswordField txtContrasena;
 
     @FXML
-    private ComboBox<String> cbRol;
+    private ComboBox<Rol> cbRol;
 
     @FXML
     private Label errCorreo;
@@ -42,8 +42,10 @@ public class SignInController {
     private void initialize() {
         this.authService = FrontendServices.authService();
 
-        for (Rol rol : Rol.values()) {
-            cbRol.getItems().add(rol.name());
+        // Configurar ComboBox con enums
+        if (cbRol != null) {
+            cbRol.getItems().addAll(Rol.values());
+            // JavaFX automáticamente usará toString() para mostrar los nombres legibles
         }
 
         clearAllErrors();
@@ -55,13 +57,18 @@ public class SignInController {
 
         String rawEmail = textOrEmpty(txtCorreo);
         String password = textOrEmpty(txtContrasena);
-        String rolTexto = cbRol.getValue();
+        Rol rolSeleccionado = cbRol.getValue(); // Directamente el enum
 
         // normalizar correo en el front
         String email = rawEmail.trim().toLowerCase();
 
-        // 1) validación en cliente
-        Map<String, String> localErrors = LoginValidator.validate(email, password, rolTexto);
+        // 1) validación en cliente - ENVIAR NOMBRE REAL DEL ENUM
+        Map<String, String> localErrors = LoginValidator.validate(
+            email,
+            password,
+            rolSeleccionado != null ? rolSeleccionado.name() : null // Envía "ESTUDIANTE", "DOCENTE"
+        );
+
         if (!localErrors.isEmpty()) {
             if (localErrors.containsKey("email")) {
                 showError(errCorreo, localErrors.get("email"));
@@ -75,12 +82,11 @@ public class SignInController {
             return;
         }
 
-        Rol rolEnum = mapearRol(rolTexto);
-
+        // DTO con el enum directamente - Jackson se encargará de serializarlo correctamente
         LoginRequestDto dto = new LoginRequestDto(
                 email,
                 password,
-                rolEnum
+                rolSeleccionado // Enum Rol.ESTUDIANTE, Rol.DOCENTE, etc.
         );
 
         // 2) llamada al servicio (valida en backend y guarda sesión si todo va bien)
@@ -109,7 +115,8 @@ public class SignInController {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Inicio de sesión");
         alert.setHeaderText(null);
-        alert.setContentText("Ingresando como " + session.nombres() + " (" + session.rolActivo() + ")");
+        alert.setContentText("Ingresando como " + session.nombres() + " (" +
+                           (session.rolActivo() != null ? session.rolActivo().toString() : "Sin rol") + ")");
         alert.showAndWait();
 
         // 4) navegar según el rol activo
@@ -136,19 +143,19 @@ public class SignInController {
         Rol rol = session.rolActivo();
 
         switch (rol) {
-            case Estudiante -> ViewNavigator.goTo(
-                    "/co/edu/unicauca/frontend/view/.fxml",
+            case ESTUDIANTE -> ViewNavigator.goTo(
+                    "/co/edu/unicauca/frontend/view/StudentDashboard.fxml",
                     "Panel del estudiante"
             );
-            case Docente -> ViewNavigator.goTo(
-                    "/co/edu/unicauca/frontend/view/.fxml",
+            case DOCENTE -> ViewNavigator.goTo(
+                    "/co/edu/unicauca/frontend/view/TeacherDashboard.fxml",
                     "Panel del docente"
             );
-            case Coordinador -> ViewNavigator.goTo(
-                    "/co/edu/unicauca/frontend/view/dashboard/.fxml",
+            case COORDINADOR -> ViewNavigator.goTo(
+                    "/co/edu/unicauca/frontend/view/CoordinatorDashboard.fxml",
                     "Panel del coordinador"
             );
-            case JefeDeDepartamento -> ViewNavigator.goTo(
+            case JEFE_DE_DEPARTAMENTO -> ViewNavigator.goTo(
                     "/co/edu/unicauca/frontend/view/DepartmentHead.fxml",
                     "Panel del jefe de departamento"
             );
@@ -171,14 +178,6 @@ public class SignInController {
     private String textOrEmpty(PasswordField field) {
         String t = field.getText();
         return t == null ? "" : t;
-    }
-
-    private Rol mapearRol(String textoRol) {
-        try {
-            return Rol.valueOf(textoRol);
-        } catch (Exception e) {
-            return Rol.Estudiante;
-        }
     }
 
     private void showError(Label label, String message) {

@@ -2,6 +2,9 @@ package co.edu.unicauca.frontend.presentation;
 
 import co.edu.unicauca.frontend.FrontendServices;
 import co.edu.unicauca.frontend.dto.RegistroPersonaDto;
+import co.edu.unicauca.frontend.entities.enums.Departamento;
+import co.edu.unicauca.frontend.entities.enums.Programa;
+import co.edu.unicauca.frontend.entities.enums.Rol;
 import co.edu.unicauca.frontend.infra.http.HttpClientException;
 import co.edu.unicauca.frontend.presentation.navigation.ViewNavigator;
 import co.edu.unicauca.frontend.services.auth.AuthServiceFront;
@@ -11,7 +14,10 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Controlador de la vista de registro de usuarios.
@@ -20,8 +26,6 @@ public class SignUpController {
 
     // ================= Campos del formulario =================
     private final ObjectMapper mapper = new ObjectMapper();
-    private final Map<String, String> programaMap = new HashMap<>();
-    private final Map<String, String> departamentoMap = new HashMap<>();
 
     @FXML
     private TextField txtNombres;
@@ -34,9 +38,9 @@ public class SignUpController {
     @FXML
     private TextField txtCelular;
     @FXML
-    private ComboBox<String> cbPrograma;
+    private ComboBox<Programa> cbPrograma;
     @FXML
-    private ComboBox<String> cbDepartamento;
+    private ComboBox<Departamento> cbDepartamento;
     @FXML
     private CheckBox chkEstudiante;
     @FXML
@@ -74,14 +78,12 @@ public class SignUpController {
 
         // Configurar programas
         if (cbPrograma != null) {
-            inicializarMapaProgramas();
-            cbPrograma.getItems().addAll(programaMap.keySet());
+            cbPrograma.getItems().addAll(Programa.values());
         }
 
         // Configurar departamentos
         if (cbDepartamento != null) {
-            inicializarMapaDepartamentos();
-            cbDepartamento.getItems().addAll(departamentoMap.keySet());
+            cbDepartamento.getItems().addAll(Departamento.values());
         }
 
         // Configurar visibilidad del departamento
@@ -92,40 +94,6 @@ public class SignUpController {
         }
 
         clearErrors();
-    }
-
-    /**
-     * Inicializa el mapa que relaciona nombres legibles con valores del enum Programa.
-     */
-    private void inicializarMapaProgramas() {
-        programaMap.put("Ingeniería de Sistemas", "IngenieriaDeSistemas");
-        programaMap.put("Ingeniería Electrónica y Telecomunicaciones", "IngenieriaElectronicaYTelecomunicaciones");
-        programaMap.put("Automatica Industrial", "AutomaticaIndustrial");
-        programaMap.put("Tecnología en Telemática", "TecnologiaEnTelematica");
-    }
-
-    /**
-     * Inicializa el mapa que relaciona nombres legibles con valores del enum Departamento.
-     */
-    private void inicializarMapaDepartamentos() {
-        departamentoMap.put("Sistemas", "Sistemas");
-        departamentoMap.put("Electrónica Instrumentación y Control", "ElectronicaInstrumentacionYControl");
-        departamentoMap.put("Telemática", "Telematica");
-        departamentoMap.put("Telecomunicaciones", "Telecomunicaciones");
-    }
-
-    /**
-     * Obtiene el valor del enum correspondiente al nombre legible seleccionado del programa.
-     */
-    private String obtenerValorEnumPrograma(String nombreLegible) {
-        return programaMap.get(nombreLegible);
-    }
-
-    /**
-     * Obtiene el valor del enum correspondiente al nombre legible seleccionado del departamento.
-     */
-    private String obtenerValorEnumDepartamento(String nombreLegible) {
-        return departamentoMap.get(nombreLegible);
     }
 
     /**
@@ -184,13 +152,13 @@ public class SignUpController {
         // Map para acumular errores
         Map<String, String> erroresFrontend = new LinkedHashMap<>();
 
-        // 1. Roles seleccionados
+        // 1. Roles seleccionados - ENVIAR NOMBRES REALES DE ENUM
         List<String> roles = new ArrayList<>();
         if (chkEstudiante != null && chkEstudiante.isSelected()) {
-            roles.add("Estudiante");
+            roles.add(Rol.ESTUDIANTE.name()); // Envía "ESTUDIANTE"
         }
         if (chkDocente != null && chkDocente.isSelected()) {
-            roles.add("Docente");
+            roles.add(Rol.DOCENTE.name()); // Envía "DOCENTE"
         }
 
         // Validar que haya al menos un rol seleccionado
@@ -198,27 +166,21 @@ public class SignUpController {
             erroresFrontend.put("roles", "Debe seleccionar al menos un rol");
         }
 
-        // 2. Validar programa
+        // 2. Validar programa - ENVIAR NOMBRE REAL DE ENUM
         String programaSeleccionado = null;
         if (cbPrograma != null && cbPrograma.getValue() != null) {
-            programaSeleccionado = obtenerValorEnumPrograma(cbPrograma.getValue());
-            if (programaSeleccionado == null) {
-                erroresFrontend.put("programa", "Programa académico no válido");
-            }
+            programaSeleccionado = cbPrograma.getValue().name(); // Envía "INGENIERIA_DE_SISTEMAS"
         } else {
             erroresFrontend.put("programa", "El programa académico es obligatorio");
         }
 
-        // 3. Validar departamento SOLO si es Docente
+        // 3. Validar departamento SOLO si es Docente - ENVIAR NOMBRE REAL DE ENUM
         String departamentoSeleccionado = null;
-        boolean esDocente = roles.contains("Docente");
+        boolean esDocente = roles.contains(Rol.DOCENTE.name()); // Busca "DOCENTE"
 
         if (esDocente) {
             if (cbDepartamento != null && cbDepartamento.getValue() != null) {
-                departamentoSeleccionado = obtenerValorEnumDepartamento(cbDepartamento.getValue());
-                if (departamentoSeleccionado == null) {
-                    erroresFrontend.put("departamento", "Departamento no válido");
-                }
+                departamentoSeleccionado = cbDepartamento.getValue().name(); // Envía "SISTEMAS"
             } else {
                 erroresFrontend.put("departamento", "El departamento es obligatorio para docentes");
             }
@@ -256,9 +218,9 @@ public class SignUpController {
                 val(txtUsuario).toLowerCase(),
                 val(txtPassword),
                 val(txtCelular),
-                programaSeleccionado,
-                roles,
-                departamentoSeleccionado
+                programaSeleccionado, // "INGENIERIA_DE_SISTEMAS"
+                roles,                // ["ESTUDIANTE", "DOCENTE"]
+                departamentoSeleccionado // "SISTEMAS"
         );
 
         try {
@@ -298,8 +260,7 @@ public class SignUpController {
         }
 
         try {
-            Map<String, String> errorMap = mapper.readValue(body, new TypeReference<Map<String, String>>() {
-            });
+            Map<String, String> errorMap = mapper.readValue(body, new TypeReference<Map<String, String>>() {});
             boolean mappedToField = false;
 
             for (Map.Entry<String, String> entry : errorMap.entrySet()) {
