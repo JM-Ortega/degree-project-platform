@@ -15,27 +15,17 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitConfig {
 
-    // ======================================================
-    //  Exchanges (cargados desde application.yml)
-    // ======================================================
     @Value("${messaging.exchange.main}")
     private String mainExchangeName;
 
     @Value("${messaging.exchange.dlx}")
     private String dlxExchangeName;
 
-    // ======================================================
-    //  Queues (colas principales y DLQ)
-    // ======================================================
     @Value("${messaging.queues.department}")
     private String departmentQueueName;
 
     @Value("${messaging.queues.departmentDlq}")
     private String departmentDlqName;
-
-    // ======================================================
-    //  EXCHANGES
-    // ======================================================
 
     @Bean
     public TopicExchange mainExchange() {
@@ -52,10 +42,6 @@ public class RabbitConfig {
                 .durable(true)
                 .build();
     }
-
-    // ======================================================
-    //  QUEUES
-    // ======================================================
 
     @Bean
     public Queue departmentQueue() {
@@ -74,39 +60,43 @@ public class RabbitConfig {
     }
 
     // ======================================================
-    //  BINDINGS
+    //  BINDINGS CORREGIDOS
     // ======================================================
 
-    // Binding para escuchar el evento de creación de usuarios (docentes)
+    /**
+     * Binding para escuchar eventos de creación de usuarios
+     * Filtra docentes en el listener correspondiente
+     */
     @Bean
     public Binding userCreatedBinding() {
         return BindingBuilder
                 .bind(departmentQueue())
                 .to(mainExchange())
-                .with("auth.user.created"); // Escuchar el evento de usuario creado
+                .with("auth.user.created");
     }
 
-    // Binding para escuchar el evento de creación de anteproyectos
+    /**
+     * Binding para escuchar eventos de creación de anteproyectos sin evaluadores
+     * Corregido: usa "project.created" en lugar de "department.anteproyecto.created"
+     */
     @Bean
-    public Binding anteproyectoCreatedBinding() {
+    public Binding anteproyectoSinEvaluadoresBinding() {
         return BindingBuilder
                 .bind(departmentQueue())
                 .to(mainExchange())
-                .with("department.anteproyecto.created"); // Escuchar el evento de anteproyecto creado sin evaluadores
+                .with("project.created");
     }
 
-    // Binding para escuchar eventos de Aprobación de Anteproyecto
+    /**
+     * Binding para la Dead Letter Queue
+     */
     @Bean
-    public Binding proposalApprovedByDeptHeadBinding() {
+    public Binding departmentDlqBinding() {
         return BindingBuilder
-                .bind(departmentQueue())
-                .to(mainExchange())
-                .with("department.proposal.approved"); // Clave de enrutamiento para Aprobación de Anteproyecto
+                .bind(departmentDlq())
+                .to(dlxExchange())
+                .with(departmentDlqName);
     }
-
-    // ======================================================
-    //  CONVERTER + RABBIT TEMPLATE
-    // ======================================================
 
     @Bean
     public Jackson2JsonMessageConverter jackson2JsonMessageConverter(com.fasterxml.jackson.databind.ObjectMapper mapper) {
@@ -123,4 +113,3 @@ public class RabbitConfig {
         return template;
     }
 }
-
