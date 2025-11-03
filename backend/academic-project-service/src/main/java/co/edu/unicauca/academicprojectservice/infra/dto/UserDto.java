@@ -1,4 +1,7 @@
-package co.edu.unicauca.academicprojectservice.infra.dto;
+package co.edu.unicauca.academicprojectservice.infra.dtoInterno;
+
+import co.edu.unicauca.academicprojectservice.Entity.Departamento;
+import co.edu.unicauca.academicprojectservice.Entity.Programa;
 
 public class UserDto {
     private String nombres;
@@ -6,14 +9,27 @@ public class UserDto {
     private String correo;
     private String celular;
     private String Rol;
-    private String departamento;
-    private String programa;
+    private Departamento departamento;
+    private Programa programa;
     private String codigo;
 
     public UserDto() {}
 
-    public String getPrograma() {return programa;}
-    public void setPrograma(String programa) {this.programa = programa;}
+    public void setDepartamento(Departamento departamento) {
+        this.departamento = departamento;
+    }
+
+    public Departamento getDepartamento() {
+        return departamento;
+    }
+
+    public Programa getPrograma() {
+        return programa;
+    }
+
+    public void setPrograma(Programa programa) {
+        this.programa = programa;
+    }
 
     public String getApellidos() {return apellidos;}
     public void setApellidos(String apellidos) {this.apellidos = apellidos;}
@@ -23,9 +39,6 @@ public class UserDto {
 
     public String getCodigo() {return codigo;}
     public void setCodigo(String codigo) {this.codigo = codigo;}
-
-    public String getDepartamento() {return departamento;}
-    public void setDepartamento(String departamento) {this.departamento = departamento;}
 
     public String getCorreo() {return correo;}
     public void setCorreo(String correo) {this.correo = correo;}
