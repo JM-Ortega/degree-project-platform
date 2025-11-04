@@ -109,7 +109,6 @@ public class ProyectoService {
         List<EstudianteDTOSend> estudiantes = new ArrayList<>();
         EstudianteDTOSend estDto = new EstudianteDTOSend();
         estDto.setId(proyectoGuardado.getEstudiantes().get(0).getId());
-        estDto.setCodigo(estudiante.getCodigoEstudiante());
         estDto.setPrograma(estudiante.getPrograma());
         estDto.setEmail(estudiante.getCorreo());
         estDto.setNombres(estudiante.getNombres());
@@ -249,7 +248,6 @@ public class ProyectoService {
         for (Estudiante est : proyectoGuardado.getEstudiantes()) {
             EstudianteDTOSend estDto = new EstudianteDTOSend();
             estDto.setId(est.getId());
-            estDto.setCodigo(est.getCodigoEstudiante());
             estDto.setPrograma(est.getPrograma());
             estDto.setEmail(est.getCorreo());
             estDto.setNombres(est.getNombres());
@@ -357,7 +355,6 @@ public class ProyectoService {
             estDto.setNombres(e.getNombres());
             estDto.setApellidos(e.getApellidos());
             estDto.setCelular(e.getCelular());
-            estDto.setCodigo(e.getCodigoEstudiante());
             estDto.setPrograma(e.getPrograma());
             estDto.setEmail(e.getCorreo());
             estudiantes.add(estDto);

@@ -1,6 +1,6 @@
 package co.edu.unicauca.academicprojectservice.infra.DTOs;
 
-import co.edu.unicauca.academicprojectservice.Entity.Programa;
+import co.edu.unicauca.shared.contracts.model.Programa;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

@@ -2,7 +2,7 @@ package co.edu.unicauca.academicprojectservice.Service;
 
 import co.edu.unicauca.academicprojectservice.Entity.EstadoFormatoA;
 import co.edu.unicauca.academicprojectservice.Entity.Estudiante;
-import co.edu.unicauca.academicprojectservice.Entity.Programa;
+import co.edu.unicauca.shared.contracts.model.Programa;
 import co.edu.unicauca.academicprojectservice.Entity.Proyecto;
 import co.edu.unicauca.academicprojectservice.Repository.EstudianteRepository;
 import co.edu.unicauca.academicprojectservice.Repository.FormatoARepository;
@@ -27,7 +27,6 @@ public class EstudianteService {
                 e.getNombres(),
                 e.getApellidos(),
                 e.getCelular(),
-                e.getCodigoEstudiante(),
                 e.getCorreo(),
                 e.getPrograma() != null ? e.getPrograma().toString() : ""
         );
@@ -39,7 +38,6 @@ public class EstudianteService {
         e.setApellidos(dto.getApellidos());
         e.setCelular(dto.getCelular());
         e.setCorreo(dto.getCorreo());
-        e.setCodigoEstudiante(dto.getCodigo());
 
         String progStr = dto.getPrograma().toUpperCase().replace(" ", "_");
         try {

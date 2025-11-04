@@ -1,5 +1,6 @@
 package co.edu.unicauca.academicprojectservice.Entity;
 
+import co.edu.unicauca.shared.contracts.model.Programa;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -15,8 +16,6 @@ public class Estudiante {
     private String apellidos;
     private String celular;
     private String correo;
-    @Column(length = 30, nullable = false, unique = true)
-    private String codigoEstudiante;
     @Enumerated(EnumType.STRING)
     private Programa programa;
 
@@ -38,14 +37,6 @@ public class Estudiante {
 
     public void setCelular(String celular) {
         this.celular = celular;
-    }
-
-    public String getCodigoEstudiante() {
-        return codigoEstudiante;
-    }
-
-    public void setCodigoEstudiante(String codigoEstudiante) {
-        this.codigoEstudiante = codigoEstudiante;
     }
 
     public String getCorreo() {

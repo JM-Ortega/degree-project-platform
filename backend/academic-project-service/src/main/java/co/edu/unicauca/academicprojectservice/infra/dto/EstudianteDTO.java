@@ -6,15 +6,14 @@ public class EstudianteDTO {
     private String apellidos;
     private String celular;
     private String correo;
-    private String codigo;
     private String programa;
 
     public EstudianteDTO() {}
 
-    public EstudianteDTO(String apellidos, String celular, String codigo, String correo, String nombres, String programa) {
+    public EstudianteDTO(String apellidos, String celular, String correo, String nombres, String programa) {
         this.apellidos = apellidos;
         this.celular = celular;
-        this.codigo = codigo;
+
         this.correo = correo;
         this.nombres = nombres;
         this.programa = programa;
@@ -32,8 +31,6 @@ public class EstudianteDTO {
     public String getCorreo() { return correo; }
     public void setCorreo(String correo) { this.correo = correo; }
 
-    public String getCodigo() { return codigo; }
-    public void setCodigo(String codigo) { this.codigo = codigo; }
 
     public String getPrograma() { return programa; }
     public void setPrograma(String programa) { this.programa = programa; }
