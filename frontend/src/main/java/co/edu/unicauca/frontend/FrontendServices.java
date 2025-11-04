@@ -3,6 +3,9 @@ package co.edu.unicauca.frontend;
 import co.edu.unicauca.frontend.infra.http.HttpAuthApi;
 import co.edu.unicauca.frontend.infra.http.HttpDepartmentHeadApi;
 import co.edu.unicauca.frontend.infra.config.AppConfig;
+import co.edu.unicauca.frontend.services.DocenteService;
+import co.edu.unicauca.frontend.services.EstudianteService;
+import co.edu.unicauca.frontend.services.ProyectoService;
 import co.edu.unicauca.frontend.services.auth.AuthApi;
 import co.edu.unicauca.frontend.services.auth.AuthServiceFront;
 import co.edu.unicauca.frontend.services.departmenthead.DepartmentHeadServiceFront;
@@ -21,6 +24,10 @@ public final class FrontendServices {
     // 👉 nuevos servicios expuestos
     private static CoordinadorClient coordinadorClient;
     private static FormatoService formatoService;
+
+    private static DocenteService docenteService;
+    private static EstudianteService estudianteService;
+    private static ProyectoService proyectoService;
 
     private FrontendServices() { }
 
@@ -47,6 +54,10 @@ public final class FrontendServices {
         coordinadorClient = new CoordinadorClient();
         formatoService = new FormatoService();
 
+        docenteService = new DocenteService();
+        estudianteService = new EstudianteService();
+        proyectoService = new ProyectoService(docenteService, estudianteService);
+
         System.out.println("[INFO] Servicios del frontend inicializados correctamente con base URL: " + baseUrl);
         System.out.println("[INFO] Endpoint sin-evaluadores: " + sinEvaluadores);
         System.out.println("[INFO] Endpoint buscar: " + buscar);
@@ -71,5 +82,20 @@ public final class FrontendServices {
     public static FormatoService formatoService() {
         if (formatoService == null) throw new IllegalStateException("FrontendServices no ha sido inicializado.");
         return formatoService;
+    }
+
+    public static DocenteService docenteService() {
+        if (docenteService == null) throw new IllegalStateException("FrontendServices no ha sido inicializado.");
+        return docenteService;
+    }
+
+    public static EstudianteService estudianteService() {
+        if (estudianteService == null) throw new IllegalStateException("FrontendServices no ha sido inicializado.");
+        return estudianteService;
+    }
+
+    public static ProyectoService proyectoService() {
+        if (proyectoService == null) throw new IllegalStateException("FrontendServices no ha sido inicializado.");
+        return proyectoService;
     }
 }

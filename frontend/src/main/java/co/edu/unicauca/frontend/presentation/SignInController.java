@@ -64,9 +64,9 @@ public class SignInController {
 
         // 1) validación en cliente - ENVIAR NOMBRE REAL DEL ENUM
         Map<String, String> localErrors = LoginValidator.validate(
-            email,
-            password,
-            rolSeleccionado != null ? rolSeleccionado.name() : null // Envía "ESTUDIANTE", "DOCENTE"
+                email,
+                password,
+                rolSeleccionado != null ? rolSeleccionado.name() : null // Envía "ESTUDIANTE", "DOCENTE"
         );
 
         if (!localErrors.isEmpty()) {
@@ -116,7 +116,7 @@ public class SignInController {
         alert.setTitle("Inicio de sesión");
         alert.setHeaderText(null);
         alert.setContentText("Ingresando como " + session.nombres() + " (" +
-                           (session.rolActivo() != null ? session.rolActivo().toString() : "Sin rol") + ")");
+                (session.rolActivo() != null ? session.rolActivo().toString() : "Sin rol") + ")");
         alert.showAndWait();
 
         // 4) navegar según el rol activo
@@ -144,11 +144,11 @@ public class SignInController {
 
         switch (rol) {
             case ESTUDIANTE -> ViewNavigator.goTo(
-                    "/co/edu/unicauca/frontend/view/StudentDashboard.fxml",
+                    "/co/edu/unicauca/frontend/view/Estudiante.fxml",
                     "Panel del estudiante"
             );
             case DOCENTE -> ViewNavigator.goTo(
-                    "/co/edu/unicauca/frontend/view/TeacherDashboard.fxml",
+                    "/co/edu/unicauca/frontend/view/Docente.fxml",
                     "Panel del docente"
             );
             case COORDINADOR -> ViewNavigator.goTo(

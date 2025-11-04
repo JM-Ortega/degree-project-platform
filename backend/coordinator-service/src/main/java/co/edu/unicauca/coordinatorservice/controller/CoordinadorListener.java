@@ -2,9 +2,11 @@ package co.edu.unicauca.coordinatorservice.controller;
 
 import co.edu.unicauca.coordinatorservice.entity.Coordinador;
 import co.edu.unicauca.coordinatorservice.infra.DTOS.Programa;
-import co.edu.unicauca.coordinatorservice.infra.DTOS.CoordinadorDTO;
+import co.edu.unicauca.shared.contracts.model.Rol;
 import co.edu.unicauca.coordinatorservice.repository.CoordinadorRepository;
+import co.edu.unicauca.shared.contracts.events.auth.UserCreatedEvent;
 import jakarta.transaction.Transactional;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 import java.util.Optional;
 
@@ -16,24 +18,31 @@ public class CoordinadorListener {
         this.coordinadorRepository = coordinadorRepository;
     }
 
-    //@RabbitListener(queues = "${messaging.queues.project}")
+    @RabbitListener(queues = "${messaging.queues.auth}")
     @Transactional
-    public void recibirCoordinador(CoordinadorDTO dto) {
-        System.out.println("📩 [RabbitMQ] Mensaje recibido en CoordinatorService: " + dto.getNombres());
+    public void recibirCoordinador(UserCreatedEvent dto) {
+        // Verifica si el usuario tiene el rol COORDINADOR
+        boolean esCoordinador = dto.roles().stream()
+                .anyMatch(r -> r.toString().equalsIgnoreCase("COORDINADOR"));
 
-        // Buscar si ya existe el coordinador en la base de datos local
-        Optional<Coordinador> existingFormato = coordinadorRepository.findByCorreo(dto.getEmail());
+        if (!esCoordinador) {
+            // Ignorar si no es coordinador
+            return;
+        }
 
-        Coordinador coordinador = existingFormato.orElse(new Coordinador());
+        System.out.println("📩 [RabbitMQ] Mensaje recibido en CoordinatorService: " + dto.nombre());
 
-        coordinador.setCodigo(dto.getCodigo());
-        coordinador.setNombres(dto.getNombres());
-        coordinador.setApellidos(dto.getApellidos());
-        coordinador.setCorreo(dto.getEmail());
-        coordinador.setPrograma(Programa.valueOf(dto.getPrograma().toString()));
+        // Buscar si ya existe el coordinador
+        Optional<Coordinador> existente = coordinadorRepository.findByCorreo(dto.email());
+        Coordinador coordinador = existente.orElse(new Coordinador());
+
+        // Asignar campos
+        coordinador.setNombres(dto.nombre());
+        coordinador.setCorreo(dto.email());
+        coordinador.setPrograma(Programa.valueOf(dto.programa().toString()));
 
         coordinadorRepository.save(coordinador);
-        System.out.println("[CoordinatorService] Coordinador guardado/actualizado correctamente, nombre: " + coordinador.getNombres() + " " + coordinador.getApellidos());
-    }
 
+        System.out.println("[CoordinatorService] Coordinador guardado/actualizado correctamente: " + coordinador.getNombres());
+    }
 }
