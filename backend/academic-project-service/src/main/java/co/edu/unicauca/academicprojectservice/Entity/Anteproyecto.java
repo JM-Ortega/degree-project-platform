@@ -15,6 +15,8 @@ public class Anteproyecto {
     private String descripcion;
     private String titulo;
     private byte[] blob;
+
+    @Column(name = "fecha_creacion")
     private LocalDate fechaCreacion;
 
     @ManyToMany

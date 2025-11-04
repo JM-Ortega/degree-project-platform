@@ -73,7 +73,20 @@ public class CoordinadorController implements Initializable {
             }
 
             CoordinadorResumen info = mapper.readValue(json, CoordinadorResumen.class);
-            lblPrograma.setText(info.getPrograma()); // solo actualiza el programa
+            String programa;
+            switch (info.getPrograma()) {
+                case "INGENIERIA_DE_SISTEMAS":
+                    programa = "Ingenieria de Sistemas";
+                case "INGENIERIA_ELECTRONICA_Y_TELECOMUNICACIONES":
+                    programa = "Ingenieria Electronica y Telecomunicaciones";
+                case "AUTOMATICA_INDUSTRIAL":
+                    programa = "Automatica Industrial";
+                case "TECNOLOGIA_EN_TELEMATICA":
+                    programa = "Tecnologia En Telematica";
+                default:
+                    programa = "Unknown";
+            }
+            lblPrograma.setText(programa); // solo actualiza el programa
 
         } catch (Exception e) {
             e.printStackTrace();

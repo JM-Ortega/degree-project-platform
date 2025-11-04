@@ -144,7 +144,7 @@ public class SignInController {
 
         switch (rol) {
             case ESTUDIANTE -> ViewNavigator.goTo(
-                    "/co/edu/unicauca/frontend/view/StudentDashboard.fxml",
+                    "/co/edu/unicauca/frontend/view/Estudiante.fxml",
                     "Panel del estudiante"
             );
             case DOCENTE -> ViewNavigator.goTo(
