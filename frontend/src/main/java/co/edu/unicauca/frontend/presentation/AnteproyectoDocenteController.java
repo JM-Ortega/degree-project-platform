@@ -2,14 +2,14 @@ package co.edu.unicauca.frontend.presentation;
 
 import co.edu.unicauca.frontend.FrontendServices;
 import co.edu.unicauca.frontend.dto.SessionInfo;
-import co.edu.unicauca.frontend.entities.*;
 import co.edu.unicauca.frontend.infra.dto.AnteproyectoDTO;
-import co.edu.unicauca.frontend.infra.dto.UsuarioDTO;
 import co.edu.unicauca.frontend.infra.session.SessionManager;
 import co.edu.unicauca.frontend.services.DocenteService;
 import co.edu.unicauca.frontend.services.EstudianteService;
 import co.edu.unicauca.frontend.services.ProyectoService;
-import javafx.beans.property.*;
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -23,7 +23,6 @@ import java.io.File;
 import java.net.URL;
 import java.nio.file.Files;
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -227,7 +226,15 @@ public class AnteproyectoDocenteController implements Initializable {
             if (isBlank(a.getTitulo()) || isBlank(a.getDescripcion()))
                 throw new IllegalArgumentException("Título y descripcion son obligatorios");
 
+            // 🔹 Log en consola antes de la llamada
+            System.out.println("[CrearAnteproyecto] Enviando anteproyecto: "
+                    + a.getTitulo() + " del estudiante " + a.getEstudianteCorreo());
+
             estudianteService.setAntepAProyectoEst(a);
+
+            // 🔹 Log en consola después de la llamada
+            System.out.println("[CrearAnteproyecto] ✔ Llamada a setAntepAProyectoEst() ejecutada correctamente.");
+
 
             setOk(lblNuevoAnteproyectoMsg, "Proyecto creado correctamente.");
             limpiarNuevoAnteproyecto();
