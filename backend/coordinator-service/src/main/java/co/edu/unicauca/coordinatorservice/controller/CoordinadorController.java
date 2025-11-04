@@ -21,6 +21,6 @@ public class CoordinadorController {
     public CoordinadorResumenDTO getCoordinadorInfo(@PathVariable String correo) {
         Coordinador c = coordinadorRepository.findByCorreo(correo)
                 .orElseThrow(() -> new RuntimeException("No encontrado"));
-        return new CoordinadorResumenDTO(c.getNombres() + " " + c.getApellidos(), c.getPrograma().toString(), c.getCorreo());
+        return new CoordinadorResumenDTO(c.getNombres() , c.getPrograma().toString(), c.getCorreo());
     }
 }

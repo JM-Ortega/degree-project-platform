@@ -10,6 +10,7 @@ import co.edu.unicauca.coordinatorservice.repository.DocenteRepository;
 import co.edu.unicauca.coordinatorservice.repository.EstudianteRepository;
 import co.edu.unicauca.coordinatorservice.repository.FormatoARepository;
 import jakarta.transaction.Transactional;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +35,7 @@ public class FormatoAListener {
      * Estos mensajes llegan desde el microservicio de la fuente de la verdad
      * cuando se crea o actualiza un FormatoA o un Proyecto.
      */
-    //@RabbitListener(queues = "${messaging.queues.project}")
+    @RabbitListener(queues = "${messaging.queues.project}")
     @Transactional
     public void handleFormatoAEvent(FormatoADTO dto) {
         System.out.println("📩 [RabbitMQ] Mensaje recibido en CoordinatorService: " + dto.getNombreFormatoA());
