@@ -111,6 +111,15 @@
                 </children>
             </VBox>
 
+            <!-- DEPARTAMENTO (aparece solo cuando se selecciona Docente) -->
+            <Label fx:id="lblDepartamento" styleClass="label-title" text="SELECCIONE SU DEPARTAMENTO" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+            <VBox fx:id="vboxDepartamento" fillWidth="true" spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="8">
+                <children>
+                    <ComboBox fx:id="cbDepartamento" maxWidth="Infinity" promptText="Seleccione departamento..." />
+                    <Label fx:id="errDepartamento" maxWidth="Infinity" styleClass="error error-hidden wrap" text=" " wrapText="true" />
+                </children>
+            </VBox>
+
             <!-- BOTÓN REGISTRARSE -->
             <Button maxWidth="220" onAction="#handleRegister" styleClass="primary" text="Registrarse" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="9" />
 

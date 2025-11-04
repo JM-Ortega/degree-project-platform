@@ -1,8 +1,8 @@
 package co.edu.unicauca.shared.contracts.model;
 
 public enum Programa {
-    IngenieriaDeSistemas,
-    IngenieriaElectronicaYTelecomunicaciones,
-    AutomaticaIndustrial,
-    TecnologiaEnTelematica
+    INGENIERIA_DE_SISTEMAS,
+    INGENIERIA_ELECTRONICA_Y_TELECOMUNICACIONES,
+    AUTOMATICA_INDUSTRIAL,
+    TECNOLOGIA_EN_TELEMATICA
 }

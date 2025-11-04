@@ -1,7 +1,6 @@
 package co.edu.unicauca.frontend.presentation.navigation;
 
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.layout.Pane;
 
@@ -84,4 +83,32 @@ public final class ViewLoader {
         Parent view = load(fxmlPath);
         container.getChildren().setAll(view);
     }
+    public static <T> T loadIntoWithController(Pane container, String fxmlPath) {
+        try {
+            URL url = Objects.requireNonNull(
+                    ViewLoader.class.getResource(fxmlPath),
+                    () -> "No se encontró el archivo FXML: " + fxmlPath
+            );
+            FXMLLoader loader = new FXMLLoader(url);
+            Parent root = loader.load();
+
+            // Normaliza estilos relativos -> absolutos (igual que tu load())
+            if (!root.getStylesheets().isEmpty()) {
+                for (int i = 0; i < root.getStylesheets().size(); i++) {
+                    String s = root.getStylesheets().get(i);
+                    if (!s.startsWith("file:") && !s.startsWith("jar:") &&
+                            !s.startsWith("http:") && !s.startsWith("https:")) {
+                        URL cssUrl = ViewLoader.class.getResource(s);
+                        if (cssUrl != null) root.getStylesheets().set(i, cssUrl.toExternalForm());
+                    }
+                }
+            }
+
+            container.getChildren().setAll(root);
+            return (T) loader.getController();
+        } catch (IOException e) {
+            throw new RuntimeException("Error al cargar subvista (con controller): " + fxmlPath, e);
+        }
+    }
+
 }

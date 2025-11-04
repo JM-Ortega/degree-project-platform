@@ -4,25 +4,22 @@ import co.edu.unicauca.authservice.access.PersonaRepository;
 import co.edu.unicauca.authservice.access.UsuarioRepository;
 import co.edu.unicauca.authservice.domain.entities.Persona;
 import co.edu.unicauca.authservice.domain.entities.Usuario;
+import co.edu.unicauca.authservice.dto.RegistroPersonaDto;
 import co.edu.unicauca.authservice.infra.messaging.NotificationPublisher;
 import co.edu.unicauca.authservice.infra.messaging.UserEventsPublisher;
 import co.edu.unicauca.authservice.services.CodigoPersonaGenerator;
 import co.edu.unicauca.authservice.services.PasswordHasher;
 import co.edu.unicauca.authservice.services.PersonaFactory;
 import co.edu.unicauca.shared.contracts.events.auth.UserCreatedEvent;
-import co.edu.unicauca.shared.contracts.events.notification.SendEmailEvent;
 import co.edu.unicauca.shared.contracts.model.Departamento;
 import co.edu.unicauca.shared.contracts.model.Programa;
 import co.edu.unicauca.shared.contracts.model.Rol;
-import co.edu.unicauca.authservice.dto.RegistroPersonaDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Cargador de datos de ejemplo para el microservicio de autenticación.
@@ -87,9 +84,9 @@ public class AuthDataLoader implements CommandLineRunner {
                 "estudiante.demo@unicauca.edu.co",
                 "Camila",
                 "López",
-                Programa.IngenieriaDeSistemas,
+                Programa.INGENIERIA_DE_SISTEMAS,
                 null,
-                List.of(Rol.Estudiante),
+                List.of(Rol.ESTUDIANTE),
                 passwordPlano
         );
 
@@ -98,9 +95,9 @@ public class AuthDataLoader implements CommandLineRunner {
                 "docente.demo@unicauca.edu.co",
                 "Andrés",
                 "García",
-                Programa.IngenieriaDeSistemas,
-                Departamento.Sistemas,
-                List.of(Rol.Docente),
+                Programa.INGENIERIA_DE_SISTEMAS,
+                Departamento.SISTEMAS,
+                List.of(Rol.DOCENTE),
                 passwordPlano
         );
 
@@ -109,9 +106,9 @@ public class AuthDataLoader implements CommandLineRunner {
                 "coordinador.demo@unicauca.edu.co",
                 "María",
                 "Pérez",
-                Programa.IngenieriaDeSistemas,   // también será su programa coordinado
+                Programa.INGENIERIA_DE_SISTEMAS,   // también será su programa coordinado
                 null,
-                List.of(Rol.Coordinador),
+                List.of(Rol.COORDINADOR),
                 passwordPlano
         );
 
@@ -120,9 +117,9 @@ public class AuthDataLoader implements CommandLineRunner {
                 "jefe.demo@unicauca.edu.co",
                 "Jorge",
                 "Ramírez",
-                Programa.IngenieriaElectronicaYTelecomunicaciones,
-                Departamento.Sistemas,
-                List.of(Rol.JefeDeDepartamento),
+                Programa.INGENIERIA_ELECTRONICA_Y_TELECOMUNICACIONES,
+                Departamento.SISTEMAS,
+                List.of(Rol.JEFE_DE_DEPARTAMENTO),
                 passwordPlano
         );
 
@@ -131,13 +128,13 @@ public class AuthDataLoader implements CommandLineRunner {
                 "multi.demo@unicauca.edu.co",
                 "Laura",
                 "Hernández",
-                Programa.IngenieriaDeSistemas,
-                Departamento.Sistemas,
+                Programa.INGENIERIA_DE_SISTEMAS,
+                Departamento.SISTEMAS,
                 List.of(
-                        Rol.Estudiante,
-                        Rol.Docente,
-                        Rol.Coordinador,
-                        Rol.JefeDeDepartamento
+                        Rol.ESTUDIANTE,
+                        Rol.DOCENTE,
+                        Rol.COORDINADOR,
+                        Rol.JEFE_DE_DEPARTAMENTO
                 ),
                 passwordPlano
         );
@@ -218,13 +215,12 @@ public class AuthDataLoader implements CommandLineRunner {
      */
     private void publicarEventos(Persona persona, Usuario usuario) {
         try {
+            // 1) Evento funcional: user.created
             UserCreatedEvent userEvent = new UserCreatedEvent(
                     persona.getId(),
                     persona.getNombres() + " " + persona.getApellidos(),
                     usuario.getEmail(),
                     persona.getPrograma(),
-                    // si la persona es Docente/Jefe, el método de AuthService
-                    // saca el departamento. Aquí podemos leerlo directo con pattern matching
                     switch (persona) {
                         case co.edu.unicauca.authservice.domain.entities.Docente d -> d.getDepartamento();
                         case co.edu.unicauca.authservice.domain.entities.JefeDeDepartamento j -> j.getDepartamento();
@@ -234,19 +230,24 @@ public class AuthDataLoader implements CommandLineRunner {
             );
             userEventsPublisher.publishUserCreatedEvent(userEvent);
 
-            SendEmailEvent emailEvent = new SendEmailEvent(
-                    "noreply@unicauca.edu.co",
-                    List.of(usuario.getEmail()),
-                    "Bienvenido a la plataforma",
-                    "user.created",
-                    "Tu cuenta ha sido creada correctamente.",
-                    Map.of("nombre", persona.getNombres())
+            // 2) Evento de notificación (nuevo contrato)
+            // type define la cola lógica de notificación: "notification.send.auth.user.created"
+            String type = "auth.user.created";
+            String subject = "Bienvenido a la plataforma";
+            String message = "Tu cuenta ha sido creada correctamente.";
+
+            notificationPublisher.publishNotification(
+                    type,
+                    List.of(usuario.getEmail()), // toEmails
+                    List.of(),                    // toPhones (vacío si no SMS)
+                    subject,
+                    message
             );
-            notificationPublisher.publishEmail(emailEvent);
 
             log.info("Eventos publicados correctamente para usuario {}", usuario.getEmail());
         } catch (Exception e) {
-            log.error("Error al publicar eventos para {}: {}", usuario.getEmail(), e.getMessage());
+            log.error("Error al publicar eventos para {}: {}", usuario.getEmail(), e.getMessage(), e);
         }
     }
 }
+

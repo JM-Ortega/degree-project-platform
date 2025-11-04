@@ -22,7 +22,7 @@ import java.util.List;
  *
  * <p>
  * Para registros públicos solo deberían enviarse roles
- * {@link Rol#Estudiante} o {@link Rol#Docente}. Los roles de mayor
+ * {@link Rol#ESTUDIANTE} o {@link Rol#DOCENTE}. Los roles de mayor
  * privilegio (Coordinador, JefeDeDepartamento) deben ser creados
  * desde un endpoint administrativo.
  * </p>

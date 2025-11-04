@@ -22,4 +22,4 @@ public record UserCreatedEvent(
         Programa programa,           // Programa académico al que pertenece
         Departamento departamento,   // Departamento (puede ser null)
         List<Rol> roles              // Roles asignados al usuario
-) { }
+) {}
