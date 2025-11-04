@@ -1,78 +1,121 @@
 package co.edu.unicauca.academicprojectservice.Controller;
 
+import co.edu.unicauca.academicprojectservice.Entity.Coordinador;
 import co.edu.unicauca.academicprojectservice.Entity.Docente;
 import co.edu.unicauca.academicprojectservice.Entity.Estudiante;
+import co.edu.unicauca.academicprojectservice.Entity.JefeDeDepartamento;
+import co.edu.unicauca.academicprojectservice.Repository.CoordinadorRepository;
 import co.edu.unicauca.academicprojectservice.Repository.DocenteRepository;
 import co.edu.unicauca.academicprojectservice.Repository.EstudianteRepository;
-import co.edu.unicauca.academicprojectservice.infra.dto.UserDto;
+import co.edu.unicauca.academicprojectservice.Repository.JefeDeDepartamentoRepository;
+import co.edu.unicauca.shared.contracts.events.auth.UserCreatedEvent;
+import co.edu.unicauca.shared.contracts.model.Rol;
+import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
+/**
+ * Escucha los eventos de creación de usuario y sincroniza la información
+ * en el microservicio de proyectos académicos.
+ */
+@Component
 public class UsuarioListener {
+
     private final DocenteRepository docenteRepository;
     private final EstudianteRepository estudianteRepository;
+    private final CoordinadorRepository coordinadorRepository;
+    private final JefeDeDepartamentoRepository jefeDeDepartamentoRepository;
 
-    public UsuarioListener(DocenteRepository docenteRepository, EstudianteRepository estudianteRepository) {
+    public UsuarioListener(DocenteRepository docenteRepository,
+                           EstudianteRepository estudianteRepository,
+                           CoordinadorRepository coordinadorRepository,
+                           JefeDeDepartamentoRepository jefeDeDepartamentoRepository) {
         this.docenteRepository = docenteRepository;
         this.estudianteRepository = estudianteRepository;
+        this.coordinadorRepository = coordinadorRepository;
+        this.jefeDeDepartamentoRepository = jefeDeDepartamentoRepository;
     }
 
     /**
-     * Escucha los mensajes enviados cuando se crea o actualiza un usuario en otro microservicio.
-     * Se determina si es Docente o Estudiante según el campo "rol" del DTO.
+     * Consume el evento compartido de creación de usuario y realiza la
+     * actualización correspondiente según el rol del usuario.
      */
-    //@RabbitListener(queues = "${messaging.queues.project}")
+    @RabbitListener(queues = "${messaging.queues.project}")
     @Transactional
-    public void recibirUsuario(UserDto dto) {
-        System.out.println("[RabbitMQ] Mensaje recibido en UserListener: " + dto.getCorreo());
+    public void onUserCreated(UserCreatedEvent evt) {
+        try {
+            if (evt == null) return;
 
-        if (dto.getRol() == null) {
-            System.err.println("Rol no especificado en el mensaje recibido. No se puede procesar.");
-            return;
-        }
+            final String email = evt.email() == null ? null : evt.email().trim().toLowerCase();
+            if (email == null || email.isBlank()) return;
 
-        String rol = dto.getRol().trim().toUpperCase();
+            final List<Rol> roles = evt.roles();
+            if (roles == null || roles.isEmpty()) return;
 
-        switch (rol) {
-            case "DOCENTE":
-                procesarDocente(dto);
-                break;
-            case "ESTUDIANTE":
-                procesarEstudiante(dto);
-                break;
-            default:
-                System.err.println("Rol no reconocido: " + rol);
+            String nombres = evt.nombre();
+            String apellidos = "";
+            if (nombres != null) {
+                int idx = nombres.lastIndexOf(' ');
+                if (idx > 0) {
+                    apellidos = nombres.substring(idx + 1).trim();
+                    nombres = nombres.substring(0, idx).trim();
+                }
+            }
+
+            for (Rol r : roles) {
+                switch (r) {
+                    case DOCENTE -> procesarDocente(email, nombres, apellidos, evt);
+                    case ESTUDIANTE -> procesarEstudiante(email, nombres, apellidos, evt);
+                    case COORDINADOR -> procesarCoordinador(email);
+                    case JEFE_DE_DEPARTAMENTO -> procesarJefeDepartamento(email);
+                    default -> System.out.println("[RabbitMQ] Rol no manejado: " + r);
+                }
+            }
+
+        } catch (Exception ex) {
+            throw new AmqpRejectAndDontRequeueException("Error procesando UserCreatedEvent", ex);
         }
     }
 
-    private void procesarDocente(UserDto dto) {
-        Optional<Docente> existente = docenteRepository.findByCorreo(dto.getCorreo());
-        Docente docente = existente.orElse(new Docente());
-
-        docente.setNombres(dto.getNombres());
-        docente.setApellidos(dto.getApellidos());
-        docente.setCorreo(dto.getCorreo());
-        docente.setCelular(dto.getCelular());
-        docente.setDepartamento(dto.getDepartamento());
-
-        docenteRepository.save(docente);
-        System.out.println("[UserListener] Docente guardado/actualizado: " + docente.getNombres() + " " + docente.getApellidos());
+    /** Registra o actualiza la información del jefe de departamento. */
+    private void procesarJefeDepartamento(String email) {
+        Optional<JefeDeDepartamento> existente = jefeDeDepartamentoRepository.findByCorreo(email);
+        JefeDeDepartamento jefe = existente.orElse(new JefeDeDepartamento());
+        jefe.setCorreo(email);
+        jefeDeDepartamentoRepository.save(jefe);
     }
 
-    private void procesarEstudiante(UserDto dto) {
-        Optional<Estudiante> existente = estudianteRepository.findByCorreoIgnoreCase(dto.getCorreo());
-        Estudiante estudiante = existente.orElse(new Estudiante());
+    /** Registra o actualiza la información del coordinador. */
+    private void procesarCoordinador(String email) {
+        Optional<Coordinador> existente = coordinadorRepository.findByCorreo(email);
+        Coordinador c = existente.orElse(new Coordinador());
+        c.setCorreo(email);
+        coordinadorRepository.save(c);
+    }
 
-        estudiante.setCodigoEstudiante(dto.getCodigo());
-        estudiante.setNombres(dto.getNombres());
-        estudiante.setApellidos(dto.getApellidos());
-        estudiante.setCorreo(dto.getCorreo());
-        estudiante.setCelular(dto.getCelular());
-        estudiante.setPrograma(dto.getPrograma());
+    /** Registra o actualiza la información del docente. */
+    private void procesarDocente(String email, String nombres, String apellidos, UserCreatedEvent evt) {
+        Optional<Docente> existente = docenteRepository.findByCorreo(email);
+        Docente d = existente.orElse(new Docente());
+        d.setCorreo(email);
+        d.setNombres(nombres);
+        d.setApellidos(apellidos);
+        d.setDepartamento(evt.departamento());
+        docenteRepository.save(d);
+    }
 
-        estudianteRepository.save(estudiante);
-        System.out.println("[UserListener] Estudiante guardado/actualizado: " + estudiante.getNombres() + " " + estudiante.getApellidos());
+    /** Registra o actualiza la información del estudiante. */
+    private void procesarEstudiante(String email, String nombres, String apellidos, UserCreatedEvent evt) {
+        Optional<Estudiante> existente = estudianteRepository.findByCorreoIgnoreCase(email);
+        Estudiante e = existente.orElse(new Estudiante());
+        e.setCorreo(email);
+        e.setNombres(nombres);
+        e.setApellidos(apellidos);
+        e.setPrograma(evt.programa());
+        estudianteRepository.save(e);
     }
 }

@@ -5,9 +5,9 @@ spring:
   application:
     name: academic-project-service   # Cambiar por el nombre del micro
 
-# ======================================================
-# Subidas multipart (límite del micro)
-# ======================================================
+  # ======================================================
+  # Subidas multipart (límite del micro)
+  # ======================================================
   servlet:
     multipart:
       max-file-size: 60MB        # tamaño máx. por archivo
@@ -57,6 +57,7 @@ messaging:
   queues:
     auth: auth-service.q
     project: academic-project-service.q
+    projectFormatoA: academic-project-service.formatoa.q
     coordinator: coordinator-service.q
     department: department-head-service.q
     notification: notification-service.q

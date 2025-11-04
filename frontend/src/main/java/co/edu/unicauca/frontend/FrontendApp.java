@@ -1,43 +1,31 @@
 package co.edu.unicauca.frontend;
 
-import co.edu.unicauca.frontend.entities.SesionFront;
-import co.edu.unicauca.frontend.infra.dto.UsuarioDTO;
-import co.edu.unicauca.frontend.presentation.DocenteController;
-import co.edu.unicauca.frontend.presentation.EstudianteController;
-import co.edu.unicauca.frontend.services.DocenteService;
-import co.edu.unicauca.frontend.services.EstudianteService;
-import co.edu.unicauca.frontend.services.ProyectoService;
+import co.edu.unicauca.frontend.presentation.navigation.ViewNavigator;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.util.Objects;
 
+/**
+ * Punto de entrada principal del frontend JavaFX.
+ */
 public class FrontendApp extends Application {
+
     @Override
-    public void start(Stage stage) throws Exception {
-        UsuarioDTO docentePrueba = new UsuarioDTO();
-        docentePrueba.setNombre("Lau ");
-        docentePrueba.setCorreo("lau@unicauca.edu.co");
-        SesionFront.getInstancia().setUsuarioActivo(docentePrueba);
+    public void start(Stage stage) {
+        // 1) Inicializar servicios compartidos (definido en main)
+        FrontendServices.init();
 
-        DocenteService docenteService = new DocenteService();
-        ProyectoService proyectoService = new ProyectoService();
-        EstudianteService  estudianteService = new EstudianteService();
+        // 2) Inicializar el navegador
+        ViewNavigator.init(stage);
 
-        FXMLLoader fxmlLoader = new FXMLLoader(
-                FrontendApp.class.getResource("/co/edu/unicauca/frontend/view/Estudiante.fxml")
+        // 3) Mostrar la primera vista
+        ViewNavigator.goTo(
+                "/co/edu/unicauca/frontend/view/SignIn.fxml",
+                "Inicio de sesión"
         );
-        Parent root = fxmlLoader.load();
 
-        EstudianteController estudianteController = fxmlLoader.getController();
-        //estudianteController.setServices(docenteService, proyectoService, estudianteService);
-
-        Scene scene = new Scene(root);
-        stage.setTitle("Docente - Prueba");
-        stage.setScene(scene);
         stage.show();
     }
 
@@ -45,5 +33,9 @@ public class FrontendApp extends Application {
         return new FXMLLoader(Objects.requireNonNull(
                 FrontendApp.class.getResource(resourcePath)
         ));
+    }
+
+    public static void main(String[] args) {
+        launch(args);
     }
 }

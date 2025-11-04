@@ -1,6 +1,6 @@
 package co.edu.unicauca.academicprojectservice.Service;
 
-import co.edu.unicauca.academicprojectservice.Entity.Departamento;
+import co.edu.unicauca.shared.contracts.model.Departamento;
 import co.edu.unicauca.academicprojectservice.Entity.Docente;
 import co.edu.unicauca.academicprojectservice.Entity.EstadoProyecto;
 import co.edu.unicauca.academicprojectservice.Repository.DocenteRepository;

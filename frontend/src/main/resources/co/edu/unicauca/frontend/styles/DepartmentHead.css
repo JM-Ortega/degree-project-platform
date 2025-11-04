@@ -1,0 +1,26 @@
+/* Jefe de Departamento container */
+.JefeDeDepartamento_container {
+    -fx-background-color: white;
+}
+
+.Principal_container {
+    -fx-background-color: white;
+}
+
+.stack_container {
+    -fx-background-color: white;
+}
+
+/* Default button style */
+.btn-default {
+    -fx-background-color: #4670A4; /* Default blue color for buttons */
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+}
+
+/* Pressed button style */
+.btn-pressed {
+    -fx-background-color: #6798D4; /* Lighter blue for pressed state */
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+}

@@ -6,15 +6,14 @@ public class EstudianteDTO {
     private String apellidos;
     private String celular;
     private String correo;
-    private String codigo;
     private String programa;
 
     public EstudianteDTO() {}
 
-    public EstudianteDTO(String apellidos, String celular, String codigo, String correo, String nombres, String programa) {
+    public EstudianteDTO(String apellidos, String celular, String correo, String nombres, String programa) {
         this.apellidos = apellidos;
         this.celular = celular;
-        this.codigo = codigo;
+
         this.correo = correo;
         this.nombres = nombres;
         this.programa = programa;

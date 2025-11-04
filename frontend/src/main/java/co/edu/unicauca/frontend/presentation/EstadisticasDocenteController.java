@@ -3,8 +3,10 @@ package co.edu.unicauca.frontend.presentation;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import co.edu.unicauca.frontend.entities.SesionFront;
+import co.edu.unicauca.frontend.FrontendServices;
+import co.edu.unicauca.frontend.dto.SessionInfo;
 import co.edu.unicauca.frontend.infra.dto.UsuarioDTO;
+import co.edu.unicauca.frontend.infra.session.SessionManager;
 import co.edu.unicauca.frontend.services.DocenteService;
 import co.edu.unicauca.frontend.services.EstudianteService;
 import co.edu.unicauca.frontend.services.Observer;
@@ -15,7 +17,7 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.chart.BarChart;
 
 public class EstadisticasDocenteController implements Initializable, Observer {
-    
+
     @FXML private BarChart<String, Number> BarChartEstadisticas;
     private XYChart.Series<String, Number> seriesTesis;
     private XYChart.Series<String, Number> seriesPractica;
@@ -25,6 +27,14 @@ public class EstadisticasDocenteController implements Initializable, Observer {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        try {
+            this.docenteService = FrontendServices.docenteService();
+            this.proyectoService = FrontendServices.proyectoService();
+            this.estudianteService = FrontendServices.estudianteService();
+        } catch (IllegalStateException e) {
+            System.err.println("Error: servicios no disponibles. Asegúrate de llamar FrontendServices.init() antes.");
+            return;
+        }
         seriesTesis = new XYChart.Series();
         seriesTesis.setName("TESIS");
         seriesPractica = new XYChart.Series();
@@ -44,8 +54,8 @@ public class EstadisticasDocenteController implements Initializable, Observer {
     }
 
     private int obtenerCantidad(String tipo, String estado){
-        UsuarioDTO docente = SesionFront.getInstancia().getUsuarioActivo();
-        return proyectoService.countProyectosByEstadoYTipo(tipo, estado, docente.getCorreo());
+        SessionInfo docente = SessionManager.getInstance().getCurrentSession();
+        return proyectoService.countProyectosByEstadoYTipo(tipo, estado, docente.email());
     }
 
     public void setServices(DocenteService docenteService, ProyectoService proyectoService, EstudianteService estudianteService) {

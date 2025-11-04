@@ -1,7 +1,8 @@
 package co.edu.unicauca.frontend.presentation;
 
-import co.edu.unicauca.frontend.entities.SesionFront;
-import co.edu.unicauca.frontend.infra.dto.UsuarioDTO;
+import co.edu.unicauca.frontend.FrontendServices;
+import co.edu.unicauca.frontend.dto.SessionInfo;
+import co.edu.unicauca.frontend.infra.session.SessionManager;
 import co.edu.unicauca.frontend.services.DocenteService;
 import co.edu.unicauca.frontend.services.EstudianteService;
 import co.edu.unicauca.frontend.services.ProyectoService;
@@ -43,6 +44,14 @@ public class DocenteController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        try {
+            this.docenteService = FrontendServices.docenteService();
+            this.proyectoService = FrontendServices.proyectoService();
+            this.estudianteService = FrontendServices.estudianteService();
+        } catch (IllegalStateException e) {
+            System.err.println("Error: servicios no disponibles. Asegúrate de llamar FrontendServices.init() antes.");
+            return;
+        }
         activarBoton(btnPrincipal, btnFormatoA, btnSalir, btnAnteproyecto);
         cargarDatos();
     }
@@ -110,9 +119,9 @@ public class DocenteController implements Initializable {
     }
 
     public void cargarDatos() {
-        UsuarioDTO docente = SesionFront.getInstancia().getUsuarioActivo();
+        SessionInfo docente = SessionManager.getInstance().getCurrentSession();
         if (docente != null) {
-            nombreDocente.setText(docente.getNombre());
+            nombreDocente.setText(docente.nombres());
         } else {
             System.err.println("No hay sesión activa");
         }

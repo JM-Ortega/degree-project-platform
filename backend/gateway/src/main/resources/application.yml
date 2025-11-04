@@ -94,7 +94,7 @@ spring:
             allowed-methods: "*"             # Permite todos los métodos
             allowed-headers: "*"             # Permite todos los encabezados
             allow-credentials: false         # Obligatorio si se usa "*"
-            exposed-headers:                 # Headers visibles al cliente
+            exposed-headers: # Headers visibles al cliente
               - Content-Disposition
               - Content-Length
               - Content-Type

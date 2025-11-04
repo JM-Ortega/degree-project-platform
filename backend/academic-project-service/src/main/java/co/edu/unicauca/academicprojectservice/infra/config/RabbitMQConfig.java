@@ -4,6 +4,7 @@ import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,6 +17,8 @@ import org.springframework.context.annotation.Configuration;
  * </p>
  */
 @Configuration
+// ... imports y @Configuration como ya lo tienes
+
 public class RabbitMQConfig {
 
     // =====================================================
@@ -33,12 +36,21 @@ public class RabbitMQConfig {
     @Value("${messaging.queues.projectDlq}")
     private String projectDlq;
 
+    // --- NUEVO ---
+    @Value("${messaging.queues.projectFormatoA}")
+    private String projectFormatoAQueue;
+
     @Value("${messaging.routing.projectCreated}")
     private String projectCreatedRoutingKey;
 
     @Value("${messaging.routing.projectUpdated}")
     private String projectUpdatedRoutingKey;
 
+    @Value("${messaging.routing.userCreated}")
+    private String userCreatedRoutingKey;
+
+    @Value("${messaging.routing.formatAApprovedByCoordinator}")
+    private String formatAApprovedByCoordinatorRoutingKey;
 
     // =====================================================
     // 2. Exchange principal y DLX (Dead Letter Exchange)
@@ -53,15 +65,13 @@ public class RabbitMQConfig {
         return new TopicExchange(dlxExchange);
     }
 
-
     // =====================================================
-    // 3. Declaración de colas (principal y DLQ)
+    // 3. Declaración de colas (principal, DLQ y la nueva de FormatoA)
     // =====================================================
     @Bean
     public Queue projectQueue() {
-        return QueueBuilder
-                .durable(projectQueue)
-                .withArgument("x-dead-letter-exchange", dlxExchange) // si falla, se envía al DLX
+        return QueueBuilder.durable(projectQueue)
+                .withArgument("x-dead-letter-exchange", dlxExchange)
                 .withArgument("x-dead-letter-routing-key", projectDlq)
                 .build();
     }
@@ -71,28 +81,57 @@ public class RabbitMQConfig {
         return QueueBuilder.durable(projectDlq).build();
     }
 
-
-    // =====================================================
-    // 4. Bindings: conectamos la cola con el exchange
-    // =====================================================
-    // Enlazamos la cola con los eventos de creación de proyectos
+    // --- NUEVO: cola dedicada a eventos de FormatoA ---
     @Bean
-    public Binding bindingProjectCreated() {
-        return BindingBuilder
-                .bind(projectQueue())
-                .to(mainExchange())
-                .with(projectCreatedRoutingKey);
+    public Queue projectFormatoAQueue() {
+        return QueueBuilder.durable(projectFormatoAQueue)
+                // si quieres una DLQ propia, crea otra cola y cámbiala aquí;
+                // por ahora reutilizamos la misma DLQ 'projectDlq'
+                .withArgument("x-dead-letter-exchange", dlxExchange)
+                .withArgument("x-dead-letter-routing-key", projectDlq)
+                .build();
     }
 
-    // Enlazamos la cola con los eventos de actualización de proyectos
+    // =====================================================
+    // 4. Bindings
+    // =====================================================
     @Bean
-    public Binding bindingProjectUpdated() {
-        return BindingBuilder
-                .bind(projectQueue())
-                .to(mainExchange())
-                .with(projectUpdatedRoutingKey);
+    public Binding bindingProjectCreated(Queue projectQueue, TopicExchange mainExchange) {
+        return BindingBuilder.bind(projectQueue).to(mainExchange).with(projectCreatedRoutingKey);
     }
 
+    @Bean
+    public Binding bindingProjectUpdated(Queue projectQueue, TopicExchange mainExchange) {
+        return BindingBuilder.bind(projectQueue).to(mainExchange).with(projectUpdatedRoutingKey);
+    }
+
+    @Bean
+    public Binding bindingUserCreated(Queue projectQueue, TopicExchange mainExchange) {
+        return BindingBuilder.bind(projectQueue).to(mainExchange).with(userCreatedRoutingKey);
+    }
+
+    // --- IMPORTANTE: mueve formatA.approved a la cola nueva ---
+    @Bean
+    public Binding bindingFormatoAApproved(Queue projectFormatoAQueue, TopicExchange mainExchange) {
+        return BindingBuilder.bind(projectFormatoAQueue).to(mainExchange).with(formatAApprovedByCoordinatorRoutingKey);
+    }
+
+    // =====================================================
+    // 4.1 Bindings DLX -> DLQ
+    // =====================================================
+
+    @Bean
+    public Binding bindProjectDlqToDlx(
+            @Qualifier("projectDlq") Queue projectDlqQueue,
+            TopicExchange deadLetterExchange,
+            @Value("${messaging.queues.projectDlq}") String rkToDlq) {
+
+        // routing key = nombre de la DLQ (debe coincidir con x-dead-letter-routing-key)
+        return BindingBuilder
+                .bind(projectDlqQueue)
+                .to(deadLetterExchange)
+                .with(rkToDlq);
+    }
 
     // =====================================================
     // 5. Convertidor JSON (Jackson)
@@ -102,14 +141,14 @@ public class RabbitMQConfig {
         return new Jackson2JsonMessageConverter();
     }
 
-
     // =====================================================
     // 6. RabbitTemplate con convertidor JSON
     // =====================================================
     @Bean
-    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
+    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory,
+                                         Jackson2JsonMessageConverter converter) {
         RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
-        rabbitTemplate.setMessageConverter(jackson2JsonMessageConverter());
+        rabbitTemplate.setMessageConverter(converter);
         return rabbitTemplate;
     }
 }

@@ -6,6 +6,7 @@ import co.edu.unicauca.academicprojectservice.Repository.DocenteRepository;
 import co.edu.unicauca.academicprojectservice.Repository.EstudianteRepository;
 import co.edu.unicauca.academicprojectservice.Repository.FormatoARepository;
 import co.edu.unicauca.academicprojectservice.infra.DTOs.FormatoADTOSend;
+import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,25 +33,63 @@ public class FormatoAListener {
      * Los eventos llegan desde otros microservicios (p. ej., coordinator-service o project-service)
      * a través de la cola del servicio académico.
      */
-    //@RabbitListener(queues = "${messaging.queues.project}")
+    @RabbitListener(queues = "${messaging.queues.projectFormatoA}") // <-- cola dedicada
     @Transactional
     public void handleFormatoAEvent(FormatoADTOSend dto) {
-        System.out.println("📩 [RabbitMQ] Mensaje recibido (FormatoA): " + dto.getNombreFormatoA());
+        try {
+            // ===== Validaciones defensivas =====
+            if (dto == null) {
+                System.err.println("[RabbitMQ] FormatoA DTO nulo — se ignora");
+                return;
+            }
+            System.out.println("📩 [RabbitMQ] Mensaje recibido (FormatoA): " + dto);
 
-        Optional<FormatoA> existingFormato = formatoARepository.findByProyectoId(dto.getProyectoId());
-        FormatoA formato = existingFormato.orElse(new FormatoA());
+            if (dto.getProyectoId() == null) {
+                throw new IllegalArgumentException("proyectoId es requerido");
+            }
+            if (dto.getNombreFormatoA() == null || dto.getNombreFormatoA().isBlank()) {
+                throw new IllegalArgumentException("nombreFormatoA es requerido");
+            }
+            if (dto.getNroVersion() <= 0) {
+                throw new IllegalArgumentException("nroVersion es requerido o inválido");
+            }
 
-        formato.setNroVersion(dto.getNroVersion());
-        formato.setNombreFormato(dto.getNombreFormatoA());
-        formato.setFechaCreacion(dto.getFechaSubida());
-        formato.setBlob(dto.getBlob());
-        formato.setEstado(EstadoFormatoA.valueOf(dto.getEstado().toString()));
+            if (dto.getEstado() == null) {
+                throw new IllegalArgumentException("estado es requerido");
+            }
 
-        formatoARepository.save(formato);
+            // ===== Mapeo de estado (Enum externo o String) =====
+            // Si dto.getEstado() es Enum de otro paquete, usa .name(); si es String, úsalo directo.
+            final String estadoName = (dto.getEstado() instanceof Enum<?>)
+                    ? ((Enum<?>) dto.getEstado()).name()
+                    : dto.getEstado().toString();
+            final EstadoFormatoA estado = EstadoFormatoA.valueOf(estadoName);
 
-        System.out.println("[AcademicProjectService] FormatoA actualizado/creado: "
-                + formato.getNombreFormato() + " (versión " + formato.getNroVersion() + ")");
+            // ===== Upsert por proyecto =====
+            Optional<FormatoA> existingFormato = formatoARepository.findByProyectoId(dto.getProyectoId());
+            FormatoA formato = existingFormato.orElse(new FormatoA());
+
+            formato.setNroVersion(dto.getNroVersion());
+            formato.setNombreFormato(dto.getNombreFormatoA());
+            formato.setFechaCreacion(dto.getFechaSubida());
+            formato.setBlob(dto.getBlob());
+            formato.setEstado(estado);
+
+            // TODO(si aplica): asociar el Proyecto si el nuevo FormatoA no lo tiene aún
+            // formato.setProyecto(proyectoRepository.getReferenceById(dto.getProyectoId()));
+
+            formatoARepository.save(formato);
+
+            System.out.println("[AcademicProjectService] FormatoA actualizado/creado: "
+                    + formato.getNombreFormato() + " (versión " + formato.getNroVersion() + ")");
+        } catch (IllegalArgumentException ex) {
+            // Datos inválidos -> no reencolar, que vaya a DLQ
+            System.err.println("[RabbitMQ] Evento FormatoA inválido: " + ex.getMessage());
+            throw new AmqpRejectAndDontRequeueException("Evento FormatoA inválido", ex);
+        } catch (Exception ex) {
+            // Error inesperado -> no reencolar para evitar bucles
+            System.err.println("[RabbitMQ] Error procesando FormatoA: " + ex.getMessage());
+            throw new AmqpRejectAndDontRequeueException("Error procesando FormatoA", ex);
+        }
     }
-
-    //No se tiene un metodo para actualizar el proyecto con evaluadores, porque no se implemento esa asignación
 }

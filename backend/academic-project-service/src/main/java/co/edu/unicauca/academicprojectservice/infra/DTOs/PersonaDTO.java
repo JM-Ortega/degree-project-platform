@@ -1,7 +1,8 @@
 package co.edu.unicauca.academicprojectservice.infra.DTOs;
 
-import co.edu.unicauca.academicprojectservice.Entity.Programa;
-import co.edu.unicauca.academicprojectservice.Entity.Rol;
+import co.edu.unicauca.shared.contracts.model.Programa;
+import co.edu.unicauca.shared.contracts.model.Rol;
+
 import lombok.Data;
 
 @Data

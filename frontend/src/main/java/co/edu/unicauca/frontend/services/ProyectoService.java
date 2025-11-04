@@ -22,11 +22,13 @@ public class ProyectoService implements ObservableService{
     private final String baseUrlProyectos = "http://localhost:8080/api/academic/proyectos";
     private final RestTemplate restTemplate;
     private final List<Observer> observers = new ArrayList<>();
-    DocenteService docenteService = new DocenteService();
-    EstudianteService estudianteService = new EstudianteService();
+    private final DocenteService docenteService;
+    private final EstudianteService estudianteService;
 
-    public ProyectoService() {
+    public ProyectoService(DocenteService docenteService, EstudianteService estudianteService) {
         this.restTemplate = new RestTemplate();
+        this.docenteService = docenteService;
+        this.estudianteService = estudianteService;
     }
 
     public EstadoProyecto enforceAutoCancelIfNeeded(long proyectoId) {

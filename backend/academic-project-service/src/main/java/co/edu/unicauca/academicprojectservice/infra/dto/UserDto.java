@@ -1,7 +1,7 @@
 package co.edu.unicauca.academicprojectservice.infra.dto;
 
-import co.edu.unicauca.academicprojectservice.Entity.Departamento;
-import co.edu.unicauca.academicprojectservice.Entity.Programa;
+import co.edu.unicauca.shared.contracts.model.Departamento;
+import co.edu.unicauca.shared.contracts.model.Programa;
 
 public class UserDto {
     private String nombres;
