@@ -32,7 +32,7 @@ public class FormatoAListener {
      * Los eventos llegan desde otros microservicios (p. ej., coordinator-service o project-service)
      * a través de la cola del servicio académico.
      */
-    //@RabbitListener(queues = "${messaging.queues.project}")
+    @RabbitListener(queues = "${messaging.queues.project}")
     @Transactional
     public void handleFormatoAEvent(FormatoADTOSend dto) {
         System.out.println("📩 [RabbitMQ] Mensaje recibido (FormatoA): " + dto.getNombreFormatoA());
@@ -51,6 +51,4 @@ public class FormatoAListener {
         System.out.println("[AcademicProjectService] FormatoA actualizado/creado: "
                 + formato.getNombreFormato() + " (versión " + formato.getNroVersion() + ")");
     }
-
-    //No se tiene un metodo para actualizar el proyecto con evaluadores, porque no se implemento esa asignación
 }
