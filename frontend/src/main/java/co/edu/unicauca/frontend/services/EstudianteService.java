@@ -1,57 +1,61 @@
 package co.edu.unicauca.frontend.services;
 
 import co.edu.unicauca.frontend.infra.dto.AnteproyectoDTO;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
-import org.springframework.web.client.RestTemplate;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.net.URI;
+import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 
 public class EstudianteService {
-    private final RestTemplate restTemplate;
-    private final String baseUrlEstudiante = "http://localhost:8080/api/academic/estudiantes";
+
+    private final HttpClient http;
+    private final ObjectMapper mapper;
+    private final String baseUrlEstudiante;
 
     public EstudianteService() {
-        this.restTemplate = new RestTemplate();
+        this("http://localhost:8080/api/academic/estudiantes");
+    }
+
+    public EstudianteService(String baseUrlEstudiante) {
+        this.http = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(5))
+                .build();
+
+        this.mapper = new ObjectMapper()
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+        this.baseUrlEstudiante = baseUrlEstudiante;
     }
 
     public boolean estudianteLibrePorCorreo(String correo) {
-        try {
-            String url = baseUrlEstudiante + "/libre/" + correo;
-            return restTemplate.getForObject(url, Boolean.class);
-        } catch (Exception e) {
-            throw new RuntimeException("Error: ", e);
-        }
+        return getBoolean("/libre/" + enc(correo));
     }
 
     public boolean estudianteExistePorCorreo(String correo) {
-        try {
-            String url = baseUrlEstudiante + "/existe/" + correo;
-            return restTemplate.getForObject(url, Boolean.class);
-        } catch (Exception e) {
-            throw new RuntimeException("Error: ", e);
-        }
+        return getBoolean("/existe/" + enc(correo));
     }
 
     public boolean estudianteTieneProyectoEnTramitePorCorreo(String correo) {
-        try {
-            String url = baseUrlEstudiante + "/tieneProyectoEnTramite/" + correo;
-            return restTemplate.getForObject(url, Boolean.class);
-        } catch (Exception e) {
-            throw new RuntimeException("Error: ", e);
-        }
+        return getBoolean("/tieneProyectoEnTramite/" + enc(correo));
     }
 
     public boolean estudianteTieneFormatoAAprobado(String correo) {
-        try {
-            String url = baseUrlEstudiante + "/tieneFormatoAAprobado/" + correo;
-            return restTemplate.getForObject(url, Boolean.class);
-        } catch (Exception e) {
-            throw new RuntimeException("Error: ", e);
-        }
+        return getBoolean("/tieneFormatoAAprobado/" + enc(correo));
+    }
+
+    public boolean estudianteTieneAnteproyectoAsociado(String correo) {
+        return getBoolean("/" + enc(correo) + "/tieneAnteproyecto");
     }
 
     public void setAntepAProyectoEst(AnteproyectoDTO a) {
         String correo = a.getEstudianteCorreo();
+
         if (!estudianteExistePorCorreo(correo)) {
             throw new IllegalArgumentException("El estudiante con el correo ingresado no existe");
         }
@@ -64,27 +68,49 @@ public class EstudianteService {
         if (estudianteTieneAnteproyectoAsociado(correo)) {
             throw new IllegalArgumentException("El estudiante ya tiene un anteproyecto asociado");
         }
-        String url = baseUrlEstudiante + "/asociarAnteproyecto/" + correo;
 
+        post("/asociarAnteproyecto/" + enc(correo), a);
+    }
+
+    // -------------------- helpers --------------------
+    private boolean getBoolean(String path) {
         try {
-            restTemplate.postForObject(url, a, String.class);
-        } catch (HttpClientErrorException | HttpServerErrorException ex) {
-            String mensajeError = ex.getResponseBodyAsString();
-            throw new RuntimeException(mensajeError, ex);
+            HttpRequest req = HttpRequest.newBuilder(URI.create(baseUrlEstudiante + path))
+                    .timeout(Duration.ofSeconds(8))
+                    .GET()
+                    .build();
+            HttpResponse<String> resp = http.send(req, HttpResponse.BodyHandlers.ofString());
+            validar2xx(resp);
+            return Boolean.parseBoolean(resp.body().trim());
         } catch (Exception ex) {
-            throw new RuntimeException("Error inesperado: " + ex.getMessage(), ex);
+            throw new RuntimeException("Error al consumir servicio: " + ex.getMessage(), ex);
         }
     }
 
-    public boolean estudianteTieneAnteproyectoAsociado(String correo) {
-        String url = baseUrlEstudiante + "/" + correo + "/tieneAnteproyecto";
+    private void post(String path, Object body) {
         try {
-            ResponseEntity<Boolean> response = restTemplate.getForEntity(url, Boolean.class);
-            return Boolean.TRUE.equals(response.getBody());
-        } catch (HttpClientErrorException.NotFound ex) {
-            throw new IllegalArgumentException("No se encontró el estudiante con el correo ingresado");
+            String json = mapper.writeValueAsString(body);
+            HttpRequest req = HttpRequest.newBuilder(URI.create(baseUrlEstudiante + path))
+                    .timeout(Duration.ofSeconds(8))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(json))
+                    .build();
+
+            HttpResponse<String> resp = http.send(req, HttpResponse.BodyHandlers.ofString());
+            validar2xx(resp);
         } catch (Exception ex) {
-            throw new RuntimeException("Error al verificar el anteproyecto del estudiante: " + ex.getMessage(), ex);
+            throw new RuntimeException("Error al enviar petición POST: " + ex.getMessage(), ex);
         }
+    }
+
+    private static void validar2xx(HttpResponse<?> resp) {
+        int s = resp.statusCode();
+        if (s < 200 || s >= 300) {
+            throw new IllegalStateException("HTTP " + s + " - " + resp.body());
+        }
+    }
+
+    private static String enc(String s) {
+        return URLEncoder.encode(s, StandardCharsets.UTF_8);
     }
 }
