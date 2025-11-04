@@ -1,13 +1,9 @@
 package co.edu.unicauca.frontend.presentation;
 
-import co.edu.unicauca.frontend.entities.SesionFront;
 import co.edu.unicauca.frontend.infra.dto.ProyectoEstudianteDTO;
-import co.edu.unicauca.frontend.infra.dto.UsuarioDTO;
 import co.edu.unicauca.frontend.services.ProyectoEstudianteService;
 import co.edu.unicauca.frontend.services.ProyectoService;
 import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;

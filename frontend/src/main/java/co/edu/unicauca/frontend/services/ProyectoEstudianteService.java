@@ -1,6 +1,8 @@
 package co.edu.unicauca.frontend.services;
 
+import co.edu.unicauca.frontend.dto.SessionInfo;
 import co.edu.unicauca.frontend.infra.dto.ProyectoEstudianteDTO;
+import co.edu.unicauca.frontend.infra.session.SessionManager;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -26,8 +28,8 @@ public class ProyectoEstudianteService {
 
     public List<ProyectoEstudianteDTO> obtenerProyectosEstudiante() {
         try {
-            // Por ahora lo quemo
-            String correo = "lau@unicauca.edu.co";
+            SessionInfo estudiante = SessionManager.getInstance().getCurrentSession();
+            String correo = estudiante.email();
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(new URI(BASE_URL + "/listar/" + correo))
