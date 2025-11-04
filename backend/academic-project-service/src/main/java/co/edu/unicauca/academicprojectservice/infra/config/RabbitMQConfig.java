@@ -105,11 +105,6 @@ public class RabbitMQConfig {
         return BindingBuilder.bind(projectQueue).to(mainExchange).with(projectUpdatedRoutingKey);
     }
 
-    @Bean
-    public Binding bindingUserCreated(Queue projectQueue, TopicExchange mainExchange) {
-        return BindingBuilder.bind(projectQueue).to(mainExchange).with(userCreatedRoutingKey);
-    }
-
     // --- IMPORTANTE: mueve formatA.approved a la cola nueva ---
     @Bean
     public Binding bindingFormatoAApproved(Queue projectFormatoAQueue, TopicExchange mainExchange) {
