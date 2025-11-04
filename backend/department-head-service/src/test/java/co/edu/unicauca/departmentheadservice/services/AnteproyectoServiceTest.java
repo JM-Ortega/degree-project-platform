@@ -2,7 +2,6 @@ package co.edu.unicauca.departmentheadservice.services;
 
 import co.edu.unicauca.departmentheadservice.access.AnteproyectoRepository;
 import co.edu.unicauca.departmentheadservice.entities.Anteproyecto;
-import co.edu.unicauca.departmentheadservice.entities.Docente;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,25 +37,41 @@ class AnteproyectoServiceTest {
     void setUp() {
         // Configurar datos de prueba usando el constructor público
         anteproyecto1 = new Anteproyecto(
-            "Sistema de Gestión Académica",
-            "Descripción del sistema académico",
-            LocalDate.of(2024, 1, 15),
-            Collections.emptyList()
+                1L, // anteproyectoId
+                101L, // proyectoId
+                "Sistema de Gestión Académica",
+                "Descripción del sistema académico",
+                LocalDate.of(2024, 1, 15),
+                Collections.emptyList(), // sin evaluadores
+                "est1@unicauca.edu.co", // estudianteCorreo
+                "dir1@unicauca.edu.co", // directorCorreo
+                "SISTEMAS" // departamento
         );
 
         anteproyecto2 = new Anteproyecto(
-            "Plataforma de E-learning",
-            "Descripción de plataforma e-learning",
-            LocalDate.of(2024, 2, 20),
-            Collections.emptyList()
+                2L, // anteproyectoId
+                102L, // proyectoId
+                "Plataforma de E-learning",
+                "Descripción de plataforma e-learning",
+                LocalDate.of(2024, 2, 20),
+                Collections.emptyList(), // sin evaluadores
+                "est2@unicauca.edu.co", // estudianteCorreo
+                "dir2@unicauca.edu.co", // directorCorreo
+                "SISTEMAS" // departamento
         );
 
         anteproyecto3 = new Anteproyecto(
-            "Aplicación Móvil para Salud",
-            "Descripción de app móvil salud",
-            LocalDate.of(2024, 3, 10),
-            Collections.emptyList()
+                3L, // anteproyectoId
+                103L, // proyectoId
+                "Aplicación Móvil para Salud",
+                "Descripción de app móvil salud",
+                LocalDate.of(2024, 3, 10),
+                Collections.emptyList(), // sin evaluadores
+                "est3@unicauca.edu.co", // estudianteCorreo
+                "dir3@unicauca.edu.co", // directorCorreo
+                "SISTEMAS" // departamento
         );
+
 
         // Usar reflection para establecer los IDs ya que no hay setter público
         setId(anteproyecto1, 1L);
