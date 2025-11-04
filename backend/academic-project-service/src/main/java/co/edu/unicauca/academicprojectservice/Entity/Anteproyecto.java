@@ -15,8 +15,6 @@ public class Anteproyecto {
     private String descripcion;
     private String titulo;
     private byte[] blob;
-
-    @Temporal(TemporalType.DATE)
     private LocalDate fechaCreacion;
 
     @ManyToMany

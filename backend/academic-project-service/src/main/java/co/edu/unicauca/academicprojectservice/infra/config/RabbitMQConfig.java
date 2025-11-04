@@ -39,6 +39,12 @@ public class RabbitMQConfig {
     @Value("${messaging.routing.projectUpdated}")
     private String projectUpdatedRoutingKey;
 
+    @Value("${messaging.routing.userCreated}")
+    private String userCreatedRoutingKey;
+
+    @Value("${messaging.routing.formatAApprovedByCoordinator}")
+    private String formatAApprovedByCoordinatorRoutingKey;
+
 
     // =====================================================
     // 2. Exchange principal y DLX (Dead Letter Exchange)
@@ -61,7 +67,7 @@ public class RabbitMQConfig {
     public Queue projectQueue() {
         return QueueBuilder
                 .durable(projectQueue)
-                .withArgument("x-dead-letter-exchange", dlxExchange) // si falla, se envía al DLX
+                .withArgument("x-dead-letter-exchange", dlxExchange)
                 .withArgument("x-dead-letter-routing-key", projectDlq)
                 .build();
     }
@@ -71,11 +77,9 @@ public class RabbitMQConfig {
         return QueueBuilder.durable(projectDlq).build();
     }
 
-
     // =====================================================
-    // 4. Bindings: conectamos la cola con el exchange
+    // 4. Bindings
     // =====================================================
-    // Enlazamos la cola con los eventos de creación de proyectos
     @Bean
     public Binding bindingProjectCreated() {
         return BindingBuilder
@@ -93,6 +97,21 @@ public class RabbitMQConfig {
                 .with(projectUpdatedRoutingKey);
     }
 
+    @Bean
+    public Binding bindingUserCreated() {
+        return BindingBuilder
+                .bind(projectQueue())
+                .to(mainExchange())
+                .with(userCreatedRoutingKey);
+    }
+
+    @Bean
+    public Binding bindingFormatAApproved() {
+        return BindingBuilder
+                .bind(projectQueue())
+                .to(mainExchange())
+                .with(formatAApprovedByCoordinatorRoutingKey);
+    }
 
     // =====================================================
     // 5. Convertidor JSON (Jackson)
