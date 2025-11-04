@@ -33,7 +33,7 @@ public class FormatoAListener {
      * Los eventos llegan desde otros microservicios (p. ej., coordinator-service o project-service)
      * a través de la cola del servicio académico.
      */
-    @RabbitListener(queues = "${messaging.queues.projectFormatoA}") // <-- cola dedicada
+    @RabbitListener(queues = "${messaging.queues.coordinator") // <-- cola dedicada
     @Transactional
     public void handleFormatoAEvent(FormatoADTOSend dto) {
         try {

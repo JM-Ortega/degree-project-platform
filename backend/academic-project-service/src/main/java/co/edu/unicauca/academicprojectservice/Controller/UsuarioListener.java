@@ -11,6 +11,9 @@ import co.edu.unicauca.academicprojectservice.Repository.JefeDeDepartamentoRepos
 import co.edu.unicauca.shared.contracts.events.auth.UserCreatedEvent;
 import co.edu.unicauca.shared.contracts.model.Rol;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
+import org.springframework.amqp.rabbit.annotation.Exchange;
+import org.springframework.amqp.rabbit.annotation.Queue;
+import org.springframework.amqp.rabbit.annotation.QueueBinding;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,7 +47,7 @@ public class UsuarioListener {
      * Consume el evento compartido de creación de usuario y realiza la
      * actualización correspondiente según el rol del usuario.
      */
-    @RabbitListener(queues = "${messaging.queues.project}")
+    @RabbitListener(queues = "${messaging.queues.auth")
     @Transactional
     public void onUserCreated(UserCreatedEvent evt) {
         try {
@@ -72,7 +75,7 @@ public class UsuarioListener {
                     case ESTUDIANTE -> procesarEstudiante(email, nombres, apellidos, evt);
                     case COORDINADOR -> procesarCoordinador(email);
                     case JEFE_DE_DEPARTAMENTO -> procesarJefeDepartamento(email);
-                    default -> System.out.println("[RabbitMQ] Rol no manejado: " + r);
+                    default -> System.out.println("[RabbitMQ] Rol no manejado: {}");
                 }
             }
 
