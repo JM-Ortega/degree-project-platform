@@ -21,6 +21,7 @@ import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -38,6 +39,8 @@ public class ProyectoService {
     private AnteproyectoRepository anteproyectoRepository;
     @Autowired
     private CoordinadorRepository coordinadorRepository;
+    @Autowired
+    private JefeDeDepartamentoRepository jefeDeDepartamentoRepository;
     @Autowired
     private RabbitTemplate  rabbitTemplate;
 
@@ -165,7 +168,6 @@ public class ProyectoService {
                 " con ID: " + proyectoId);
 
         try {
-            // Construir los destinatarios (director + estudiantes)
             List<String> destinatarios = new ArrayList<>();
             List<String> celulares = new ArrayList<>();
 
@@ -342,6 +344,72 @@ public class ProyectoService {
         log.info("[RabbitMQ] Nueva versión de Formato A enviada a la cola: {} (Proyecto ID: {}, Versión: {})",
                 routingKeyProjectUpdated, proyectoId, formatoA.getNroVersion());
 
+        //Envio de notificacion a coordinadores
+        try {
+            Estudiante estudiante = proyectoGuardado.getEstudiantes().isEmpty()
+                    ? null : proyectoGuardado.getEstudiantes().get(0);
+
+            Docente docente = proyectoGuardado.getDirector();
+
+            List<String> destinatarios = new ArrayList<>();
+            List<String> celulares = new ArrayList<>();
+
+            List<Coordinador> coordinadores = coordinadorRepository.findAll();
+
+            if (coordinadores != null && !coordinadores.isEmpty()) {
+                for (Coordinador coordinador : coordinadores) {
+                    // Evitar valores nulos
+                    if (coordinador.getCorreo() != null && !coordinador.getCorreo().isEmpty()) {
+                        destinatarios.add(coordinador.getCorreo());
+                    }
+                    if (coordinador.getCelular() != null && !coordinador.getCelular().isEmpty()) {
+                        celulares.add(coordinador.getCelular());
+                    }
+                }
+            }
+
+            // Definir asunto y mensaje
+            String subject = "Formato A actualizado (nueva versión)";
+            String message = String.format("""
+                Se ha subido una nueva versión del Formato A en el proyecto:
+                📘 %s
+                👩‍🎓 Estudiante: %s %s
+                👨‍🏫 Director: %s %s
+                🔢 Versión: %d
+                📅 Fecha de subida: %s
+                """,
+                    proyectoGuardado.getTitulo(),
+                    estudiante != null ? estudiante.getNombres() : "Desconocido",
+                    estudiante != null ? estudiante.getApellidos() : "",
+                    docente != null ? docente.getNombres() : "Desconocido",
+                    docente != null ? docente.getApellidos() : "",
+                    formatoGuardado.getNroVersion(),
+                    formatoGuardado.getFechaCreacion()
+            );
+
+            // Crear evento de notificación
+            NotificationEvent notificationEvent = new NotificationEvent(
+                    "project.created",
+                    destinatarios,
+                    subject,
+                    message,
+                    celulares,
+                    OffsetDateTime.now()
+            );
+
+            // Enviar notificación a la cola correspondiente
+            rabbitTemplate.convertAndSend(
+                    mainExchange,
+                    "notification.send.project.created",
+                    notificationEvent
+            );
+
+            ProyectoService.log.info("📨 Notificación enviada: {}", notificationEvent.getSubject());
+
+        } catch (Exception e) {
+            ProyectoService.log.error("Error al enviar notificación: {}", e.getMessage(), e);
+        }
+
         return true;
     }
 
@@ -426,6 +494,68 @@ public class ProyectoService {
 
         rabbitTemplate.convertAndSend(mainExchange, routingKeyProjectUpdated, pDtoSend);
         log.info("[RabbitMQ] Proyecto actualizado enviado a la cola: " + routingKeyProjectUpdated);
+
+        try {
+            Estudiante estudiante = proyecto.getEstudiantes().isEmpty()
+                    ? null : proyecto.getEstudiantes().get(0);
+
+            Docente docente = proyecto.getDirector();
+
+            List<String> destinatarios = new ArrayList<>();
+            List<String> celulares = new ArrayList<>();
+
+            // Obtener todos los jefes de departamento
+            List<JefeDeDepartamento> jefes = jefeDeDepartamentoRepository.findAll();
+
+            if (jefes != null && !jefes.isEmpty()) {
+                for (JefeDeDepartamento jefe : jefes) {
+                    if (jefe.getCorreo() != null && !jefe.getCorreo().isEmpty()) {
+                        destinatarios.add(jefe.getCorreo());
+                    }
+                    if (jefe.getCelular() != null && !jefe.getCelular().isEmpty()) {
+                        celulares.add(jefe.getCelular());
+                    }
+                }
+            }
+
+            String subject = "Nuevo anteproyecto asociado a un proyecto en trámite";
+            String message = String.format("""
+                Se ha asociado un nuevo anteproyecto al proyecto:
+                📘 %s
+                👩‍🎓 Estudiante: %s %s
+                👨‍🏫 Director: %s %s
+                🗓️ Fecha de creación del anteproyecto: %s
+                📝 Descripción: %s
+                """,
+                    proyecto.getTitulo(),
+                    estudiante != null ? estudiante.getNombres() : "Desconocido",
+                    estudiante != null ? estudiante.getApellidos() : "",
+                    docente != null ? docente.getNombres() : "Desconocido",
+                    docente != null ? docente.getApellidos() : "",
+                    anteproyecto.getFechaCreacion(),
+                    anteproyecto.getDescripcion()
+            );
+
+            NotificationEvent notificationEvent = new NotificationEvent(
+                    "project.anteproyecto.associated",
+                    destinatarios,
+                    subject,
+                    message,
+                    celulares,
+                    OffsetDateTime.now()
+            );
+
+            rabbitTemplate.convertAndSend(
+                    mainExchange,
+                    "notification.send.project.anteproyecto.associated",
+                    notificationEvent
+            );
+
+            log.info("📨 Notificación de asociación de anteproyecto enviada correctamente a jefes de departamento.");
+
+        } catch (Exception e) {
+            log.error("Error al enviar notificación a jefes de departamento: {}", e.getMessage(), e);
+        }
     }
 
     public AnteproyectoDTO obtenerAnteproyecto(long proyectoId) {
