@@ -7,6 +7,7 @@ import co.edu.unicauca.academicprojectservice.infra.dto.AnteproyectoDTO;
 import co.edu.unicauca.academicprojectservice.infra.dto.FormatoADTO;
 import co.edu.unicauca.academicprojectservice.infra.dto.ProyectoDTO;
 import co.edu.unicauca.academicprojectservice.infra.dto.ProyectoInfoDTO;
+import co.edu.unicauca.shared.contracts.events.notification.NotificationEvent;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,6 +36,8 @@ public class ProyectoService {
     private FormatoARepository formatoARepository;
     @Autowired
     private AnteproyectoRepository anteproyectoRepository;
+    @Autowired
+    private CoordinadorRepository coordinadorRepository;
     @Autowired
     private RabbitTemplate  rabbitTemplate;
 
@@ -159,6 +163,57 @@ public class ProyectoService {
 
         ProyectoService.log.info("[RabbitMQ] Proyecto creado enviado a la cola: " + routingKeyProjectCreated +
                 " con ID: " + proyectoId);
+
+        try {
+            // Construir los destinatarios (director + estudiantes)
+            List<String> destinatarios = new ArrayList<>();
+            List<String> celulares = new ArrayList<>();
+
+            List<Coordinador> coordinadores = coordinadorRepository.findAll();
+
+            if (coordinadores != null && !coordinadores.isEmpty()) {
+                for (Coordinador coordinador : coordinadores) {
+                    // Evitar valores nulos
+                    if (coordinador.getCorreo() != null && !coordinador.getCorreo().isEmpty()) {
+                        destinatarios.add(coordinador.getCorreo());
+                    }
+                    if (coordinador.getCelular() != null && !coordinador.getCelular().isEmpty()) {
+                        celulares.add(coordinador.getCelular());
+                    }
+                }
+            }
+
+            // Definir asunto y mensaje
+            String subject = "Nuevo Proyecto Creado";
+            String message = String.format(
+                    "Se ha creado el proyecto '%s' para el estudiante %s %s, bajo la dirección de %s %s.",
+                    proyectoGuardado.getTitulo(),
+                    estudiante.getNombres(), estudiante.getApellidos(),
+                    docente.getNombres(), docente.getApellidos()
+            );
+
+            // Crear evento de notificación
+            NotificationEvent notificationEvent = new NotificationEvent(
+                    "project.created",
+                    destinatarios,
+                    subject,
+                    message,
+                    celulares,
+                    OffsetDateTime.now()
+            );
+
+            // Enviar notificación a la cola correspondiente
+            rabbitTemplate.convertAndSend(
+                    mainExchange,
+                    "notification.send.project.created",
+                    notificationEvent
+            );
+
+            ProyectoService.log.info("📨 Notificación enviada: {}", notificationEvent.getSubject());
+
+        } catch (Exception e) {
+            ProyectoService.log.error("Error al enviar notificación: {}", e.getMessage(), e);
+        }
     }
 
 
