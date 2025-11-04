@@ -17,63 +17,79 @@ public class DepartmentHeadDataLoader implements CommandLineRunner {
     private final AnteproyectoRepository anteproyectoRepository;
     private final DocenteRepository docenteRepository;
 
-    public DepartmentHeadDataLoader(AnteproyectoRepository anteproyectoRepository, DocenteRepository docenteRepository) {
+    public DepartmentHeadDataLoader(AnteproyectoRepository anteproyectoRepository,
+                                    DocenteRepository docenteRepository) {
         this.anteproyectoRepository = anteproyectoRepository;
         this.docenteRepository = docenteRepository;
     }
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         loadData();
     }
 
-    public void loadData() {
-        // Crear algunos docentes (estos podrían ser obtenidos desde la base de datos o creados directamente)
-        Docente docente1 = new Docente("1", "Juan Pérez","juan.perez@unicauca.edu.co");
-        Docente docente2 = new Docente("2", "Ana Gómez","ana.gomez@unicauca.edu.co");
-        Docente docente3 = new Docente("3","Carlos Ruiz" ,"carlos.ruiz@unicauca.edu.co");
+    private void loadData() {
+        // --- Crear docentes de prueba ---
+        Docente docente1 = new Docente("1", "Juan Pérez", "juan.perez@unicauca.edu.co");
+        Docente docente2 = new Docente("2", "Ana Gómez", "ana.gomez@unicauca.edu.co");
+        Docente docente3 = new Docente("3", "Carlos Ruiz", "carlos.ruiz@unicauca.edu.co");
 
         docenteRepository.saveAll(List.of(docente1, docente2, docente3));
 
-        // Lista para almacenar los Anteproyectos
+        // --- Crear lista de anteproyectos ---
         List<Anteproyecto> anteproyectos = new ArrayList<>();
 
-        // Crear 15 Anteproyectos sin evaluadores
+        // 15 sin evaluadores
         for (int i = 1; i <= 15; i++) {
-            Anteproyecto anteproyecto = new Anteproyecto(
+            Anteproyecto ante = new Anteproyecto(
+                    100L + i,                      // anteproyectoId
+                    200L + i,                      // proyectoId
                     "Anteproyecto sin evaluadores " + i,
                     "Descripción del anteproyecto sin evaluadores " + i,
                     LocalDate.now(),
-                    List.of() // Sin evaluadores
+                    List.of(),                     // sin evaluadores
+                    "estudiante" + i + "@unicauca.edu.co",
+                    "director" + i + "@unicauca.edu.co",
+                    "SISTEMAS"
             );
-            anteproyectos.add(anteproyecto);
+            anteproyectos.add(ante);
         }
 
-        // Crear 3 Anteproyectos con 2 evaluadores
+        // 3 con dos evaluadores
         for (int i = 16; i <= 18; i++) {
-            Anteproyecto anteproyecto = new Anteproyecto(
+            Anteproyecto ante = new Anteproyecto(
+                    100L + i,
+                    200L + i,
                     "Anteproyecto con 2 evaluadores " + i,
                     "Descripción del anteproyecto con 2 evaluadores " + i,
                     LocalDate.now(),
-                    List.of(docente1, docente2) // 2 evaluadores
+                    List.of(docente1, docente2),
+                    "estudiante" + i + "@unicauca.edu.co",
+                    "director" + i + "@unicauca.edu.co",
+                    "SISTEMAS"
             );
-            anteproyectos.add(anteproyecto);
+            anteproyectos.add(ante);
         }
 
-        // Crear 2 Anteproyectos con 1 evaluador
+        // 2 con un evaluador
         for (int i = 19; i <= 20; i++) {
-            Anteproyecto anteproyecto = new Anteproyecto(
+            Anteproyecto ante = new Anteproyecto(
+                    100L + i,
+                    200L + i,
                     "Anteproyecto con 1 evaluador " + i,
                     "Descripción del anteproyecto con 1 evaluador " + i,
                     LocalDate.now(),
-                    List.of(docente1) // 1 evaluador
+                    List.of(docente3),
+                    "estudiante" + i + "@unicauca.edu.co",
+                    "director" + i + "@unicauca.edu.co",
+                    "SISTEMAS"
             );
-            anteproyectos.add(anteproyecto);
+            anteproyectos.add(ante);
         }
 
-        // Guardar los Anteproyectos en la base de datos
+        // --- Guardar en la base de datos ---
         anteproyectoRepository.saveAll(anteproyectos);
 
-        System.out.println("Datos de anteproyectos cargados correctamente");
+        System.out.println("✅ Datos iniciales cargados correctamente en DepartmentHeadService");
     }
 }

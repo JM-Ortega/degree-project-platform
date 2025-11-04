@@ -2,11 +2,15 @@ package co.edu.unicauca.academicprojectservice.Service;
 
 import co.edu.unicauca.academicprojectservice.Entity.*;
 import co.edu.unicauca.academicprojectservice.Repository.*;
-import co.edu.unicauca.academicprojectservice.infra.DTOs.*;
+import co.edu.unicauca.academicprojectservice.infra.DTOs.DocenteDTOSend;
+import co.edu.unicauca.academicprojectservice.infra.DTOs.EstudianteDTOSend;
+import co.edu.unicauca.academicprojectservice.infra.DTOs.FormatoADTOSend;
+import co.edu.unicauca.academicprojectservice.infra.DTOs.ProyectoDTOSend;
 import co.edu.unicauca.academicprojectservice.infra.dto.AnteproyectoDTO;
 import co.edu.unicauca.academicprojectservice.infra.dto.FormatoADTO;
 import co.edu.unicauca.academicprojectservice.infra.dto.ProyectoDTO;
 import co.edu.unicauca.academicprojectservice.infra.dto.ProyectoInfoDTO;
+import co.edu.unicauca.shared.contracts.events.academic.AnteproyectoSinEvaluadoresEvent;
 import co.edu.unicauca.shared.contracts.events.notification.NotificationEvent;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +25,6 @@ import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -122,7 +125,7 @@ public class ProyectoService {
         estDto.setApellidos(estudiante.getApellidos());
         estDto.setCelular(estudiante.getCelular());
 
-        // Referencia inversa de trabajos (puede ser omitida si genera bucle en serialización)
+        // Referencia inversa de trabajos (opcional; evitar ciclos de serialización)
         estDto.setTrabajos(List.of(pDtoSend));
         estudiantes.add(estDto);
         pDtoSend.setEstudiantes(estudiantes);
@@ -135,8 +138,6 @@ public class ProyectoService {
         docDto.setNombres(docente.getNombres());
         docDto.setApellidos(docente.getApellidos());
         docDto.setCelular(docente.getCelular());
-
-        // Referencia inversa
         docDto.setTrabajosComoDirector(List.of(pDtoSend));
         docDto.setTrabajosComoCodirector(null);
 
@@ -164,18 +165,17 @@ public class ProyectoService {
         // ======= Envío del mensaje =======
         rabbitTemplate.convertAndSend(mainExchange, routingKeyProjectCreated, pDtoSend);
 
-        ProyectoService.log.info("[RabbitMQ] Proyecto creado enviado a la cola: " + routingKeyProjectCreated +
-                " con ID: " + proyectoId);
+        ProyectoService.log.info("[RabbitMQ] Proyecto creado enviado a la cola: {} con ID: {}",
+                routingKeyProjectCreated, proyectoId);
 
+        // ======= Notificación a coordinadores =======
         try {
             List<String> destinatarios = new ArrayList<>();
             List<String> celulares = new ArrayList<>();
 
             List<Coordinador> coordinadores = coordinadorRepository.findAll();
-
             if (coordinadores != null && !coordinadores.isEmpty()) {
                 for (Coordinador coordinador : coordinadores) {
-                    // Evitar valores nulos
                     if (coordinador.getCorreo() != null && !coordinador.getCorreo().isEmpty()) {
                         destinatarios.add(coordinador.getCorreo());
                     }
@@ -185,7 +185,6 @@ public class ProyectoService {
                 }
             }
 
-            // Definir asunto y mensaje
             String subject = "Nuevo Proyecto Creado";
             String message = String.format(
                     "Se ha creado el proyecto '%s' para el estudiante %s %s, bajo la dirección de %s %s.",
@@ -194,7 +193,6 @@ public class ProyectoService {
                     docente.getNombres(), docente.getApellidos()
             );
 
-            // Crear evento de notificación
             NotificationEvent notificationEvent = new NotificationEvent(
                     "project.created",
                     destinatarios,
@@ -204,7 +202,6 @@ public class ProyectoService {
                     OffsetDateTime.now()
             );
 
-            // Enviar notificación a la cola correspondiente
             rabbitTemplate.convertAndSend(
                     mainExchange,
                     "notification.send.project.created",
@@ -217,7 +214,6 @@ public class ProyectoService {
             ProyectoService.log.error("Error al enviar notificación: {}", e.getMessage(), e);
         }
     }
-
 
     public EstadoProyecto enforceAutoCancelIfNeeded(long proyectoId) {
         int observados = formatoARepository.countByProyectoIdAndEstado(proyectoId, EstadoFormatoA.OBSERVADO);
@@ -313,6 +309,7 @@ public class ProyectoService {
             estudiantes.add(estDto);
         }
         pDtoSend.setEstudiantes(estudiantes);
+
         // ======= Director DTO =======
         Docente director = proyectoGuardado.getDirector();
         if (director != null) {
@@ -327,6 +324,7 @@ public class ProyectoService {
         } else {
             pDtoSend.setDirector(null);
         }
+
         // ======= Formato A DTO (nuevo formato subido) =======
         FormatoADTOSend formatoSend = new FormatoADTOSend();
         formatoSend.setId(formatoGuardado.getId());
@@ -344,7 +342,7 @@ public class ProyectoService {
         log.info("[RabbitMQ] Nueva versión de Formato A enviada a la cola: {} (Proyecto ID: {}, Versión: {})",
                 routingKeyProjectUpdated, proyectoId, formatoA.getNroVersion());
 
-        //Envio de notificacion a coordinadores
+        // ======= Notificación a coordinadores =======
         try {
             Estudiante estudiante = proyectoGuardado.getEstudiantes().isEmpty()
                     ? null : proyectoGuardado.getEstudiantes().get(0);
@@ -355,10 +353,8 @@ public class ProyectoService {
             List<String> celulares = new ArrayList<>();
 
             List<Coordinador> coordinadores = coordinadorRepository.findAll();
-
             if (coordinadores != null && !coordinadores.isEmpty()) {
                 for (Coordinador coordinador : coordinadores) {
-                    // Evitar valores nulos
                     if (coordinador.getCorreo() != null && !coordinador.getCorreo().isEmpty()) {
                         destinatarios.add(coordinador.getCorreo());
                     }
@@ -368,16 +364,15 @@ public class ProyectoService {
                 }
             }
 
-            // Definir asunto y mensaje
             String subject = "Formato A actualizado (nueva versión)";
             String message = String.format("""
-                Se ha subido una nueva versión del Formato A en el proyecto:
-                📘 %s
-                👩‍🎓 Estudiante: %s %s
-                👨‍🏫 Director: %s %s
-                🔢 Versión: %d
-                📅 Fecha de subida: %s
-                """,
+                            Se ha subido una nueva versión del Formato A en el proyecto:
+                            📘 %s
+                            👩‍🎓 Estudiante: %s %s
+                            👨‍🏫 Director: %s %s
+                            🔢 Versión: %d
+                            📅 Fecha de subida: %s
+                            """,
                     proyectoGuardado.getTitulo(),
                     estudiante != null ? estudiante.getNombres() : "Desconocido",
                     estudiante != null ? estudiante.getApellidos() : "",
@@ -387,7 +382,6 @@ public class ProyectoService {
                     formatoGuardado.getFechaCreacion()
             );
 
-            // Crear evento de notificación
             NotificationEvent notificationEvent = new NotificationEvent(
                     "project.created",
                     destinatarios,
@@ -397,7 +391,6 @@ public class ProyectoService {
                     OffsetDateTime.now()
             );
 
-            // Enviar notificación a la cola correspondiente
             rabbitTemplate.convertAndSend(
                     mainExchange,
                     "notification.send.project.created",
@@ -443,7 +436,6 @@ public class ProyectoService {
         anteproyecto.setNombreArchivo(dto.getNombreArchivo());
         anteproyecto.setBlob(dto.getBlob());
         anteproyecto.setFechaCreacion(LocalDate.now());
-
         anteproyecto.setProyecto(proyecto);
 
         anteproyectoRepository.save(anteproyecto);
@@ -484,29 +476,35 @@ public class ProyectoService {
         }
         pDtoSend.setEstudiantes(estudiantes);
 
-        // Anteproyecto asociado
-        AnteproyectoDTOSend anteDto = new AnteproyectoDTOSend();
-        anteDto.setId(proyecto.getAnteproyecto().getId());
-        anteDto.setTitulo(anteproyecto.getTitulo());
-        anteDto.setDescripcion(anteproyecto.getDescripcion());
-        anteDto.setFechaCreacion(anteproyecto.getFechaCreacion());
-        pDtoSend.setAnteproyecto(anteDto);
+        // Anteproyecto asociado -> evento interno (DeptHead)
+        AnteproyectoSinEvaluadoresEvent anteEvent = new AnteproyectoSinEvaluadoresEvent(
+                proyecto.getId(),
+                anteproyecto.getId(),
+                anteproyecto.getTitulo(),
+                anteproyecto.getDescripcion(),
+                anteproyecto.getFechaCreacion(),
+                proyecto.getEstudiantes().get(0).getCorreo(),
+                proyecto.getDirector() != null ? proyecto.getDirector().getCorreo() : null,
+                proyecto.getDirector() != null ? proyecto.getDirector().getDepartamento().name() : "DESCONOCIDO"
+        );
 
+        rabbitTemplate.convertAndSend(mainExchange, "academic.anteproyecto.created", anteEvent);
+        log.info("[RabbitMQ] AnteproyectoSinEvaluadoresEvent publicado -> exchange={}, rk={}, payload={}",
+                mainExchange, "academic.anteproyecto.created", anteEvent);
+
+        // Además: publicar actualización de proyecto y notificar a jefes (merge de main)
         rabbitTemplate.convertAndSend(mainExchange, routingKeyProjectUpdated, pDtoSend);
-        log.info("[RabbitMQ] Proyecto actualizado enviado a la cola: " + routingKeyProjectUpdated);
+        log.info("[RabbitMQ] Proyecto actualizado enviado a la cola: {}", routingKeyProjectUpdated);
 
         try {
             Estudiante estudiante = proyecto.getEstudiantes().isEmpty()
                     ? null : proyecto.getEstudiantes().get(0);
-
             Docente docente = proyecto.getDirector();
 
             List<String> destinatarios = new ArrayList<>();
             List<String> celulares = new ArrayList<>();
 
-            // Obtener todos los jefes de departamento
             List<JefeDeDepartamento> jefes = jefeDeDepartamentoRepository.findAll();
-
             if (jefes != null && !jefes.isEmpty()) {
                 for (JefeDeDepartamento jefe : jefes) {
                     if (jefe.getCorreo() != null && !jefe.getCorreo().isEmpty()) {
@@ -520,13 +518,13 @@ public class ProyectoService {
 
             String subject = "Nuevo anteproyecto asociado a un proyecto en trámite";
             String message = String.format("""
-                Se ha asociado un nuevo anteproyecto al proyecto:
-                📘 %s
-                👩‍🎓 Estudiante: %s %s
-                👨‍🏫 Director: %s %s
-                🗓️ Fecha de creación del anteproyecto: %s
-                📝 Descripción: %s
-                """,
+                            Se ha asociado un nuevo anteproyecto al proyecto:
+                            📘 %s
+                            👩‍🎓 Estudiante: %s %s
+                            👨‍🏫 Director: %s %s
+                            🗓️ Fecha de creación del anteproyecto: %s
+                            📝 Descripción: %s
+                            """,
                     proyecto.getTitulo(),
                     estudiante != null ? estudiante.getNombres() : "Desconocido",
                     estudiante != null ? estudiante.getApellidos() : "",

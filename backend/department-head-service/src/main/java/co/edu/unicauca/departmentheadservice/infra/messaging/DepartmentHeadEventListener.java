@@ -1,83 +1,100 @@
 package co.edu.unicauca.departmentheadservice.infra.messaging;
 
-import co.edu.unicauca.shared.contracts.events.academic.AnteproyectoSinEvaluadoresEvent;
-import co.edu.unicauca.shared.contracts.events.auth.UserCreatedEvent;
-import co.edu.unicauca.departmentheadservice.entities.Anteproyecto;
-import co.edu.unicauca.departmentheadservice.entities.Docente;
 import co.edu.unicauca.departmentheadservice.access.AnteproyectoRepository;
 import co.edu.unicauca.departmentheadservice.access.DocenteRepository;
+import co.edu.unicauca.departmentheadservice.entities.Anteproyecto;
+import co.edu.unicauca.departmentheadservice.entities.Docente;
+import co.edu.unicauca.shared.contracts.events.academic.AnteproyectoSinEvaluadoresEvent;
+import co.edu.unicauca.shared.contracts.events.auth.UserCreatedEvent;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@Slf4j
 @Component
 public class DepartmentHeadEventListener {
 
     private final AnteproyectoRepository anteproyectoRepository;
     private final DocenteRepository docenteRepository;
 
-    public DepartmentHeadEventListener(AnteproyectoRepository anteproyectoRepository, DocenteRepository docenteRepository) {
+    public DepartmentHeadEventListener(AnteproyectoRepository anteproyectoRepository,
+                                       DocenteRepository docenteRepository) {
         this.anteproyectoRepository = anteproyectoRepository;
         this.docenteRepository = docenteRepository;
     }
 
     /**
      * Procesa eventos de creación de usuarios y almacena únicamente los registros de docentes.
-     * Evalúa la lista de roles para identificar usuarios con rol de docente.
-     *
-     * @param event Evento recibido con los datos del usuario creado
      */
     @RabbitListener(queues = "${messaging.queues.department}")
     public void handleUserCreatedEvent(UserCreatedEvent event) {
-        System.out.println("Evento recibido: Usuario creado - Nombre: " + event.nombre() + ", Roles: " +
-                          event.roles().stream().map(Enum::name).reduce((a, b) -> a + ", " + b).orElse("Ninguno"));
+        log.info("Evento recibido: Usuario creado - Nombre: {}, Roles: {}",
+                event.nombre(),
+                event.roles().stream().map(Enum::name).reduce((a, b) -> a + ", " + b).orElse("Ninguno"));
 
-        // Validar si el usuario tiene rol de docente
-        boolean esDocente = event.roles().stream()
-                .anyMatch(rol -> rol.name().equalsIgnoreCase("DOCENTE"));
+        boolean esDocente = event.roles().stream().anyMatch(rol -> rol.name().equalsIgnoreCase("DOCENTE"));
+        if (!esDocente) {
+            log.debug("Usuario descartado (no docente): {}", event.email());
+            return;
+        }
 
-        if (esDocente) {
-            try {
-                Docente docente = new Docente(event.personaId(), event.nombre(), event.email());
-                docenteRepository.save(docente);
-                System.out.println("Docente almacenado en base de datos: " + docente.getNombre());
-            } catch (Exception e) {
-                System.err.println("Error durante el almacenamiento del docente: " + e.getMessage());
-                e.printStackTrace();
-            }
-        } else {
-            System.out.println("Usuario descartado - No contiene rol docente. Roles asignados: " +
-                             event.roles().stream().map(Enum::name).reduce((a, b) -> a + ", " + b).orElse("Ninguno"));
+        try {
+            Docente docente = new Docente(event.personaId(), event.nombre(), event.email());
+            docenteRepository.save(docente);
+            log.info("Docente almacenado: {}", docente.getNombre());
+        } catch (Exception e) {
+            log.error("Error durante el almacenamiento del docente {}: {}", event.email(), e.getMessage(), e);
+            throw e; // permite reintento/DLQ
         }
     }
 
+
+
     /**
      * Procesa eventos de creación de anteproyectos sin evaluadores asignados.
-     * Almacena el anteproyecto con una lista vacía de evaluadores para su posterior asignación.
-     *
-     * @param event Evento recibido con los datos del anteproyecto creado
+     * Idempotente por anteproyectoId.
      */
     @RabbitListener(queues = "${messaging.queues.department}")
     public void handleAnteproyectoSinEvaluadoresEvent(AnteproyectoSinEvaluadoresEvent event) {
-        System.out.println("Evento recibido: Anteproyecto creado (sin evaluadores): " + event.titulo());
+        log.info("[DeptHead] Anteproyecto creado (sin evaluadores). projId={}, anteId={}, titulo={}",
+                event.proyectoId(), event.anteproyectoId(), event.titulo());
 
         try {
-            // Inicializar lista vacía de evaluadores para asignación posterior
+            // 1) Idempotencia: si ya existe, salimos
+            if (anteproyectoRepository.existsByAnteproyectoId(event.anteproyectoId())) {
+                log.debug("[DeptHead] Ignorado: anteproyectoId={} ya registrado", event.anteproyectoId());
+                return;
+            }
+
+            // 2) (opcional) filtrar por departamento si aplica
+            // if (!"SISTEMAS".equalsIgnoreCase(event.departamento())) return;
+
+            // 3) crear con evaluadores vacíos
             List<Docente> evaluadores = List.of();
 
-            Anteproyecto anteproyecto = new Anteproyecto(
+            // Constructor recomendado en la entidad adaptada:
+            Anteproyecto ante = new Anteproyecto(
+                    event.anteproyectoId(),       // id externo único
+                    event.proyectoId(),           // trazabilidad
                     event.titulo(),
                     event.descripcion(),
                     event.fechaCreacion(),
-                    evaluadores
+                    evaluadores,
+                    event.estudianteCorreo(),     // opcional según tu entidad
+                    event.directorCorreo(),       // opcional según tu entidad
+                    event.departamento()          // opcional
             );
 
-            anteproyectoRepository.save(anteproyecto);
-            System.out.println("Anteproyecto almacenado en base de datos: " + anteproyecto.getTitulo());
+            anteproyectoRepository.save(ante);
+            log.info("[DeptHead] Anteproyecto almacenado. anteId={}, titulo={}",
+                    event.anteproyectoId(), event.titulo());
+
         } catch (Exception e) {
-            System.err.println("Error durante el almacenamiento del anteproyecto: " + e.getMessage());
-            e.printStackTrace();
+            log.error("[DeptHead] Error guardando anteproyecto projId={} anteId={}: {}",
+                    event.proyectoId(), event.anteproyectoId(), e.getMessage(), e);
+            throw e; // deja que falle para reintentos/DLQ
         }
     }
 }

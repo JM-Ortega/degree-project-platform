@@ -84,8 +84,9 @@ public class RabbitConfig {
         return BindingBuilder
                 .bind(departmentQueue())
                 .to(mainExchange())
-                .with("project.created");
+                .with("academic.anteproyecto.created");
     }
+
 
     /**
      * Binding para la Dead Letter Queue

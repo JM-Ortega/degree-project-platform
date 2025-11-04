@@ -8,7 +8,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -36,19 +35,31 @@ class AnteproyectoControllerTest {
     @BeforeEach
     void setUp() {
         // Configurar datos de prueba
+// Configurar datos de prueba
         anteproyecto1 = new Anteproyecto(
-            "Sistema de Gestión Académica",
-            "Descripción del sistema académico",
-            LocalDate.of(2024, 1, 15),
-            Collections.emptyList()
+                1L, // anteproyectoId
+                101L, // proyectoId
+                "Sistema de Gestión Académica",
+                "Descripción del sistema académico",
+                LocalDate.of(2024, 1, 15),
+                Collections.emptyList(), // sin evaluadores
+                "est1@unicauca.edu.co", // estudianteCorreo
+                "dir1@unicauca.edu.co", // directorCorreo
+                "SISTEMAS" // departamento
         );
 
         anteproyecto2 = new Anteproyecto(
-            "Plataforma de E-learning",
-            "Descripción de plataforma e-learning",
-            LocalDate.of(2024, 2, 20),
-            Collections.emptyList()
+                2L, // anteproyectoId
+                102L, // proyectoId
+                "Plataforma de E-learning",
+                "Descripción de plataforma e-learning",
+                LocalDate.of(2024, 2, 20),
+                Collections.emptyList(), // sin evaluadores
+                "est2@unicauca.edu.co", // estudianteCorreo
+                "dir2@unicauca.edu.co", // directorCorreo
+                "SISTEMAS" // departamento
         );
+
 
         // Establecer IDs usando reflection
         setId(anteproyecto1, 1L);

@@ -18,4 +18,7 @@ public interface AnteproyectoRepository extends JpaRepository<Anteproyecto, Long
     // Método para buscar por ID
     List<Anteproyecto> findByEvaluadoresIsEmptyAndId(Long id);
 
+    boolean existsByAnteproyectoId(Long anteproyectoId);
+
+
 }
