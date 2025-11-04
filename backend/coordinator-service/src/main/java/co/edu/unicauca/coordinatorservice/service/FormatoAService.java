@@ -49,7 +49,7 @@ public class FormatoAService {
 
         // Validar número máximo de versiones
         if (formato.getNroVersion() > 3) {
-            throw new IllegalStateException("No se permiten más de 3 versiones del Formato A.");
+            throw new IllegalStateException("No se pueden subir más de 3 versiones del Formato A para este proyecto.");
         }
 
         // Actualizar archivo y metadatos

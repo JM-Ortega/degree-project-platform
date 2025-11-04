@@ -1,27 +1,32 @@
 package co.edu.unicauca.coordinatorservice;
 
-import co.edu.unicauca.coordinatorservice.entity.*;
+import co.edu.unicauca.coordinatorservice.entity.Docente;
+import co.edu.unicauca.coordinatorservice.entity.Estudiante;
+import co.edu.unicauca.coordinatorservice.entity.FormatoA;
 import co.edu.unicauca.coordinatorservice.infra.DTOS.EstadoFormatoA;
 import co.edu.unicauca.coordinatorservice.repository.FormatoARepository;
 import co.edu.unicauca.coordinatorservice.service.FormatoAService;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.*;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.mock.web.MockMultipartFile;
-import java.io.IOException;
-import java.util.Optional;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.util.*;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @Slf4j
 @ExtendWith(SpringExtension.class)
@@ -84,6 +89,8 @@ class FormatoAServiceTest {
         formatoBase.setDirector(director);
         formatoBase.setCoodirector(codirector);
         formatoBase.setEstudiantes(estudiantes);
+        when(rabbitTemplate.getMessageConverter())
+                .thenReturn(new Jackson2JsonMessageConverter());
     }
 
     @Test
