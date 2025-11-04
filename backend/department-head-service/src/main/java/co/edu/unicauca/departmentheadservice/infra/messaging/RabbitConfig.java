@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * Configuración de RabbitMQ para el microservicio de Departamento.
- * Configura el Exchange, Queues, y Bindings necesarios para publicar y escuchar eventos.
+ * Configura el Exchange, Queues y Bindings necesarios para publicar y escuchar eventos.
  */
 @Configuration
 public class RabbitConfig {
@@ -27,6 +27,7 @@ public class RabbitConfig {
     @Value("${messaging.queues.departmentDlq}")
     private String departmentDlqName;
 
+    // ===== Exchanges =====
     @Bean
     public TopicExchange mainExchange() {
         return ExchangeBuilder
@@ -43,6 +44,7 @@ public class RabbitConfig {
                 .build();
     }
 
+    // ===== Queues =====
     @Bean
     public Queue departmentQueue() {
         return QueueBuilder
@@ -59,14 +61,9 @@ public class RabbitConfig {
                 .build();
     }
 
-    // ======================================================
-    //  BINDINGS CORREGIDOS
-    // ======================================================
+    // ===== Bindings (una cola, dos bindings específicos) =====
 
-    /**
-     * Binding para escuchar eventos de creación de usuarios
-     * Filtra docentes en el listener correspondiente
-     */
+    /** Escucha eventos de creación de usuarios (auth.user.created). */
     @Bean
     public Binding userCreatedBinding() {
         return BindingBuilder
@@ -75,10 +72,7 @@ public class RabbitConfig {
                 .with("auth.user.created");
     }
 
-    /**
-     * Binding para escuchar eventos de creación de anteproyectos sin evaluadores
-     * Corregido: usa "project.created" en lugar de "department.anteproyecto.created"
-     */
+    /** Escucha eventos de creación de anteproyectos (academic.anteproyecto.created). */
     @Bean
     public Binding anteproyectoSinEvaluadoresBinding() {
         return BindingBuilder
@@ -87,10 +81,7 @@ public class RabbitConfig {
                 .with("academic.anteproyecto.created");
     }
 
-
-    /**
-     * Binding para la Dead Letter Queue
-     */
+    /** Binding para la Dead Letter Queue. */
     @Bean
     public Binding departmentDlqBinding() {
         return BindingBuilder
@@ -99,16 +90,16 @@ public class RabbitConfig {
                 .with(departmentDlqName);
     }
 
+    // ===== Conversión JSON (el mismo converter sirve para template y listeners vía auto-config) =====
     @Bean
     public Jackson2JsonMessageConverter jackson2JsonMessageConverter(com.fasterxml.jackson.databind.ObjectMapper mapper) {
         return new Jackson2JsonMessageConverter(mapper);
     }
 
+    // ===== RabbitTemplate (por si publicas algo desde este micro) =====
     @Bean
-    public RabbitTemplate rabbitTemplate(
-            ConnectionFactory connectionFactory,
-            Jackson2JsonMessageConverter messageConverter
-    ) {
+    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory,
+                                         Jackson2JsonMessageConverter messageConverter) {
         RabbitTemplate template = new RabbitTemplate(connectionFactory);
         template.setMessageConverter(messageConverter);
         return template;

@@ -24,6 +24,9 @@ public class RabbitMQConfig {
     @Value("${messaging.queues.coordinatorDlq}")
     private String coordinatorDlq;
 
+    @Value("${messaging.queues.coordinatorAuth}")
+    private String coordinatorAuthQueue; // ✅ nueva cola para eventos de usuario
+
     @Value("${messaging.routing.formatAApprovedByCoordinator}")
     private String routingKeyFormatAApproved;
 
@@ -39,7 +42,7 @@ public class RabbitMQConfig {
         return new TopicExchange(dlxExchange, true, false);
     }
 
-    // 3) Cola principal con enlace al DLX
+    // 3) Cola principal
     @Bean
     public Queue coordinatorQueueBean() {
         return QueueBuilder.durable(coordinatorQueue)
@@ -54,7 +57,7 @@ public class RabbitMQConfig {
         return QueueBuilder.durable(coordinatorDlq).build();
     }
 
-    // 5) Binding: mainExchange -> coordinatorQueue (routing exacto del evento aprobado)
+    // 5) Binding: mainExchange -> coordinatorQueue
     @Bean
     public Binding bindingCoordinator() {
         return BindingBuilder
@@ -63,7 +66,24 @@ public class RabbitMQConfig {
                 .with(routingKeyFormatAApproved);
     }
 
-    // 6) Binding: DLX -> DLQ (cuando un mensaje muere en la cola principal)
+    // ✅ NUEVA COLA para eventos de creación de usuario (auth.user.created)
+    @Bean
+    public Queue coordinatorAuthQueueBean() {
+        return QueueBuilder.durable(coordinatorAuthQueue)
+                .withArgument("x-dead-letter-exchange", dlxExchange)
+                .withArgument("x-dead-letter-routing-key", coordinatorDlq)
+                .build();
+    }
+
+    // ✅ Binding para la cola de usuarios
+    @Bean
+    public Binding bindCoordinatorAuthUserCreated() {
+        return BindingBuilder.bind(coordinatorAuthQueueBean())
+                .to(mainExchange())
+                .with("auth.user.created");
+    }
+
+    // 6) Binding: DLX -> DLQ
     @Bean
     public Binding bindingCoordinatorDlq() {
         return BindingBuilder
@@ -72,13 +92,13 @@ public class RabbitMQConfig {
                 .with(coordinatorDlq);
     }
 
-    // 7) Convertidor JSON para AMQP
+    // 7) Convertidor JSON
     @Bean
     public Jackson2JsonMessageConverter jackson2JsonMessageConverter() {
         return new Jackson2JsonMessageConverter();
     }
 
-    // 8) RabbitTemplate usando el converter JSON
+    // 8) RabbitTemplate
     @Bean
     public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory,
                                          Jackson2JsonMessageConverter converter) {
@@ -87,7 +107,7 @@ public class RabbitMQConfig {
         return template;
     }
 
-    // 9) (Solo si este servicio también escucha) Listener factory con el mismo converter
+    // 9) Listener Factory
     @Bean
     public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory(
             ConnectionFactory connectionFactory,

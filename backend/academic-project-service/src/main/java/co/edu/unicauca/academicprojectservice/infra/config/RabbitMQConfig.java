@@ -11,14 +11,9 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * Configuración de RabbitMQ para el microservicio Academic Project Service.
- * <p>
  * Define colas, exchange principal, bindings y convertidor de mensajes JSON.
- * Los valores se obtienen desde application.yml.
- * </p>
  */
 @Configuration
-// ... imports y @Configuration como ya lo tienes
-
 public class RabbitMQConfig {
 
     // =====================================================
@@ -36,7 +31,6 @@ public class RabbitMQConfig {
     @Value("${messaging.queues.projectDlq}")
     private String projectDlq;
 
-    // --- NUEVO ---
     @Value("${messaging.queues.projectFormatoA}")
     private String projectFormatoAQueue;
 
@@ -45,9 +39,6 @@ public class RabbitMQConfig {
 
     @Value("${messaging.routing.projectUpdated}")
     private String projectUpdatedRoutingKey;
-
-    @Value("${messaging.routing.userCreated}")
-    private String userCreatedRoutingKey;
 
     @Value("${messaging.routing.formatAApprovedByCoordinator}")
     private String formatAApprovedByCoordinatorRoutingKey;
@@ -66,7 +57,7 @@ public class RabbitMQConfig {
     }
 
     // =====================================================
-    // 3. Declaración de colas (principal, DLQ y la nueva de FormatoA)
+    // 3. Declaración de colas (project, DLQ, FormatoA, y auth)
     // =====================================================
     @Bean
     public Queue projectQueue() {
@@ -81,12 +72,18 @@ public class RabbitMQConfig {
         return QueueBuilder.durable(projectDlq).build();
     }
 
-    // --- NUEVO: cola dedicada a eventos de FormatoA ---
     @Bean
     public Queue projectFormatoAQueue() {
         return QueueBuilder.durable(projectFormatoAQueue)
-                // si quieres una DLQ propia, crea otra cola y cámbiala aquí;
-                // por ahora reutilizamos la misma DLQ 'projectDlq'
+                .withArgument("x-dead-letter-exchange", dlxExchange)
+                .withArgument("x-dead-letter-routing-key", projectDlq)
+                .build();
+    }
+
+    // --- NUEVA COLA dedicada a los eventos de creación de usuarios ---
+    @Bean
+    public Queue academicAuthQueue() {
+        return QueueBuilder.durable("academic.auth.q") // nombre único para este micro
                 .withArgument("x-dead-letter-exchange", dlxExchange)
                 .withArgument("x-dead-letter-routing-key", projectDlq)
                 .build();
@@ -105,23 +102,28 @@ public class RabbitMQConfig {
         return BindingBuilder.bind(projectQueue).to(mainExchange).with(projectUpdatedRoutingKey);
     }
 
-    // --- IMPORTANTE: mueve formatA.approved a la cola nueva ---
     @Bean
     public Binding bindingFormatoAApproved(Queue projectFormatoAQueue, TopicExchange mainExchange) {
         return BindingBuilder.bind(projectFormatoAQueue).to(mainExchange).with(formatAApprovedByCoordinatorRoutingKey);
     }
 
-    // =====================================================
-    // 4.1 Bindings DLX -> DLQ
-    // =====================================================
+    // --- NUEVO: binding para auth.user.created ---
+    @Bean
+    public Binding bindAuthUserCreated(Queue academicAuthQueue, TopicExchange mainExchange) {
+        return BindingBuilder.bind(academicAuthQueue)
+                .to(mainExchange)
+                .with("auth.user.created");
+    }
 
+    // =====================================================
+    // 5. Binding DLX -> DLQ
+    // =====================================================
     @Bean
     public Binding bindProjectDlqToDlx(
             @Qualifier("projectDlq") Queue projectDlqQueue,
             TopicExchange deadLetterExchange,
             @Value("${messaging.queues.projectDlq}") String rkToDlq) {
 
-        // routing key = nombre de la DLQ (debe coincidir con x-dead-letter-routing-key)
         return BindingBuilder
                 .bind(projectDlqQueue)
                 .to(deadLetterExchange)
@@ -129,7 +131,7 @@ public class RabbitMQConfig {
     }
 
     // =====================================================
-    // 5. Convertidor JSON (Jackson)
+    // 6. Convertidor JSON (Jackson)
     // =====================================================
     @Bean
     public Jackson2JsonMessageConverter jackson2JsonMessageConverter() {
@@ -137,7 +139,7 @@ public class RabbitMQConfig {
     }
 
     // =====================================================
-    // 6. RabbitTemplate con convertidor JSON
+    // 7. RabbitTemplate con convertidor JSON
     // =====================================================
     @Bean
     public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory,
