@@ -27,7 +27,7 @@ public class ProyectoEstudianteService {
     public List<ProyectoEstudianteDTO> obtenerProyectosEstudiante() {
         try {
             // Por ahora lo quemo
-            String correo = "carlos.lopez@uni.edu";
+            String correo = "lau@unicauca.edu.co";
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(new URI(BASE_URL + "/listar/" + correo))

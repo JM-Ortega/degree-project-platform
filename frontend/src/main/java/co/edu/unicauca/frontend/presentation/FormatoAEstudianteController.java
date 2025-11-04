@@ -65,7 +65,25 @@ public class FormatoAEstudianteController implements Initializable {
         });
 
         colDirector.setCellValueFactory(cell -> cell.getValue().nombreDirectorProperty());
-        colEstado.setCellValueFactory(cell -> cell.getValue().estadoProyectoProperty());
+        colEstado.setCellValueFactory(cellData -> {
+            String tipo = cellData.getValue().getEstadoProyecto();
+            String estP;
+            switch (tipo) {
+                case "EN_TRAMITE":
+                    estP = "En tramite";
+                    break;
+                case "RECHAZADO":
+                    estP = "Rechazado";
+                    break;
+                case "TERMINADO":
+                    estP = "Terminado";
+                    break;
+                default:
+                    estP = tipo;
+                    break;
+            }
+            return new ReadOnlyStringWrapper(estP);
+        });
     }
 
     private void configurarColumnaEstado() {
