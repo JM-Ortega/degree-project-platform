@@ -1,7 +1,10 @@
 package co.edu.unicauca.frontend.presentation;
 
+import co.edu.unicauca.frontend.FrontendServices;
+import co.edu.unicauca.frontend.dto.SessionInfo;
 import co.edu.unicauca.frontend.entities.*;
 import co.edu.unicauca.frontend.infra.dto.*;
+import co.edu.unicauca.frontend.infra.session.SessionManager;
 import co.edu.unicauca.frontend.services.DocenteService;
 import co.edu.unicauca.frontend.services.EstudianteService;
 import co.edu.unicauca.frontend.services.ProyectoService;
@@ -131,6 +134,14 @@ public class FormatoADocenteController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        try {
+            this.docenteService = FrontendServices.docenteService();
+            this.proyectoService = FrontendServices.proyectoService();
+            this.estudianteService = FrontendServices.estudianteService();
+        } catch (IllegalStateException e) {
+            System.err.println("Error: servicios no disponibles. Asegúrate de llamar FrontendServices.init() antes.");
+            return;
+        }
         configurarTabla();
         tblProyectos.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
@@ -153,11 +164,11 @@ public class FormatoADocenteController implements Initializable {
 
     // =================== Carga inicial ===================
     public void cargarDatos() {
-        UsuarioDTO docente = SesionFront.getInstancia().getUsuarioActivo();
+        SessionInfo docente = SessionManager.getInstance().getCurrentSession();
         if (docente == null) {
             System.err.println("No hay sesión activa");
         }
-        nombreDocente.setText(docente.getNombre());
+        nombreDocente.setText(docente.nombres());
         ocultarPanelNuevo();
         if (lblPdfNombre != null) lblPdfNombre.setText("Ningún archivo seleccionado");
         if (lblCartaNombre != null) lblCartaNombre.setText("Ningún archivo seleccionado");
@@ -264,7 +275,7 @@ public class FormatoADocenteController implements Initializable {
     @FXML
     private void onCrearProyecto() {
         lblNuevoProyectoMsg.setText("");
-        UsuarioDTO docente = SesionFront.getInstancia().getUsuarioActivo();
+        SessionInfo docente = SessionManager.getInstance().getCurrentSession();
         if (docente == null) {
             setError(lblNuevoProyectoMsg, "Sesión no válida");
             return;
@@ -299,7 +310,7 @@ public class FormatoADocenteController implements Initializable {
             ProyectoDTO p = new ProyectoDTO();
             p.setTipoProyecto(tipoTrabajo);
             p.setTitulo(titulo);
-            p.setDirector(docente.getCorreo());
+            p.setDirector(docente.email());
             p.setEstudiante(correo);
 
             FormatoADTO formatoADTO = new FormatoADTO();
@@ -406,11 +417,11 @@ public class FormatoADocenteController implements Initializable {
     private void cargarTabla() {
         lblTablaMsg.setText("");
 
-        UsuarioDTO usuario = SesionFront.getInstancia().getUsuarioActivo();
+        SessionInfo usuario = SessionManager.getInstance().getCurrentSession();
         if (usuario == null) return;
 
         String filtro = safeText(txtBuscar);
-        List<ProyectoInfoDTO> proyectos = proyectoService.listarProyectosDocente(usuario.getCorreo(), filtro);
+        List<ProyectoInfoDTO> proyectos = proyectoService.listarProyectosDocente(usuario.email(), filtro);
 
         ObservableList<RowVM> rows = FXCollections.observableArrayList();
         for (ProyectoInfoDTO p : proyectos) {
@@ -490,12 +501,12 @@ public class FormatoADocenteController implements Initializable {
     }
 
     private void actualizarCupo() {
-        UsuarioDTO auth = SesionFront.getInstancia().getUsuarioActivo();
+        SessionInfo auth = SessionManager.getInstance().getCurrentSession();
         if (auth == null) {
             btnIniciarNuevoProyecto.setDisable(true);
             return;
         }
-        boolean cupo = docenteService.docenteTieneCupo(auth.getCorreo());
+        boolean cupo = docenteService.docenteTieneCupo(auth.email());
         btnIniciarNuevoProyecto.setDisable(!cupo);
         lblCupoDocente.setText(cupo ? "" : "Límite de 7 proyectos en curso alcanzado");
     }

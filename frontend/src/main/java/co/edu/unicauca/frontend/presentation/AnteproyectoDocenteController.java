@@ -1,8 +1,11 @@
 package co.edu.unicauca.frontend.presentation;
 
+import co.edu.unicauca.frontend.FrontendServices;
+import co.edu.unicauca.frontend.dto.SessionInfo;
 import co.edu.unicauca.frontend.entities.*;
 import co.edu.unicauca.frontend.infra.dto.AnteproyectoDTO;
 import co.edu.unicauca.frontend.infra.dto.UsuarioDTO;
+import co.edu.unicauca.frontend.infra.session.SessionManager;
 import co.edu.unicauca.frontend.services.DocenteService;
 import co.edu.unicauca.frontend.services.EstudianteService;
 import co.edu.unicauca.frontend.services.ProyectoService;
@@ -73,6 +76,14 @@ public class AnteproyectoDocenteController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        try {
+            this.docenteService = FrontendServices.docenteService();
+            this.proyectoService = FrontendServices.proyectoService();
+            this.estudianteService = FrontendServices.estudianteService();
+        } catch (IllegalStateException e) {
+            System.err.println("Error: servicios no disponibles. Asegúrate de llamar FrontendServices.init() antes.");
+            return;
+        }
         configurarTabla();
         tblAnteproyectos.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
     }
@@ -111,11 +122,11 @@ public class AnteproyectoDocenteController implements Initializable {
     }
 
     public void carcarDatos(){
-        UsuarioDTO docente = SesionFront.getInstancia().getUsuarioActivo();
+        SessionInfo docente = SessionManager.getInstance().getCurrentSession();
         if (docente == null) {
             System.err.println("No hay sesión activa");
         }
-        nombreDocente.setText(docente.getNombre());
+        nombreDocente.setText(docente.nombres());
         if (lblPdfNombre != null) lblPdfNombre.setText("Ningún archivo seleccionado");
         cargarTabla();
     }
@@ -180,7 +191,7 @@ public class AnteproyectoDocenteController implements Initializable {
     @FXML
     private void onCrearAnteproyecto(ActionEvent event) {
         lblNuevoAnteproyectoMsg.setText("");
-        UsuarioDTO docente = SesionFront.getInstancia().getUsuarioActivo();
+        SessionInfo docente = SessionManager.getInstance().getCurrentSession();
         if (docente == null) {
             setError(lblNuevoAnteproyectoMsg, "Sesión no válida");
             return;
@@ -240,11 +251,11 @@ public class AnteproyectoDocenteController implements Initializable {
     private void cargarTabla() {
         lblTablaMsg.setText("");
 
-        UsuarioDTO usuario = SesionFront.getInstancia().getUsuarioActivo();
+        SessionInfo usuario = SessionManager.getInstance().getCurrentSession();
         if (usuario == null) return;
 
         String filtro = safeText(txtBuscar);
-        List<AnteproyectoDTO> proyectos = proyectoService.listarAnteproyectosDocente(usuario.getCorreo(), filtro);
+        List<AnteproyectoDTO> proyectos = proyectoService.listarAnteproyectosDocente(usuario.email(), filtro);
 
         ObservableList<AnteproyectoDocenteController.RowVM> rows = FXCollections.observableArrayList();
         for (AnteproyectoDTO p : proyectos) {
