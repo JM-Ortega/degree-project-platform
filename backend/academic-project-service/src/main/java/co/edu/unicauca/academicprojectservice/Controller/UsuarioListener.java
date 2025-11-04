@@ -47,7 +47,7 @@ public class UsuarioListener {
      * Consume el evento compartido de creación de usuario y realiza la
      * actualización correspondiente según el rol del usuario.
      */
-    @RabbitListener(queues = "${messaging.queues.auth")
+    @RabbitListener(queues = "${messaging.queues.auth}")
     @Transactional
     public void onUserCreated(UserCreatedEvent evt) {
         try {
