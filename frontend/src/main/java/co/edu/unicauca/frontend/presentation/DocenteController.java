@@ -3,6 +3,7 @@ package co.edu.unicauca.frontend.presentation;
 import co.edu.unicauca.frontend.FrontendServices;
 import co.edu.unicauca.frontend.dto.SessionInfo;
 import co.edu.unicauca.frontend.infra.session.SessionManager;
+import co.edu.unicauca.frontend.presentation.navigation.ViewNavigator;
 import co.edu.unicauca.frontend.services.DocenteService;
 import co.edu.unicauca.frontend.services.EstudianteService;
 import co.edu.unicauca.frontend.services.ProyectoService;
@@ -58,7 +59,7 @@ public class DocenteController implements Initializable {
 
     @FXML
     void switchToLogin(ActionEvent event) {
-        //TODO volver al inicio (login)
+        ViewNavigator.goTo("/co/edu/unicauca/frontend/view/SignIn.fxml", "Inicio de sesión");
     }
 
     @FXML
