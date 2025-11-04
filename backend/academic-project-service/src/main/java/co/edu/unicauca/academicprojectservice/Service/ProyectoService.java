@@ -2,11 +2,15 @@ package co.edu.unicauca.academicprojectservice.Service;
 
 import co.edu.unicauca.academicprojectservice.Entity.*;
 import co.edu.unicauca.academicprojectservice.Repository.*;
-import co.edu.unicauca.academicprojectservice.infra.DTOs.*;
+import co.edu.unicauca.academicprojectservice.infra.DTOs.DocenteDTOSend;
+import co.edu.unicauca.academicprojectservice.infra.DTOs.EstudianteDTOSend;
+import co.edu.unicauca.academicprojectservice.infra.DTOs.FormatoADTOSend;
+import co.edu.unicauca.academicprojectservice.infra.DTOs.ProyectoDTOSend;
 import co.edu.unicauca.academicprojectservice.infra.dto.AnteproyectoDTO;
 import co.edu.unicauca.academicprojectservice.infra.dto.FormatoADTO;
 import co.edu.unicauca.academicprojectservice.infra.dto.ProyectoDTO;
 import co.edu.unicauca.academicprojectservice.infra.dto.ProyectoInfoDTO;
+import co.edu.unicauca.shared.contracts.events.academic.AnteproyectoSinEvaluadoresEvent;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -362,15 +366,22 @@ public class ProyectoService {
         pDtoSend.setEstudiantes(estudiantes);
 
         // Anteproyecto asociado
-        AnteproyectoDTOSend anteDto = new AnteproyectoDTOSend();
-        anteDto.setId(proyecto.getAnteproyecto().getId());
-        anteDto.setTitulo(anteproyecto.getTitulo());
-        anteDto.setDescripcion(anteproyecto.getDescripcion());
-        anteDto.setFechaCreacion(anteproyecto.getFechaCreacion());
-        pDtoSend.setAnteproyecto(anteDto);
+        AnteproyectoSinEvaluadoresEvent anteEvent = new AnteproyectoSinEvaluadoresEvent(
+                proyecto.getId(),
+                anteproyecto.getId(),
+                anteproyecto.getTitulo(),
+                anteproyecto.getDescripcion(),
+                anteproyecto.getFechaCreacion(),
+                proyecto.getEstudiantes().get(0).getCorreo(),
+                proyecto.getDirector() != null ? proyecto.getDirector().getCorreo() : null,
+                proyecto.getDirector() != null ? proyecto.getDirector().getDepartamento().name() : "DESCONOCIDO"
+        );
 
-        rabbitTemplate.convertAndSend(mainExchange, routingKeyProjectUpdated, pDtoSend);
-        log.info("[RabbitMQ] Proyecto actualizado enviado a la cola: " + routingKeyProjectUpdated);
+        rabbitTemplate.convertAndSend(mainExchange, "academic.anteproyecto.created", anteEvent);
+
+        log.info("[RabbitMQ] AnteproyectoSinEvaluadoresEvent publicado -> exchange={}, rk={}, payload={}",
+                mainExchange, "academic.anteproyecto.created", anteEvent);
+
     }
 
     public AnteproyectoDTO obtenerAnteproyecto(long proyectoId) {
