@@ -15,7 +15,10 @@ public class FormatoA {
     private Long id;
     private int nroVersion;
     private String nombreFormato;
+
+    @Column(name = "fecha_creacion")
     private LocalDate fechaCreacion;
+
     private byte[] blob;
     @Enumerated(EnumType.STRING)
     @Column(name = "estado_archivo", nullable = false)

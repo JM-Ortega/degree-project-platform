@@ -28,6 +28,7 @@ public class FormatoADTO {
     public LocalDate getFechaCreacion() {
         return fechaCreacion;
     }
+  
     public void setFechaCreacion(LocalDate fechaCreacion) {
         this.fechaCreacion = fechaCreacion;
     }

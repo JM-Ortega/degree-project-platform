@@ -1,0 +1,76 @@
+.fondo{
+    -fx-background-color: #ffffff;
+}
+
+.fondo2{
+    -fx-background-color: #F0F0F0;
+}
+
+.fondoPanel{
+    -fx-background-color:#4670A4
+}
+
+.button{
+    -fx-background-color: #4670A4;
+}
+
+.hoverable {
+    -fx-background-color: #6798D4;
+}
+
+.button.selected {
+    -fx-background-color: #6798D4;
+}
+
+.list-cell.aceptado {
+    -fx-text-fill: green;
+    -fx-font-weight: bold;
+}
+
+.list-cell.rechazado {
+    -fx-text-fill: red;
+    -fx-font-weight: bold;
+}
+
+.table-view {
+    -fx-background-color: #f5f5f5;
+    -fx-table-cell-border-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.table-row-cell {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent transparent #d0d0d0 transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-pref-height: 40px;
+}
+
+.table-cell {
+    -fx-border-color: transparent;
+    -fx-alignment: CENTER;
+    -fx-text-alignment: center;
+    -fx-padding: 0 0 0 10;
+    -fx-font-family: "Roboto", sans-serif;
+    -fx-font-size: 12px;
+}
+
+/* Cabecera */
+.table-view .column-header,
+.table-view .column-header .label {
+    -fx-background-color: #e0e0e0;
+    -fx-font-family: "Roboto", sans-serif;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-alignment: CENTER;
+    -fx-text-alignment: center;
+}
+
+.table-row-cell:selected {
+    -fx-background-color: #c5cae9; /* Azul claro */
+    -fx-text-fill: black;
+}
+
+.descargas {
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+}

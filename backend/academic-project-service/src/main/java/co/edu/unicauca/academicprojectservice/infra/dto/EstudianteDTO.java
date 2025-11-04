@@ -19,19 +19,51 @@ public class EstudianteDTO {
         this.programa = programa;
     }
 
-    public String getNombres() { return nombres; }
-    public void setNombres(String nombre) { this.nombres = nombre; }
+    public String getNombres() {
+        return nombres;
+    }
 
-    public String getApellidos() { return apellidos; }
-    public void setApellidos(String apellidos) { this.apellidos = apellidos; }
+    public void setNombres(String nombres) {
+        this.nombres = nombres;
+    }
 
-    public String getCelular() {return celular;}
-    public void setCelular(String celular) {this.celular = celular;}
+    public String getApellidos() {
+        return apellidos;
+    }
 
-    public String getCorreo() { return correo; }
-    public void setCorreo(String correo) { this.correo = correo; }
+    public void setApellidos(String apellidos) {
+        this.apellidos = apellidos;
+    }
 
+    public String getCelular() {
+        return celular;
+    }
 
-    public String getPrograma() { return programa; }
-    public void setPrograma(String programa) { this.programa = programa; }
+    public void setCelular(String celular) {
+        this.celular = celular;
+    }
+
+    public String getCorreo() {
+        return correo;
+    }
+
+    public void setCorreo(String correo) {
+        this.correo = correo;
+    }
+
+    public String getPrograma() {
+        return programa;
+    }
+
+    public void setPrograma(String programa) {
+        this.programa = programa;
+    }
+
+    public String getCodigo() {
+        return codigo;
+    }
+
+    public void setCodigo(String codigo) {
+        this.codigo = codigo;
+    }
 }
