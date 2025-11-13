@@ -2,6 +2,7 @@ package co.edu.unicauca.coordinatorservice.infra.DTOS;
 
 import co.edu.unicauca.shared.contracts.model.Departamento;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import java.util.List;
@@ -10,8 +11,8 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 public class DocenteDTO extends PersonaDTO {
     private Departamento departamento;
-    @JsonBackReference
+    @JsonIgnore
     private List<ProyectoDTO> trabajosComoDirector;
-    @JsonBackReference
+    @JsonIgnore
     private List<ProyectoDTO> trabajosComoCodirector;
 }

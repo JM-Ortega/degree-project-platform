@@ -11,11 +11,8 @@ public class ProyectoDTO {
     private String titulo;
     private TipoProyecto tipoProyecto;
     private EstadoProyecto estado;
-    @JsonManagedReference
     private List<EstudianteDTO> estudiantes;
-    @JsonManagedReference
     private DocenteDTO director;
-    @JsonManagedReference
     private DocenteDTO codirector;
     private AnteproyectoDTO anteproyecto;
     private FormatoADTO formatoA;

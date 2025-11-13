@@ -12,6 +12,6 @@ import java.util.List;
 public class EstudianteDTOSend extends PersonaDTO {
     private String codigo;
     private Programa programa;
-    @JsonBackReference
-    private List<ProyectoDTOSend> trabajos;
+//    @JsonBackReference
+//    private List<ProyectoDTOSend> trabajos;
 }

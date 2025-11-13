@@ -12,8 +12,8 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 public class DocenteDTOSend extends PersonaDTO {
     private Departamento departamento;
-    @JsonBackReference
-    private List<ProyectoDTOSend> trabajosComoDirector;
-    @JsonBackReference
-    private List<ProyectoDTOSend> trabajosComoCodirector;
+//    @JsonBackReference
+//    private List<ProyectoDTOSend> trabajosComoDirector;
+//    @JsonBackReference
+//    private List<ProyectoDTOSend> trabajosComoCodirector;
 }

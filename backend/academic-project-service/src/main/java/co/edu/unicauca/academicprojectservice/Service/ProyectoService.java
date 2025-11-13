@@ -126,7 +126,7 @@ public class ProyectoService {
         estDto.setCelular(estudiante.getCelular());
 
         // Referencia inversa de trabajos (opcional; evitar ciclos de serialización)
-        estDto.setTrabajos(List.of(pDtoSend));
+        //estDto.setTrabajos(List.of(pDtoSend));
         estudiantes.add(estDto);
         pDtoSend.setEstudiantes(estudiantes);
 
@@ -138,8 +138,8 @@ public class ProyectoService {
         docDto.setNombres(docente.getNombres());
         docDto.setApellidos(docente.getApellidos());
         docDto.setCelular(docente.getCelular());
-        docDto.setTrabajosComoDirector(List.of(pDtoSend));
-        docDto.setTrabajosComoCodirector(null);
+        //docDto.setTrabajosComoDirector(List.of(pDtoSend));
+        //docDto.setTrabajosComoCodirector(null);
 
         pDtoSend.setDirector(docDto);
         pDtoSend.setCodirector(null); // En caso de no tener

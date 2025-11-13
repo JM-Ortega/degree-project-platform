@@ -31,33 +31,33 @@ public class FormatoAListener {
      */
     @RabbitListener(queues = "${messaging.queues.project}")
     @Transactional
-    public void handleFormatoAEvent(FormatoADTO dto) {
+    public void handleFormatoAEvent(ProyectoDTO dto) {
         if (dto == null) {
             System.err.println("⚠️ [RabbitMQ] Se recibió un mensaje nulo en CoordinatorService.");
             return;
         }
 
-        System.out.println("📩 [RabbitMQ] Mensaje recibido en CoordinatorService: " + dto.getNombreFormatoA());
+        System.out.println("📩 [RabbitMQ] Mensaje recibido en CoordinatorService: " + dto.getFormatoA().getNombreFormatoA());
 
         // Buscar si ya existe el FormatoA
-        Optional<FormatoA> existingFormato = formatoARepository.findByProyectoId(dto.getProyectoId());
+        Optional<FormatoA> existingFormato = formatoARepository.findByProyectoId(dto.getId());
         FormatoA formato = existingFormato.orElse(new FormatoA());
 
         // Actualizar campos con la información nueva
-        formato.setProyectoId(dto.getProyectoId());
-        formato.setNroVersion(dto.getNroVersion());
-        formato.setNombreFormatoA(dto.getNombreFormatoA());
-        formato.setFechaSubida(dto.getFechaSubida());
-        formato.setBlob(dto.getBlob());
+        formato.setProyectoId(dto.getId());
+        formato.setNroVersion(dto.getFormatoA().getNroVersion());
+        formato.setNombreFormatoA(dto.getFormatoA().getNombreFormatoA());
+        formato.setFechaSubida(dto.getFormatoA().getFechaSubida());
+        formato.setBlob(dto.getFormatoA().getBlob());
 
         if (dto.getEstado() != null) {
             try {
-                formato.setEstadoFormatoA(EstadoFormatoA.valueOf(dto.getEstado().toString()));
+                formato.setEstadoFormatoA(EstadoFormatoA.valueOf(dto.getFormatoA().getEstado().toString()));
             } catch (IllegalArgumentException e) {
-                System.err.println("⚠️ Estado inválido recibido: " + dto.getEstado());
+                System.err.println("⚠️ Estado inválido recibido: " + dto.getFormatoA().getEstado());
             }
         } else {
-            System.err.println("⚠️ FormatoA recibido sin estado (proyectoId=" + dto.getProyectoId() + ")");
+            System.err.println("⚠️ FormatoA recibido sin estado (proyectoId=" + dto.getId() + ")");
             // Opcional: asignar un valor por defecto
             formato.setEstadoFormatoA(EstadoFormatoA.PENDIENTE);
         }

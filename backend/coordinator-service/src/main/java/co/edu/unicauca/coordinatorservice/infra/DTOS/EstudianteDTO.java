@@ -1,6 +1,7 @@
 package co.edu.unicauca.coordinatorservice.infra.DTOS;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import java.util.List;
@@ -10,7 +11,7 @@ import java.util.List;
 public class EstudianteDTO extends PersonaDTO {
     private String codigo;
     private Programa programa;
-    @JsonBackReference
+    @JsonIgnore
     private List<ProyectoDTO> trabajos;
 }
 
