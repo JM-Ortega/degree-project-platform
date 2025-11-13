@@ -7,13 +7,17 @@ import co.edu.unicauca.departmentheadservice.entities.Docente;
 import co.edu.unicauca.shared.contracts.events.academic.AnteproyectoSinEvaluadoresEvent;
 import co.edu.unicauca.shared.contracts.events.auth.UserCreatedEvent;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Component
+@RabbitListener(queues = "${messaging.queues.department}") // UNA sola cola, dos bindings
 public class DepartmentHeadEventListener {
 
     private final AnteproyectoRepository anteproyectoRepository;
@@ -25,76 +29,76 @@ public class DepartmentHeadEventListener {
         this.docenteRepository = docenteRepository;
     }
 
-    /**
-     * Procesa eventos de creación de usuarios y almacena únicamente los registros de docentes.
-     */
-    @RabbitListener(queues = "${messaging.queues.department}")
-    public void handleUserCreatedEvent(UserCreatedEvent event) {
-        log.info("Evento recibido: Usuario creado - Nombre: {}, Roles: {}",
-                event.nombre(),
-                event.roles().stream().map(Enum::name).reduce((a, b) -> a + ", " + b).orElse("Ninguno"));
+    /** Llega auth.user.created */
+    @RabbitHandler
+    public void onUserCreated(UserCreatedEvent event,
+                              @Header("amqp_receivedRoutingKey") String rk) {
+        if (event == null || event.personaId() == null) {
+            log.warn("[DeptHead] Ignorado UserCreatedEvent inválido. rk={}", rk);
+            return;
+        }
 
-        boolean esDocente = event.roles().stream().anyMatch(rol -> rol.name().equalsIgnoreCase("DOCENTE"));
+        boolean esDocente = event.roles() != null &&
+                event.roles().stream().anyMatch(rol -> "DOCENTE".equalsIgnoreCase(rol.name()));
         if (!esDocente) {
-            log.debug("Usuario descartado (no docente): {}", event.email());
+            log.debug("[DeptHead] Usuario descartado (no docente): {} rk={}", event.email(), rk);
             return;
         }
 
         try {
             Docente docente = new Docente(event.personaId(), event.nombre(), event.email());
             docenteRepository.save(docente);
-            log.info("Docente almacenado: {}", docente.getNombre());
+            log.info("[DeptHead] Docente almacenado: {} ({})", docente.getNombre(), docente.getEmail());
         } catch (Exception e) {
-            log.error("Error durante el almacenamiento del docente {}: {}", event.email(), e.getMessage(), e);
+            log.error("[DeptHead] Error almacenando docente {}: {}", event.email(), e.getMessage(), e);
             throw e; // permite reintento/DLQ
         }
     }
 
-
-
-    /**
-     * Procesa eventos de creación de anteproyectos sin evaluadores asignados.
-     * Idempotente por anteproyectoId.
-     */
-    @RabbitListener(queues = "${messaging.queues.department}")
-    public void handleAnteproyectoSinEvaluadoresEvent(AnteproyectoSinEvaluadoresEvent event) {
-        log.info("[DeptHead] Anteproyecto creado (sin evaluadores). projId={}, anteId={}, titulo={}",
-                event.proyectoId(), event.anteproyectoId(), event.titulo());
+    /** Llega academic.anteproyecto.created */
+    @RabbitHandler
+    public void onAnteproyecto(AnteproyectoSinEvaluadoresEvent event,
+                               @Header("amqp_receivedRoutingKey") String rk) {
+        if (event == null || event.anteproyectoId() == null) {
+            log.warn("[DeptHead] Ignorado Anteproyecto inválido. rk={}", rk);
+            return;
+        }
 
         try {
-            // 1) Idempotencia: si ya existe, salimos
+            // Idempotencia
             if (anteproyectoRepository.existsByAnteproyectoId(event.anteproyectoId())) {
                 log.debug("[DeptHead] Ignorado: anteproyectoId={} ya registrado", event.anteproyectoId());
                 return;
             }
 
-            // 2) (opcional) filtrar por departamento si aplica
-            // if (!"SISTEMAS".equalsIgnoreCase(event.departamento())) return;
-
-            // 3) crear con evaluadores vacíos
             List<Docente> evaluadores = List.of();
 
-            // Constructor recomendado en la entidad adaptada:
             Anteproyecto ante = new Anteproyecto(
-                    event.anteproyectoId(),       // id externo único
-                    event.proyectoId(),           // trazabilidad
+                    event.anteproyectoId(),
+                    event.proyectoId(),
                     event.titulo(),
                     event.descripcion(),
                     event.fechaCreacion(),
                     evaluadores,
-                    event.estudianteCorreo(),     // opcional según tu entidad
-                    event.directorCorreo(),       // opcional según tu entidad
-                    event.departamento()          // opcional
+                    event.estudianteCorreo(),
+                    event.directorCorreo(),
+                    event.departamento()
             );
 
             anteproyectoRepository.save(ante);
-            log.info("[DeptHead] Anteproyecto almacenado. anteId={}, titulo={}",
+            log.info("[DeptHead] Anteproyecto almacenado. anteId={} titulo={}",
                     event.anteproyectoId(), event.titulo());
-
         } catch (Exception e) {
             log.error("[DeptHead] Error guardando anteproyecto projId={} anteId={}: {}",
                     event.proyectoId(), event.anteproyectoId(), e.getMessage(), e);
-            throw e; // deja que falle para reintentos/DLQ
+            throw e; // reintentos/DLQ
         }
+    }
+
+    /** Catch-all: si llega algo sin __TypeId__ o de tipo desconocido */
+    @RabbitHandler
+    public void onUnknown(Map<?, ?> payload,
+                          @Header("amqp_receivedRoutingKey") String rk) {
+        log.warn("[DeptHead] Payload desconocido. rk={} payload={}", rk, payload);
     }
 }

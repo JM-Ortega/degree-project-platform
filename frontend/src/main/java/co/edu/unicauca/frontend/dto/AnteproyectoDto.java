@@ -1,17 +1,23 @@
 package co.edu.unicauca.frontend.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@JsonIgnoreProperties(ignoreUnknown = true) // ignora cualquier otro campo extra
 public class AnteproyectoDto {
 
+    @JsonProperty("anteproyectoId") // mapea "anteproyectoId" -> id
     private Long id;
-    private String titulo;
-    private String descripcion; // Descripción del anteproyecto
-    private String fechaCreacion; // Fecha de creación del anteproyecto
-    private List<String> evaluadores = new ArrayList<>(); // Inicializamos vacío
 
-    // Getters and Setters
+    private String titulo;
+    private String descripcion;
+    private String fechaCreacion;
+    private List<String> evaluadores = new ArrayList<>();
+
+    // Getters y Setters
     public Long getId() {
         return id;
     }

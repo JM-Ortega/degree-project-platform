@@ -6,6 +6,7 @@ import co.edu.unicauca.frontend.entities.enums.Departamento;
 import co.edu.unicauca.frontend.entities.enums.Programa;
 import co.edu.unicauca.frontend.entities.enums.Rol;
 import co.edu.unicauca.frontend.infra.http.HttpClientException;
+import co.edu.unicauca.frontend.infra.operation.RegistrationValidator;
 import co.edu.unicauca.frontend.presentation.navigation.ViewNavigator;
 import co.edu.unicauca.frontend.services.auth.AuthServiceFront;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -15,13 +16,9 @@ import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Controlador de la vista de registro de usuarios.
- */
 public class SignUpController {
 
     // ================= Campos del formulario =================
@@ -76,22 +73,12 @@ public class SignUpController {
     public void initialize() {
         this.authServiceFront = FrontendServices.authService();
 
-        // Configurar programas
-        if (cbPrograma != null) {
-            cbPrograma.getItems().addAll(Programa.values());
-        }
+        if (cbPrograma != null) cbPrograma.getItems().addAll(Programa.values());
+        if (cbDepartamento != null) cbDepartamento.getItems().addAll(Departamento.values());
 
-        // Configurar departamentos
-        if (cbDepartamento != null) {
-            cbDepartamento.getItems().addAll(Departamento.values());
-        }
-
-        // Configurar visibilidad del departamento
         configurarVisibilidadDepartamento();
 
-        if (chkEstudiante != null) {
-            chkEstudiante.setSelected(true);
-        }
+        if (chkEstudiante != null) chkEstudiante.setSelected(true);
 
         clearErrors();
     }
@@ -101,23 +88,15 @@ public class SignUpController {
      */
     private void configurarVisibilidadDepartamento() {
         if (chkDocente != null && vboxDepartamento != null && lblDepartamento != null) {
-            // Inicialmente ocultar departamento
-            ocultarCampoDepartamento();
-
-            // Listener para mostrar/ocultar cuando se selecciona Docente
+            ocultarCampoDepartamento(); // inicialmente oculto
             chkDocente.selectedProperty().addListener((obs, oldVal, newVal) -> {
-                if (newVal) {
-                    mostrarCampoDepartamento();
-                } else {
-                    ocultarCampoDepartamento();
-                }
+                if (newVal) mostrarCampoDepartamento();
+                else ocultarCampoDepartamento();
             });
         }
     }
 
-    /**
-     * Muestra el campo departamento
-     */
+    /** Muestra el campo departamento */
     private void mostrarCampoDepartamento() {
         if (vboxDepartamento != null && lblDepartamento != null) {
             vboxDepartamento.setVisible(true);
@@ -127,20 +106,14 @@ public class SignUpController {
         }
     }
 
-    /**
-     * Oculta el campo departamento y limpia su valor
-     */
+    /** Oculta el campo departamento y limpia su valor */
     private void ocultarCampoDepartamento() {
         if (vboxDepartamento != null && lblDepartamento != null) {
             vboxDepartamento.setVisible(false);
             vboxDepartamento.setManaged(false);
             lblDepartamento.setVisible(false);
             lblDepartamento.setManaged(false);
-
-            // Limpiar selección y errores
-            if (cbDepartamento != null) {
-                cbDepartamento.setValue(null);
-            }
+            if (cbDepartamento != null) cbDepartamento.setValue(null);
             hide(errDepartamento);
         }
     }
@@ -149,89 +122,52 @@ public class SignUpController {
     private void handleRegister() {
         clearErrors();
 
-        // Map para acumular errores
-        Map<String, String> erroresFrontend = new LinkedHashMap<>();
-
-        // 1. Roles seleccionados - ENVIAR NOMBRES REALES DE ENUM
+        // 1) Construir roles con nombres del enum (ESTUDIANTE/DOCENTE)
         List<String> roles = new ArrayList<>();
-        if (chkEstudiante != null && chkEstudiante.isSelected()) {
-            roles.add(Rol.ESTUDIANTE.name()); // Envía "ESTUDIANTE"
-        }
-        if (chkDocente != null && chkDocente.isSelected()) {
-            roles.add(Rol.DOCENTE.name()); // Envía "DOCENTE"
-        }
+        if (chkEstudiante != null && chkEstudiante.isSelected()) roles.add(Rol.ESTUDIANTE.name());
+        if (chkDocente != null && chkDocente.isSelected()) roles.add(Rol.DOCENTE.name());
 
-        // Validar que haya al menos un rol seleccionado
-        if (roles.isEmpty()) {
-            erroresFrontend.put("roles", "Debe seleccionar al menos un rol");
-        }
+        // 2) Obtener strings de programa/departamento (nombres reales del enum) o vacío
+        String programaSeleccionado = (cbPrograma != null && cbPrograma.getValue() != null)
+                ? cbPrograma.getValue().name() : "";
+        String departamentoSeleccionado = (cbDepartamento != null && cbDepartamento.getValue() != null)
+                ? cbDepartamento.getValue().name() : "";
 
-        // 2. Validar programa - ENVIAR NOMBRE REAL DE ENUM
-        String programaSeleccionado = null;
-        if (cbPrograma != null && cbPrograma.getValue() != null) {
-            programaSeleccionado = cbPrograma.getValue().name(); // Envía "INGENIERIA_DE_SISTEMAS"
-        } else {
-            erroresFrontend.put("programa", "El programa académico es obligatorio");
-        }
+        // 3) Validación frontend centralizada (incluye password y celular)
+        Map<String, String> erroresFrontend = RegistrationValidator.validate(
+                val(txtNombres),
+                val(txtApellidos),
+                val(txtUsuario).toLowerCase(),
+                val(txtPassword),
+                programaSeleccionado,
+                roles,
+                val(txtCelular),
+                departamentoSeleccionado
+        );
 
-        // 3. Validar departamento SOLO si es Docente - ENVIAR NOMBRE REAL DE ENUM
-        String departamentoSeleccionado = null;
-        boolean esDocente = roles.contains(Rol.DOCENTE.name()); // Busca "DOCENTE"
-
-        if (esDocente) {
-            if (cbDepartamento != null && cbDepartamento.getValue() != null) {
-                departamentoSeleccionado = cbDepartamento.getValue().name(); // Envía "SISTEMAS"
-            } else {
-                erroresFrontend.put("departamento", "El departamento es obligatorio para docentes");
-            }
-        }
-
-        // 4. Validar campos obligatorios básicos
-        if (val(txtNombres).isEmpty()) {
-            erroresFrontend.put("nombres", "El nombre es obligatorio");
-        }
-
-        if (val(txtApellidos).isEmpty()) {
-            erroresFrontend.put("apellidos", "El apellido es obligatorio");
-        }
-
-        if (val(txtUsuario).isEmpty()) {
-            erroresFrontend.put("email", "El correo electrónico es obligatorio");
-        } else if (!val(txtUsuario).toLowerCase().endsWith("@unicauca.edu.co")) {
-            erroresFrontend.put("email", "El correo debe pertenecer al dominio @unicauca.edu.co");
-        }
-
-        if (val(txtPassword).isEmpty()) {
-            erroresFrontend.put("password", "La contraseña es obligatoria");
-        }
-
-        // 5. Si hay errores de frontend, mostrarlos y detener el proceso
         if (!erroresFrontend.isEmpty()) {
             mapErrorsToLabels(erroresFrontend);
             return;
         }
 
-        // 6. DTO de registro (solo si no hay errores de frontend)
+        // 4) Crear DTO y enviar
         RegistroPersonaDto dto = new RegistroPersonaDto(
                 val(txtNombres),
                 val(txtApellidos),
                 val(txtUsuario).toLowerCase(),
                 val(txtPassword),
                 val(txtCelular),
-                programaSeleccionado, // "INGENIERIA_DE_SISTEMAS"
-                roles,                // ["ESTUDIANTE", "DOCENTE"]
-                departamentoSeleccionado // "SISTEMAS"
+                programaSeleccionado,        // "INGENIERIA_DE_SISTEMAS"
+                roles,                       // ["ESTUDIANTE", "DOCENTE"]
+                departamentoSeleccionado     // "SISTEMAS" (si aplica)
         );
 
         try {
-            // Llamar al servicio para validaciones del backend
             Map<String, String> errorsBackend = authServiceFront.register(dto);
-
             if (!errorsBackend.isEmpty()) {
-                mapErrorsToLabels(errorsBackend);
+                mapErrorsToLabels(errorsBackend); // se normalizan claves adentro
                 return;
             }
-
             showSuccessAndGoToLogin();
 
         } catch (HttpClientException httpEx) {
@@ -264,7 +200,7 @@ public class SignUpController {
             boolean mappedToField = false;
 
             for (Map.Entry<String, String> entry : errorMap.entrySet()) {
-                String field = entry.getKey();
+                String field = aliasField(entry.getKey()); // ← normaliza
                 String msg = entry.getValue();
 
                 switch (field) {
@@ -298,8 +234,7 @@ public class SignUpController {
                     }
                     case "departamento" -> {
                         show(errDepartamento, msg);
-                        mappedToField = true;
-                    }
+                        mappedToField = true; }
                     case "error" -> {
                         if (msg.toLowerCase().contains("correo") || msg.toLowerCase().contains("email")) {
                             show(errUsuario, msg);
@@ -332,12 +267,25 @@ public class SignUpController {
     // Helpers de UI
     // =========================================================
 
-    private void mapErrorsToLabels(Map<String, String> errors) {
-        // Primero ocultar todos los errores
-        clearErrors();
+    /**
+     * Normaliza claves que pueden venir distintas del backend
+     */
+    private String aliasField(String field) {
+        if (field == null) return "";
+        String f = field.toLowerCase();
+        return switch (f) {
+            case "correo", "usuario", "email" -> "email";
+            case "password", "contrasena", "contraseña" -> "password";
+            case "telefono", "teléfono", "celular", "phone" -> "celular";
+            case "program", "programa" -> "programa";
+            default -> field;
+        };
+    }
 
-        // Luego mostrar solo los errores que existen
-        errors.forEach((field, msg) -> {
+    private void mapErrorsToLabels(Map<String, String> errors) {
+        clearErrors();
+        errors.forEach((rawField, msg) -> {
+            String field = aliasField(rawField); // ← normaliza aquí también
             switch (field) {
                 case "nombres" -> show(errNombres, msg);
                 case "apellidos" -> show(errApellidos, msg);
@@ -398,9 +346,11 @@ public class SignUpController {
 
     private void hide(Label lbl) {
         if (lbl == null) return;
-        lbl.setText(" ");
+        lbl.setText("");
         if (!lbl.getStyleClass().contains("error-hidden")) {
             lbl.getStyleClass().add("error-hidden");
         }
+        lbl.setVisible(false);
+        lbl.setManaged(false);
     }
 }

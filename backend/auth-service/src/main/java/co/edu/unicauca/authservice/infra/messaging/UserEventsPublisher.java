@@ -11,17 +11,7 @@ import org.springframework.stereotype.Component;
 /**
  * Publica eventos de dominio relacionados con usuarios en RabbitMQ.
  *
- * <p>Este componente envía mensajes al exchange principal cuando ocurre un
- * evento relevante dentro del microservicio Auth, como la creación de un usuario.</p>
- *
- * <p>Utiliza las claves de enrutamiento definidas en {@link RoutingKeys} y
- * los contratos compartidos del módulo <code>shared-contracts</code>.</p>
- *
- * <p>Ejemplo de uso:</p>
- * <pre>
- *   userEventsPublisher.publishUserCreatedEvent(new UserCreatedEvent(...));
- * </pre>
- *
+ * Envía mensajes al exchange principal cuando se crea un usuario.
  */
 @Component
 public class UserEventsPublisher {
@@ -31,12 +21,6 @@ public class UserEventsPublisher {
     private final RabbitTemplate rabbitTemplate;
     private final String exchangeName;
 
-    /**
-     * Inyección por constructor: garantiza inmutabilidad y facilita pruebas unitarias.
-     *
-     * @param rabbitTemplate plantilla de RabbitMQ para publicar mensajes.
-     * @param exchangeName nombre del exchange principal, obtenido del archivo YAML.
-     */
     public UserEventsPublisher(
             RabbitTemplate rabbitTemplate,
             @Value("${messaging.exchange.main}") String exchangeName
@@ -52,10 +36,30 @@ public class UserEventsPublisher {
      */
     public void publishUserCreatedEvent(UserCreatedEvent event) {
         try {
-            rabbitTemplate.convertAndSend(exchangeName, RoutingKeys.AUTH_USER_CREATED, event);
-            log.info("Evento publicado: {} -> {}", RoutingKeys.AUTH_USER_CREATED, event);
+            rabbitTemplate.convertAndSend(
+                    exchangeName,
+                    RoutingKeys.AUTH_USER_CREATED,
+                    event,
+                    message -> {
+                        var props = message.getMessageProperties();
+                        props.setContentType("application/json");
+                        props.setHeader("__TypeId__",
+                                "co.edu.unicauca.shared.contracts.events.auth.UserCreatedEvent");
+                        props.setHeader("x-schema-version", "1");
+
+                        // usamos personaId como identificador del mensaje
+                        if (event.personaId() != null) {
+                            props.setMessageId(event.personaId());
+                        }
+
+                        return message;
+                    }
+            );
+
+            log.info("[Auth] ✅ Evento publicado ex={} rk={} personaId={}",
+                    exchangeName, RoutingKeys.AUTH_USER_CREATED, event.personaId());
         } catch (Exception ex) {
-            log.error("Error al publicar evento {}: {}", RoutingKeys.AUTH_USER_CREATED, ex.getMessage(), ex);
+            log.error("[Auth] ❌ Error al publicar {}: {}", RoutingKeys.AUTH_USER_CREATED, ex.getMessage(), ex);
         }
     }
 }
